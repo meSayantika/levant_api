@@ -1,0 +1,325 @@
+/**
+ * =============================================
+ * SYNERGIC PAY - Global Custom Stylesheet
+ * =============================================
+ * 
+ * Light, modern color palette.
+ * Complements Bootstrap 5.3 — no dark mode.
+ * Uses Inter font from Google Fonts.
+ */
+
+/* ---- CSS Custom Properties (Design Tokens) ---- */
+:root {
+    --sp-font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    /* Primary gradient palette */
+    --sp-primary:       #667eea;
+    --sp-primary-dark:  #5a67d8;
+    --sp-secondary:     #764ba2;
+
+    /* Semantic colors */
+    --sp-success:       #22c55e;
+    --sp-warning:       #f59e0b;
+    --sp-danger:        #ef4444;
+    --sp-info:          #3b82f6;
+
+    /* Neutrals */
+    --sp-bg:            #f8f9fc;
+    --sp-surface:       #ffffff;
+    --sp-text-dark:     #1a1a2e;
+    --sp-text-muted:    #7c7c8d;
+    --sp-border:        #e8e8f0;
+
+    /* Sidebar */
+    --sp-sidebar-w:     260px;
+    --sp-sidebar-bg:    #ffffff;
+
+    /* Topnav */
+    --sp-topnav-bg:     #ffffff;
+
+    /* Transitions */
+    --sp-transition:    all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- Base ---- */
+* {
+    font-family: var(--sp-font);
+}
+
+body {
+    background-color: var(--sp-bg);
+    color: var(--sp-text-dark);
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: #d1d5e0;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: #b0b5c4; }
+
+/* ============================================= */
+/*  SIDEBAR                                       */
+/* ============================================= */
+.sp-sidebar {
+    width: var(--sp-sidebar-w);
+    min-height: 100vh;
+    background: var(--sp-sidebar-bg);
+    border-right: 1px solid var(--sp-border);
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 1040;
+    transition: var(--sp-transition);
+}
+
+.sp-sidebar-brand {
+    min-height: 64px;
+}
+
+.sp-brand-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary));
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.sp-nav-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.sp-nav-link {
+    color: var(--sp-text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--sp-transition);
+}
+
+.sp-nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    transition: var(--sp-transition);
+}
+
+.sp-nav-link:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.05));
+    color: var(--sp-primary);
+}
+
+.sp-nav-link.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
+    color: var(--sp-primary);
+    font-weight: 600;
+}
+
+.sp-nav-link.active i {
+    color: var(--sp-primary);
+}
+
+/* ============================================= */
+/*  MAIN CONTENT AREA                             */
+/* ============================================= */
+#mainContentArea {
+    margin-left: var(--sp-sidebar-w);
+    min-height: 100vh;
+    transition: var(--sp-transition);
+}
+
+/* ============================================= */
+/*  TOP NAVBAR                                    */
+/* ============================================= */
+.sp-topnav {
+    background: var(--sp-topnav-bg);
+    min-height: 64px;
+    border-bottom: 1px solid var(--sp-border);
+}
+
+.sp-topnav .input-group {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.sp-topnav .input-group-text {
+    background: #f1f3f9;
+    border: 1px solid #e8e8f0;
+    border-right: none;
+}
+
+.sp-topnav .form-control {
+    background: #f1f3f9;
+    border: 1px solid #e8e8f0;
+    border-left: none;
+    font-size: 0.875rem;
+}
+
+.sp-topnav .form-control:focus {
+    box-shadow: none;
+    border-color: var(--sp-primary);
+}
+
+.sp-topnav .form-control:focus + .input-group-text,
+.sp-topnav .input-group:focus-within .input-group-text {
+    border-color: var(--sp-primary);
+}
+
+.sp-avatar-sm {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary));
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+/* ============================================= */
+/*  FOOTER                                        */
+/* ============================================= */
+.sp-footer {
+    background: var(--sp-surface);
+}
+
+/* ============================================= */
+/*  STAT CARDS                                    */
+/* ============================================= */
+.sp-stat-card {
+    background: var(--sp-surface);
+    transition: var(--sp-transition);
+    overflow: hidden;
+}
+
+.sp-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+.sp-stat-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+}
+
+.sp-stat-icon-purple {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+    color: var(--sp-primary);
+}
+
+.sp-stat-icon-blue {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(79, 172, 254, 0.1));
+    color: var(--sp-info);
+}
+
+.sp-stat-icon-green {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.1));
+    color: var(--sp-success);
+}
+
+.sp-stat-icon-orange {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 146, 60, 0.1));
+    color: var(--sp-warning);
+}
+
+/* Progress bar colors */
+.sp-progress-purple { background: linear-gradient(90deg, var(--sp-primary), var(--sp-secondary)); }
+.sp-progress-blue   { background: linear-gradient(90deg, #3b82f6, #4facfe); }
+.sp-progress-green  { background: linear-gradient(90deg, #22c55e, #10b981); }
+.sp-progress-orange { background: linear-gradient(90deg, #f59e0b, #fb923c); }
+
+/* ============================================= */
+/*  PRIMARY BUTTON                                */
+/* ============================================= */
+.sp-btn-primary {
+    background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary));
+    color: #fff;
+    border: none;
+    transition: var(--sp-transition);
+}
+
+.sp-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    color: #fff;
+}
+
+/* ============================================= */
+/*  TABLES                                        */
+/* ============================================= */
+.sp-merchant-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #e8ecf8, #f0e6f6);
+    color: var(--sp-primary);
+    font-size: 0.7rem;
+}
+
+/* ============================================= */
+/*  QUICK ACTIONS                                 */
+/* ============================================= */
+.sp-quick-action {
+    border: 1px solid var(--sp-border) !important;
+    transition: var(--sp-transition);
+}
+
+.sp-quick-action:hover {
+    border-color: var(--sp-primary) !important;
+    transform: translateX(4px);
+}
+
+.sp-qa-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.sp-qa-purple { background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary)); }
+.sp-qa-blue   { background: linear-gradient(135deg, #3b82f6, #4facfe); }
+.sp-qa-green  { background: linear-gradient(135deg, #22c55e, #10b981); }
+
+/* ============================================= */
+/*  RESPONSIVE — Mobile Sidebar                   */
+/* ============================================= */
+@media (max-width: 991.98px) {
+    .sp-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sp-sidebar.show {
+        transform: translateX(0);
+    }
+
+    #mainContentArea {
+        margin-left: 0;
+    }
+
+    /* Overlay when sidebar is open */
+    .sp-sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1035;
+        display: none;
+    }
+
+    .sp-sidebar-overlay.show {
+        display: block;
+    }
+}
+
+/* ============================================= */
+/*  ANIMATIONS                                    */
+/* ============================================= */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.sp-stat-card {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.sp-stat-card:nth-child(1) { animation-delay: 0.05s; }
+.sp-stat-card:nth-child(2) { animation-delay: 0.1s; }
+.sp-stat-card:nth-child(3) { animation-delay: 0.15s; }
+.sp-stat-card:nth-child(4) { animation-delay: 0.2s; }

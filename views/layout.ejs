@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Synergic Pay - Modern QR-Code Based Payment Administration Panel">
+    <title><%= typeof title !== 'undefined' ? title : 'Synergic Pay' %></title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YcnS/1XHkMkroMZsEPlt14Cnjv+6WVgY6vE"
+          crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="d-flex" id="layoutWrapper">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Main Content Area -->
+        <div class="flex-grow-1 d-flex flex-column" id="mainContentArea">
+            <!-- Top Navbar -->
+            <%- include('partials/header') %>
+
+            <!-- Page Content -->
+            <main class="flex-grow-1 p-4" id="pageContent">
+                <%- body %>
+            </main>
+
+            <!-- Footer -->
+            <%- include('partials/footer') %>
+        </div>
+    </div>
+
+    <!-- jQuery 3.7 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"></script>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+</body>
+</html>
