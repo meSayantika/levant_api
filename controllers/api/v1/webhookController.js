@@ -17,19 +17,19 @@ exports.kycReceiver = async (req, res) => {
         const data = payload.data;
         console.log(`Processing KYC for Merchant ID: ${data.id}`);
 
-        // Exact fields matching your td_kyc_approval table
-        const kycFields = `
-            SUBMERCHANT_ID, VIRTUAL_ACC_ID, VIRTUAL_ACC_NO, BALANCE, IS_ACTIVE, 
-            BANK_NAME, STATUS, IFSC, IS_CONNECTED_BANKING, INSTA_PRIMARY_VPA, 
-            KYC_STATUS, BANK_STATUS, KYC_PROFILE_STATUS, KYC_EXPIRTY_DT, 
-            STORE_NAME, CREATED_BY, CREATED_AT, KYC, UPI, IMPS, NEFT, RTGS
-        `;
-
-        const kycFieldIndex = `
-            (:sub_id, :v_acc_id, :v_acc_no, :balance, :is_active, 
-            :bank_name, :status, :ifsc, :is_conn_bnk, :insta_vpa, 
-            :kyc_status, :bank_status, :kyc_prof_status, TO_DATE(:kyc_exp_dt, 'YYYY-MM-DD HH24:MI:SS'), 
-            :store_name, :created_by, SYSDATE, :kyc_data, :upi, :imps, :neft, :rtgs)
+        // Build the full INSERT SQL statement
+        const insertQuery = `
+            INSERT INTO td_kyc_approval (
+                SUBMERCHANT_ID, VIRTUAL_ACC_ID, VIRTUAL_ACC_NO, BALANCE, IS_ACTIVE, 
+                BANK_NAME, STATUS, IFSC, IS_CONNECTED_BANKING, INSTA_PRIMARY_VPA, 
+                KYC_STATUS, BANK_STATUS, KYC_PROFILE_STATUS, KYC_EXPIRTY_DT, 
+                STORE_NAME, CREATED_BY, CREATED_AT, KYC, UPI, IMPS, NEFT, RTGS
+            ) VALUES (
+                :sub_id, :v_acc_id, :v_acc_no, :balance, :is_active, 
+                :bank_name, :status, :ifsc, :is_conn_bnk, :insta_vpa, 
+                :kyc_status, :bank_status, :kyc_prof_status, TO_DATE(:kyc_exp_dt, 'YYYY-MM-DD HH24:MI:SS'), 
+                :store_name, :created_by, SYSDATE, :kyc_data, :upi, :imps, :neft, :rtgs
+            )
         `;
 
         // Map payload data and use JSON.stringify for the arrays
@@ -60,19 +60,16 @@ exports.kycReceiver = async (req, res) => {
             rtgs: data.commission_charges?.RTGS ? JSON.stringify(data.commission_charges.RTGS) : null
         };
 
-        // 1. Insert Audit Log into td_kyc_approval
-        const insertLog = await F_Insert(DB_ID, 'td_kyc_approval', kycFields, kycFieldIndex, kycValues, null, 0);
+        // Insert into td_kyc_approval — F_Insert(dbId, query, params)
+        const insertLog = await F_Insert(DB_ID, insertQuery, kycValues);
         
-        if (insertLog.suc === 1) {
-            console.log("Successfully inserted complete data into td_kyc_approval.");
-        } else {
-            console.error("Insert into td_kyc_approval failed:", insertLog.msg);
-        }
+        console.log(`Successfully inserted into td_kyc_approval. Rows affected: ${insertLog.rowsAffected}`);
 
     } catch (error) {
         console.error("KYC Webhook Error:", error);
     }
 };
+
 
 // --- 2. TRANSACTION WEBHOOK HANDLER ---
 exports.transactionReceiver = async (req, res) => {
@@ -101,23 +98,23 @@ exports.transactionReceiver = async (req, res) => {
             return String(str).substring(0, maxLength);
         };
 
-        // Exact fields matching your td_transaction_credit table
-        const transFields = `
-            TRANS_ID, TRANS_CREATED_AT, REMITTER_FULL_NAME, REMITTER_UPI_HANDLE, 
-            REMITTER_ACC_NO, REMITTER_ACC_IFSC, REMITTER_PHONE_NO, UNIQUE_TRANSACTION_REFF, 
-            PAYMENT_MODE, AMOUNT, SERVICE_CHARGE, GST_AMOUNT, SERVICE_CHARGE_WITH_GST, 
-            NARRATION, STATUS, TRANSACTION_DT, SETTLEMENT_DT, 
-            VIRTUAL_ACC_ID, VIRTUAL_ACC_LABEL, VIRTUAL_ACC_NUMBER, VIRTUAL_IFSC_NO, 
-            VIRTUAL_UPI_HANDLE, UPI_PARAMS_TR, UPI_PARAMS_TID, IS_CC_ON_UPI, 
-            AUTHORIZATION, CREATED_BY, CREATED_AT
-        `;
-
-        const transFieldIndex = `
-            (:t_id, TO_DATE(:t_created, 'YYYY-MM-DD HH24:MI:SS'), :r_name, :r_upi, 
-            :r_acc, :r_ifsc, :r_phone, :utr, :mode, :amt, :schg, :gst, :schg_gst, 
-            :narration, :status, TO_DATE(:t_dt, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:s_dt, 'YYYY-MM-DD HH24:MI:SS'), 
-            :v_acc_id, :v_acc_lbl, :v_acc_no, :v_ifsc, :v_upi, :upi_tr, :upi_tid, :is_cc, 
-            :auth, :c_by, SYSDATE)
+        // Build the full INSERT SQL statement
+        const insertQuery = `
+            INSERT INTO td_transaction_credit (
+                TRANS_ID, TRANS_CREATED_AT, REMITTER_FULL_NAME, REMITTER_UPI_HANDLE, 
+                REMITTER_ACC_NO, REMITTER_ACC_IFSC, REMITTER_PHONE_NO, UNIQUE_TRANSACTION_REFF, 
+                PAYMENT_MODE, AMOUNT, SERVICE_CHARGE, GST_AMOUNT, SERVICE_CHARGE_WITH_GST, 
+                NARRATION, STATUS, TRANSACTION_DT, SETTLEMENT_DT, 
+                VIRTUAL_ACC_ID, VIRTUAL_ACC_LABEL, VIRTUAL_ACC_NUMBER, VIRTUAL_IFSC_NO, 
+                VIRTUAL_UPI_HANDLE, UPI_PARAMS_TR, UPI_PARAMS_TID, IS_CC_ON_UPI, 
+                AUTHORIZATION, CREATED_BY, CREATED_AT
+            ) VALUES (
+                :t_id, TO_DATE(:t_created, 'YYYY-MM-DD HH24:MI:SS'), :r_name, :r_upi, 
+                :r_acc, :r_ifsc, :r_phone, :utr, :mode, :amt, :schg, :gst, :schg_gst, 
+                :narration, :status, TO_DATE(:t_dt, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:s_dt, 'YYYY-MM-DD HH24:MI:SS'), 
+                :v_acc_id, :v_acc_lbl, :v_acc_no, :v_ifsc, :v_upi, :upi_tr, :upi_tid, :is_cc, 
+                :auth, :c_by, SYSDATE
+            )
         `;
 
         // Map payload to table definition, enforcing byte limits
@@ -157,22 +154,10 @@ exports.transactionReceiver = async (req, res) => {
             c_by: 'LEVANT_WEBHOOK'
         };
 
-        // Execute DB Insert
-        const insertResult = await F_Insert(
-            DB_ID, 
-            'td_transaction_credit', 
-            transFields, 
-            transFieldIndex, 
-            transValues, 
-            null, 
-            0
-        );
+        // Execute DB Insert — F_Insert(dbId, query, params)
+        const insertResult = await F_Insert(DB_ID, insertQuery, transValues);
 
-        if (insertResult.suc === 1) {
-            console.log("Successfully inserted into td_transaction_credit");
-        } else {
-            console.error("Failed to insert transaction:", insertResult.msg);
-        }
+        console.log(`Successfully inserted into td_transaction_credit. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
         console.error("Transaction Webhook Error:", error); 
@@ -206,23 +191,23 @@ exports.settlementInitiateReceiver = async (req, res) => {
             return String(str).substring(0, maxLength);
         };
 
-        // Exact fields matching your table (Note: Keeping your exact column spellings)
-        const settleFields = `
-            SETTLE_INITIATE_ID, SETTLE_INITIATED_CREATED_AT, DISBURSEMENT_TYPE, 
-            BENIFICIARY_BANK_NAME, BENIFICIARY_ACC_NAME, BENIFICIARY_ACC_NO, 
-            BENIFICIARY_ACC_IFSC, BENIFICIARY_UPI_HANDLE, UNIQUE_TRANSACTION_REFF, 
-            PAYMENT_MODE, CURRENCY, AMOUNT, SERVICE_CHARGE, GST_AMOUNT, 
-            SERVICE_CHARGE_WITH_GST, NARRATION, STATUS, FALIURE_REASON, 
-            DISBURSEMENT_DATE, AUTHORIZATION, MERCHANT_NAME, MERCHANT_EMAIL, 
-            MERCHANT_ID, CREATED_BY, CREATED_AT
-        `;
-
-        const settleFieldIndex = `
-            (:s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
-            :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :mode, :curr, 
-            :amt, :schg, :gst, :schg_gst, :narr, :status, :fail_rsn, 
-            TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
-            :m_id, :c_by, SYSDATE)
+        // Build the full INSERT SQL statement
+        const insertQuery = `
+            INSERT INTO td_settlement_initiated (
+                SETTLE_INITIATE_ID, SETTLE_INITIATED_CREATED_AT, DISBURSEMENT_TYPE, 
+                BENIFICIARY_BANK_NAME, BENIFICIARY_ACC_NAME, BENIFICIARY_ACC_NO, 
+                BENIFICIARY_ACC_IFSC, BENIFICIARY_UPI_HANDLE, UNIQUE_TRANSACTION_REFF, 
+                PAYMENT_MODE, CURRENCY, AMOUNT, SERVICE_CHARGE, GST_AMOUNT, 
+                SERVICE_CHARGE_WITH_GST, NARRATION, STATUS, FALIURE_REASON, 
+                DISBURSEMENT_DATE, AUTHORIZATION, MERCHANT_NAME, MERCHANT_EMAIL, 
+                MERCHANT_ID, CREATED_BY, CREATED_AT
+            ) VALUES (
+                :s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
+                :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :mode, :curr, 
+                :amt, :schg, :gst, :schg_gst, :narr, :status, :fail_rsn, 
+                TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
+                :m_id, :c_by, SYSDATE
+            )
         `;
 
         // Map payload to table definition, enforcing byte limits
@@ -256,22 +241,10 @@ exports.settlementInitiateReceiver = async (req, res) => {
             c_by: 'LEVANT_WEBHOOK'
         };
 
-        // Execute DB Insert (Assuming your table is named td_settlement_initiated)
-        const insertResult = await F_Insert(
-            DB_ID, 
-            'td_settlement_initiated', // <-- Verify this matches your actual table name
-            settleFields, 
-            settleFieldIndex, 
-            settleValues, 
-            null, 
-            0
-        );
+        // Execute DB Insert — F_Insert(dbId, query, params)
+        const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
 
-        if (insertResult.suc === 1) {
-            console.log("Successfully inserted into td_settlement_initiated");
-        } else {
-            console.error("Failed to insert settlement:", insertResult.msg);
-        }
+        console.log(`Successfully inserted into td_settlement_initiated. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
         console.error("Settlement Initiate Error:", error); 
@@ -305,28 +278,28 @@ exports.settlementUpdateReceiver = async (req, res) => {
             return String(str).substring(0, maxLength);
         };
 
-        // Exact fields matching your Settlement Approval table
-        const settleFields = `
-            SETTLEMENT_STATUS_ID, SETTLEMENT_STATUS_CREATED_AT, DISBURSEMENT_TYPE, 
-            BENIFICIARY_BANK_NAME, BENIFICIARY_ACC_NAME, BENIFICIARY_ACC_NO, 
-            BENIFICIARY_ACC_IFSC, BENIFICIARY_UPI_HANDLE, UNIQUE_TRANSACTION_REFF, 
-            PAYMENT_MODE, CURRENCY, AMOUNT, SERVICE_CHARGE, GST_AMOUNT, 
-            SERVICE_CHARGE_WITH_GST, NARRATION, STATUS, FALIURE_REASON, 
-            DISBURSEMENT_DATE, AUTHORIZATION, MERCHANT_NAME, MERCHANT_EMAIL, 
-            MERCHANT_ID, CREATED_BY, CREATED_AT
+        // Build the full INSERT SQL statement
+        const insertQuery = `
+            INSERT INTO td_settlement_approval (
+                SETTLEMENT_STATUS_ID, SETTLEMENT_STATUS_CREATED_AT, DISBURSEMENT_TYPE, 
+                BENIFICIARY_BANK_NAME, BENIFICIARY_ACC_NAME, BENIFICIARY_ACC_NO, 
+                BENIFICIARY_ACC_IFSC, BENIFICIARY_UPI_HANDLE, UNIQUE_TRANSACTION_REFF, 
+                PAYMENT_MODE, CURRENCY, AMOUNT, SERVICE_CHARGE, GST_AMOUNT, 
+                SERVICE_CHARGE_WITH_GST, NARRATION, STATUS, FALIURE_REASON, 
+                DISBURSEMENT_DATE, AUTHORIZATION, MERCHANT_NAME, MERCHANT_EMAIL, 
+                MERCHANT_ID, CREATED_BY, CREATED_AT
+            ) VALUES (
+                :s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
+                :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :mode, :curr, 
+                :amt, :schg, :gst, :schg_gst, :narr, :status, :fail_rsn, 
+                TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
+                :m_id, :c_by, SYSDATE
+            )
         `;
 
-        const settleFieldIndex = `
-            (:s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
-            :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :mode, :curr, 
-            :amt, :schg, :gst, :schg_gst, :narr, :status, :fail_rsn, 
-            TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
-            :m_id, :c_by, SYSDATE)
-        `;
-
-        // Map payload to table definition, strictly enforcing your specified byte limits
+        // Map payload to table definition
         const settleValues = {
-            s_id: safeString(data.id), // Trims 32-char ID down to 20
+            s_id: safeString(data.id),
             s_created: formatLevantDate(data.created_at),
             d_type: safeString(data.disbursement_type),
             b_bank: safeString(data.beneficiary_bank_name),
@@ -355,23 +328,10 @@ exports.settlementUpdateReceiver = async (req, res) => {
             c_by: 'LEVANT_WEBHOOK'
         };
 
-        // Execute DB Insert
-        // IMPORTANT: Ensure 'td_settlement_approval' matches your exact table name in Oracle
-        const insertResult = await F_Insert(
-            DB_ID, 
-            'td_settlement_approval', 
-            settleFields, 
-            settleFieldIndex, 
-            settleValues, 
-            null, 
-            0
-        );
+        // Execute DB Insert — F_Insert(dbId, query, params)
+        const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
 
-        if (insertResult.suc === 1) {
-            console.log("Successfully inserted into td_settlement_approval");
-        } else {
-            console.error("Failed to insert settlement approval:", insertResult.msg);
-        }
+        console.log(`Successfully inserted into td_settlement_approval. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
         console.error("Settlement Update Error:", error); 
