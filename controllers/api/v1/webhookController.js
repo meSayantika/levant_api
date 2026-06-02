@@ -1,6 +1,8 @@
 // Inside controllers/api/v1/webhookController.js
 const { F_Insert } = require("../../../models/oracleModel");
 
+const DB_ID = 0;
+
 exports.kycReceiver = async (req, res) => {
     try {
         const payload = req.body;
