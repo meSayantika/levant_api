@@ -3,6 +3,18 @@ const { F_Insert } = require("../../../models/oracleModel");
 
 const DB_ID = 0;
 
+// Helper: Safely trim strings to prevent Oracle "ORA-12899: value too large" crashes
+const safeString = (str, maxLength = 200) => {
+    if (str === null || str === undefined) return null;
+    return String(str).substring(0, maxLength);
+};
+
+// Helper: Format Levant's ISO timestamps to Oracle TO_DATE format ("YYYY-MM-DD HH24:MI:SS")
+const formatLevantDate = (isoString) => {
+    if (!isoString) return null;
+    return isoString.substring(0, 19).replace('T', ' ');
+};
+
 exports.kycReceiver = async (req, res) => {
     try {
         const payload = req.body;
@@ -18,6 +30,7 @@ exports.kycReceiver = async (req, res) => {
         console.log(`Processing KYC for Merchant ID: ${data.id}`);
 
         // Build the full INSERT SQL statement
+        // NOTE: Bind names avoid Oracle reserved words (e.g. :txn_status instead of :status)
         const insertQuery = `
             INSERT INTO td_kyc_approval (
                 SUBMERCHANT_ID, VIRTUAL_ACC_ID, VIRTUAL_ACC_NO, BALANCE, IS_ACTIVE, 
@@ -26,38 +39,38 @@ exports.kycReceiver = async (req, res) => {
                 STORE_NAME, CREATED_BY, CREATED_AT, KYC, UPI, IMPS, NEFT, RTGS
             ) VALUES (
                 :sub_id, :v_acc_id, :v_acc_no, :balance, :is_active, 
-                :bank_name, :status, :ifsc, :is_conn_bnk, :insta_vpa, 
+                :bank_name, :txn_status, :ifsc, :is_conn_bnk, :insta_vpa, 
                 :kyc_status, :bank_status, :kyc_prof_status, TO_DATE(:kyc_exp_dt, 'YYYY-MM-DD HH24:MI:SS'), 
-                :store_name, :created_by, SYSDATE, :kyc_data, :upi, :imps, :neft, :rtgs
+                :store_name, :created_by, SYSDATE, :kyc_data, :upi_data, :imps_data, :neft_data, :rtgs_data
             )
         `;
 
-        // Map payload data and use JSON.stringify for the arrays
+        // Map payload data — use safeString() to truncate to column limits
         const kycValues = {
-            sub_id: data.id,
-            v_acc_id: data.virtual_account?.id || null,
-            v_acc_no: data.virtual_account?.account_number || null,
+            sub_id: safeString(data.id, 50),
+            v_acc_id: safeString(data.virtual_account?.id, 30),
+            v_acc_no: safeString(data.virtual_account?.account_number, 30),
             balance: data.virtual_account?.balance || 0,
             is_active: data.virtual_account?.is_active ? 'TRUE' : 'FALSE',
-            bank_name: data.virtual_account?.bank_name || null,
-            status: data.virtual_account?.status || null,
-            ifsc: data.virtual_account?.ifsc || null,
+            bank_name: safeString(data.virtual_account?.bank_name, 100),
+            txn_status: safeString(data.virtual_account?.status, 30),
+            ifsc: safeString(data.virtual_account?.ifsc, 20),
             is_conn_bnk: data.virtual_account?.is_connected_banking ? 'TRUE' : 'FALSE',
-            insta_vpa: data.insta_primary_vpa || null,
+            insta_vpa: safeString(data.insta_primary_vpa, 50),
             kyc_status: data.kyc_status ? 'TRUE' : 'FALSE',
             bank_status: data.bank_status ? 'TRUE' : 'FALSE',
-            kyc_prof_status: data.kyc_profile_status || null,
+            kyc_prof_status: safeString(data.kyc_profile_status, 30),
             kyc_exp_dt: data.kyc_expiry_date || null, 
-            store_name: data.name || null,
+            store_name: safeString(data.name, 100),
             created_by: 'LEVANT_WEBHOOK',
             
             // Convert entire arrays into stringified JSON. 
             // If the array doesn't exist in the payload, it inserts NULL.
             kyc_data: data.kyc ? JSON.stringify(data.kyc) : null,
-            upi: data.commission_charges?.UPI ? JSON.stringify(data.commission_charges.UPI) : null,
-            imps: data.commission_charges?.IMPS ? JSON.stringify(data.commission_charges.IMPS) : null,
-            neft: data.commission_charges?.NEFT ? JSON.stringify(data.commission_charges.NEFT) : null,
-            rtgs: data.commission_charges?.RTGS ? JSON.stringify(data.commission_charges.RTGS) : null
+            upi_data: data.commission_charges?.UPI ? JSON.stringify(data.commission_charges.UPI) : null,
+            imps_data: data.commission_charges?.IMPS ? JSON.stringify(data.commission_charges.IMPS) : null,
+            neft_data: data.commission_charges?.NEFT ? JSON.stringify(data.commission_charges.NEFT) : null,
+            rtgs_data: data.commission_charges?.RTGS ? JSON.stringify(data.commission_charges.RTGS) : null
         };
 
         // Insert into td_kyc_approval — F_Insert(dbId, query, params)
@@ -86,19 +99,8 @@ exports.transactionReceiver = async (req, res) => {
         const data = payload.data;
         console.log(`Processing Transaction Credit. UTR: ${data.unique_transaction_reference}, Amount: ${data.amount}`);
 
-        // Helper 1: Format Levant's ISO timestamps to Oracle TO_DATE format ("YYYY-MM-DD HH24:MI:SS")
-        const formatLevantDate = (isoString) => {
-            if (!isoString) return null;
-            return isoString.substring(0, 19).replace('T', ' ');
-        };
-
-        // Helper 2: Safely trim strings to prevent Oracle "value too large" crashes
-        const safeString = (str, maxLength) => {
-            if (!str) return null;
-            return String(str).substring(0, maxLength);
-        };
-
         // Build the full INSERT SQL statement
+        // NOTE: Bind names avoid Oracle reserved words (e.g. :pay_mode not :mode, :txn_status not :status)
         const insertQuery = `
             INSERT INTO td_transaction_credit (
                 TRANS_ID, TRANS_CREATED_AT, REMITTER_FULL_NAME, REMITTER_UPI_HANDLE, 
@@ -110,48 +112,49 @@ exports.transactionReceiver = async (req, res) => {
                 AUTHORIZATION, CREATED_BY, CREATED_AT
             ) VALUES (
                 :t_id, TO_DATE(:t_created, 'YYYY-MM-DD HH24:MI:SS'), :r_name, :r_upi, 
-                :r_acc, :r_ifsc, :r_phone, :utr, :mode, :amt, :schg, :gst, :schg_gst, 
-                :narration, :status, TO_DATE(:t_dt, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:s_dt, 'YYYY-MM-DD HH24:MI:SS'), 
+                :r_acc, :r_ifsc, :r_phone, :utr, :pay_mode, :amt, :schg, :gst, :schg_gst, 
+                :narr, :txn_status, TO_DATE(:t_dt, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:settle_dt, 'YYYY-MM-DD HH24:MI:SS'), 
                 :v_acc_id, :v_acc_lbl, :v_acc_no, :v_ifsc, :v_upi, :upi_tr, :upi_tid, :is_cc, 
                 :auth, :c_by, SYSDATE
             )
         `;
 
-        // Map payload to table definition, enforcing byte limits
+        // Map payload to table definition — limits match actual column widths
         const transValues = {
-            t_id: safeString(data.id),
-            t_created: formatLevantDate(data.created_at),
-            r_name: safeString(data.remitter_full_name),
-            r_upi: safeString(data.remitter_upi_handle),
-            r_acc: safeString(data.remitter_account_number),
-            r_ifsc: safeString(data.remitter_account_ifsc),
-            r_phone: safeString(data.remitter_phone_number),
-            utr: data.unique_transaction_reference ? Number(data.unique_transaction_reference) : null,
-            mode: safeString(data.payment_mode),
-            amt: data.amount || 0,
-            schg: data.service_charge || 0,
-            gst: data.gst_amount || 0,
-            schg_gst: data.service_charge_with_gst || 0,
-            narration: safeString(data.narration),
-            status: safeString(data.status),
-            t_dt: formatLevantDate(data.transaction_date),
-            s_dt: formatLevantDate(data.settlement_date),
+            t_id: safeString(data.id, 100),                                      // VARCHAR2(100)
+            t_created: formatLevantDate(data.created_at),                        // DATE
+            r_name: safeString(data.remitter_full_name, 1000),                   // VARCHAR2(1000)
+            r_upi: safeString(data.remitter_upi_handle, 1000),                  // VARCHAR2(1000)
+            r_acc: safeString(data.remitter_account_number, 1000),               // VARCHAR2(1000)
+            r_ifsc: safeString(data.remitter_account_ifsc, 1000),                // VARCHAR2(1000)
+            r_phone: safeString(data.remitter_phone_number, 30),                 // VARCHAR2(30)
+            utr: data.unique_transaction_reference ? Number(data.unique_transaction_reference) : null, // NUMBER
+            pay_mode: safeString(data.payment_mode, 30),                         // VARCHAR2(30)
+            amt: data.amount || 0,                                               // NUMBER(10,2)
+            schg: data.service_charge || 0,                                      // NUMBER(10,2)
+            gst: data.gst_amount || 0,                                           // NUMBER(10,2)
+            schg_gst: data.service_charge_with_gst || 0,                         // NUMBER(10,2)
+            narr: safeString(data.narration, 1000),                              // VARCHAR2(1000)
+            txn_status: safeString(data.status, 30),                             // VARCHAR2(30)
+            t_dt: formatLevantDate(data.transaction_date),                       // DATE
+            settle_dt: formatLevantDate(data.settlement_date),                   // DATE
             
             // Virtual Account Details
-            v_acc_id: safeString(data.virtual_account?.id),
-            v_acc_lbl: safeString(data.virtual_account?.label),
-            v_acc_no: safeString(data.virtual_account?.virtual_account_number),
-            v_ifsc: safeString(data.virtual_account?.virtual_ifsc_number),
-            v_upi: safeString(data.virtual_account?.virtual_upi_handle),
+            v_acc_id: safeString(data.virtual_account?.id, 1000),                // VARCHAR2(1000)
+            v_acc_lbl: safeString(data.virtual_account?.label, 1000),            // VARCHAR2(1000)
+            v_acc_no: safeString(data.virtual_account?.virtual_account_number, 1000), // VARCHAR2(1000)
+            v_ifsc: safeString(data.virtual_account?.virtual_ifsc_number, 1000), // VARCHAR2(1000)
+            v_upi: safeString(data.virtual_account?.virtual_upi_handle, 1000),  // VARCHAR2(1000)
             
             // Metadata (UPI Params)
-            upi_tr: safeString(data.metadata?.upi_params_tr),
-            upi_tid: safeString(data.metadata?.upi_params_tid),
+            upi_tr: safeString(data.metadata?.upi_params_tr, 1000),              // VARCHAR2(1000)
+            upi_tid: safeString(data.metadata?.upi_params_tid, 1000),            // VARCHAR2(1000)
             
             // Other details
-            is_cc: safeString(data.is_cc_on_upi),
-            auth: safeString(data.Authorization),
-            c_by: 'LEVANT_WEBHOOK'
+            is_cc: safeString(data.is_cc_on_upi, 30),                           // VARCHAR2(30)
+            auth: safeString(data.Authorization, 1000),                          // VARCHAR2(1000)
+            c_by: 'LEVANT_WEBHOOK'                                               // VARCHAR2(1000)
+
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
@@ -179,18 +182,6 @@ exports.settlementInitiateReceiver = async (req, res) => {
         const data = payload.data;
         console.log(`Processing Settlement Initiated. ID: ${data.id}, Amount: ${data.amount}`);
 
-        // Helper 1: Format Levant's ISO timestamps to Oracle TO_DATE format
-        const formatLevantDate = (isoString) => {
-            if (!isoString) return null;
-            return isoString.substring(0, 19).replace('T', ' ');
-        };
-
-        // Helper 2: Safely trim strings to prevent Oracle "value too large" crashes
-        const safeString = (str, maxLength) => {
-            if (str === null || str === undefined) return null;
-            return String(str).substring(0, maxLength);
-        };
-
         // Build the full INSERT SQL statement
         const insertQuery = `
             INSERT INTO td_settlement_initiated (
@@ -203,8 +194,8 @@ exports.settlementInitiateReceiver = async (req, res) => {
                 MERCHANT_ID, CREATED_BY, CREATED_AT
             ) VALUES (
                 :s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
-                :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :mode, :curr, 
-                :amt, :schg, :gst, :schg_gst, :narr, :status, :fail_rsn, 
+                :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :pay_mode, :curr, 
+                :amt, :schg, :gst, :schg_gst, :narr, :txn_status, :fail_rsn, 
                 TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
                 :m_id, :c_by, SYSDATE
             )
@@ -212,31 +203,31 @@ exports.settlementInitiateReceiver = async (req, res) => {
 
         // Map payload to table definition, enforcing byte limits
         const settleValues = {
-            s_id: safeString(data.id),
+            s_id: safeString(data.id, 50),
             s_created: formatLevantDate(data.created_at),
-            d_type: safeString(data.disbursement_type), 
-            b_bank: safeString(data.beneficiary_bank_name),
-            b_name: safeString(data.beneficiary_account_name),
-            b_acc: safeString(data.beneficiary_account_number),
-            b_ifsc: safeString(data.beneficiary_account_ifsc),
-            b_upi: safeString(data.beneficiary_upi_handle),
-            utr: safeString(data.unique_transaction_reference),
-            mode: safeString(data.payment_mode),
-            curr: safeString(data.currency),
+            d_type: safeString(data.disbursement_type, 30), 
+            b_bank: safeString(data.beneficiary_bank_name, 100),
+            b_name: safeString(data.beneficiary_account_name, 100),
+            b_acc: safeString(data.beneficiary_account_number, 30),
+            b_ifsc: safeString(data.beneficiary_account_ifsc, 20),
+            b_upi: safeString(data.beneficiary_upi_handle, 50),
+            utr: safeString(data.unique_transaction_reference, 50),
+            pay_mode: safeString(data.payment_mode, 20),
+            curr: safeString(data.currency, 10),
             amt: data.amount || 0,
             schg: data.service_charge || 0,
             gst: data.gst_amount || 0,
             schg_gst: data.service_charge_with_gst || 0,
-            narr: safeString(data.narration),
-            status: safeString(data.status), 
-            fail_rsn: safeString(data.failure_reason),
+            narr: safeString(data.narration, 200),
+            txn_status: safeString(data.status, 30), 
+            fail_rsn: safeString(data.failure_reason, 200),
             d_date: formatLevantDate(data.disbursement_date),
-            auth: safeString(data.Authorization), 
+            auth: safeString(data.Authorization, 100), 
             
             // Nested Merchant Object
-            m_name: safeString(data.merchant?.name),
-            m_email: safeString(data.merchant?.email),
-            m_id: safeString(data.merchant?.id),
+            m_name: safeString(data.merchant?.name, 100),
+            m_email: safeString(data.merchant?.email, 100),
+            m_id: safeString(data.merchant?.id, 50),
             
             c_by: 'LEVANT_WEBHOOK'
         };
@@ -266,18 +257,6 @@ exports.settlementUpdateReceiver = async (req, res) => {
         const data = payload.data;
         console.log(`Processing Settlement Update. ID: ${data.id}, Status: ${data.status}`);
 
-        // Helper 1: Format Levant's ISO timestamps to Oracle TO_DATE format
-        const formatLevantDate = (isoString) => {
-            if (!isoString) return null;
-            return isoString.substring(0, 19).replace('T', ' ');
-        };
-
-        // Helper 2: Safely trim strings to prevent Oracle "ORA-12899: value too large" crashes
-        const safeString = (str, maxLength) => {
-            if (str === null || str === undefined) return null;
-            return String(str).substring(0, maxLength);
-        };
-
         // Build the full INSERT SQL statement
         const insertQuery = `
             INSERT INTO td_settlement_approval (
@@ -290,8 +269,8 @@ exports.settlementUpdateReceiver = async (req, res) => {
                 MERCHANT_ID, CREATED_BY, CREATED_AT
             ) VALUES (
                 :s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
-                :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :mode, :curr, 
-                :amt, :schg, :gst, :schg_gst, :narr, :status, :fail_rsn, 
+                :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :pay_mode, :curr, 
+                :amt, :schg, :gst, :schg_gst, :narr, :txn_status, :fail_rsn, 
                 TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
                 :m_id, :c_by, SYSDATE
             )
@@ -299,31 +278,31 @@ exports.settlementUpdateReceiver = async (req, res) => {
 
         // Map payload to table definition
         const settleValues = {
-            s_id: safeString(data.id),
+            s_id: safeString(data.id, 50),
             s_created: formatLevantDate(data.created_at),
-            d_type: safeString(data.disbursement_type),
-            b_bank: safeString(data.beneficiary_bank_name),
-            b_name: safeString(data.beneficiary_account_name),
-            b_acc: safeString(data.beneficiary_account_number),
-            b_ifsc: safeString(data.beneficiary_account_ifsc), 
-            b_upi: safeString(data.beneficiary_upi_handle, 20),
-            utr: safeString(data.unique_transaction_reference),
-            mode: safeString(data.payment_mode),
-            curr: safeString(data.currency),
+            d_type: safeString(data.disbursement_type, 30),
+            b_bank: safeString(data.beneficiary_bank_name, 100),
+            b_name: safeString(data.beneficiary_account_name, 100),
+            b_acc: safeString(data.beneficiary_account_number, 30),
+            b_ifsc: safeString(data.beneficiary_account_ifsc, 20), 
+            b_upi: safeString(data.beneficiary_upi_handle, 50),
+            utr: safeString(data.unique_transaction_reference, 50),
+            pay_mode: safeString(data.payment_mode, 20),
+            curr: safeString(data.currency, 10),
             amt: data.amount || 0,
             schg: data.service_charge || 0,
             gst: data.gst_amount || 0,
             schg_gst: data.service_charge_with_gst || 0,
-            narr: safeString(data.narration),
-            status: safeString(data.status), 
-            fail_rsn: safeString(data.failure_reason),
+            narr: safeString(data.narration, 200),
+            txn_status: safeString(data.status, 30), 
+            fail_rsn: safeString(data.failure_reason, 200),
             d_date: formatLevantDate(data.disbursement_date),
-            auth: safeString(data.Authorization),
+            auth: safeString(data.Authorization, 100),
             
             // Nested Merchant Object
-            m_name: safeString(data.merchant?.name),
-            m_email: safeString(data.merchant?.email), 
-            m_id: safeString(data.merchant?.id),
+            m_name: safeString(data.merchant?.name, 100),
+            m_email: safeString(data.merchant?.email, 100), 
+            m_id: safeString(data.merchant?.id, 50),
             
             c_by: 'LEVANT_WEBHOOK'
         };
