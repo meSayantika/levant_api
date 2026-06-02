@@ -9,10 +9,37 @@ const safeString = (str, maxLength = 200) => {
     return String(str).substring(0, maxLength);
 };
 
-// Helper: Format Levant's ISO timestamps to Oracle TO_DATE format ("YYYY-MM-DD HH24:MI:SS")
-const formatLevantDate = (isoString) => {
-    if (!isoString) return null;
-    return isoString.substring(0, 19).replace('T', ' ');
+// Helper: Format Levant's timestamps to Oracle TO_DATE format ("YYYY-MM-DD HH24:MI:SS")
+// Ensures full datetime (with time) is always returned, never date-only.
+const formatLevantDate = (input) => {
+    if (!input) return null;
+    
+    let str = String(input).trim();
+    
+    // Handle numeric epoch timestamps (milliseconds)
+    if (/^\d{10,13}$/.test(str)) {
+        const ms = str.length <= 10 ? Number(str) * 1000 : Number(str);
+        const d = new Date(ms);
+        return d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0') + ' ' +
+            String(d.getHours()).padStart(2, '0') + ':' +
+            String(d.getMinutes()).padStart(2, '0') + ':' +
+            String(d.getSeconds()).padStart(2, '0');
+    }
+    
+    // Replace 'T' separator with space (ISO 8601)
+    str = str.replace('T', ' ');
+    
+    // Take only "YYYY-MM-DD HH:MI:SS" (first 19 chars) — strips timezone/ms
+    str = str.substring(0, 19);
+    
+    // If only date was provided (e.g. "2026-06-02"), pad with time
+    if (str.length === 10) {
+        str += ' 00:00:00';
+    }
+    
+    return str;
 };
 
 exports.kycReceiver = async (req, res) => {
