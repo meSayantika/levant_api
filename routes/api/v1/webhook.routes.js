@@ -19,9 +19,9 @@ router.post('/kyc', webhookController.kycReceiver);
 router.post('/transaction', webhookController.transactionReceiver);
 
 // URL: https://pay.synergicbanking.in/api/v1/webhooks/levant/settlement-initiate
-router.post('/settlement-initiate', webhookController.settlementInitiateReceiver);
+router.post('/settlement_initiate', webhookController.settlementInitiateReceiver);
 
 // URL: https://pay.synergicbanking.in/api/v1/webhooks/levant/settlement-update
-router.post('/settlement-update', webhookController.settlementUpdateReceiver);
+router.post('/settlement_update', webhookController.settlementUpdateReceiver);
 
 module.exports = router;
