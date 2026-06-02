@@ -42,6 +42,47 @@ const formatLevantDate = (input) => {
     return str;
 };
 
+// Helper: Format Levant's timestamps for Oracle TIMESTAMP(6) columns
+// Preserves microseconds (fractional seconds) — output: "YYYY-MM-DD HH24:MI:SS.FF6"
+const formatLevantTimestamp = (input) => {
+    if (!input) return null;
+    
+    let str = String(input).trim();
+    
+    // Handle numeric epoch timestamps
+    if (/^\d{10,13}$/.test(str)) {
+        const ms = str.length <= 10 ? Number(str) * 1000 : Number(str);
+        const d = new Date(ms);
+        const microseconds = String(d.getMilliseconds()).padStart(3, '0') + '000';
+        return d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0') + ' ' +
+            String(d.getHours()).padStart(2, '0') + ':' +
+            String(d.getMinutes()).padStart(2, '0') + ':' +
+            String(d.getSeconds()).padStart(2, '0') + '.' + microseconds;
+    }
+    
+    // Replace 'T' separator with space
+    str = str.replace('T', ' ');
+    
+    // Extract datetime + fractional seconds, strip timezone
+    // e.g. "2026-05-27 08:08:44.956896+05:30" → "2026-05-27 08:08:44.956896"
+    const match = str.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(\.\d+)?/);
+    if (match) {
+        const datePart = match[1];  // "2026-05-27 08:08:44"
+        let fracPart = match[2] || '.000000';  // ".956896" or default
+        fracPart = (fracPart + '000000').substring(0, 7); // Pad/trim to ".XXXXXX" (6 digits)
+        return datePart + fracPart;
+    }
+    
+    // Fallback: date-only input
+    if (str.length === 10) {
+        return str + ' 00:00:00.000000';
+    }
+    
+    return str.substring(0, 26);
+};
+
 exports.kycReceiver = async (req, res) => {
     try {
         const payload = req.body;
@@ -210,6 +251,7 @@ exports.settlementInitiateReceiver = async (req, res) => {
         console.log(`Processing Settlement Initiated. ID: ${data.id}, Amount: ${data.amount}`);
 
         // Build the full INSERT SQL statement
+        // Uses TO_TIMESTAMP (not TO_DATE) because columns are TIMESTAMP(6)
         const insertQuery = `
             INSERT INTO td_settlement_initiated (
                 SETTLE_INITIATE_ID, SETTLE_INITIATED_CREATED_AT, DISBURSEMENT_TYPE, 
@@ -220,43 +262,43 @@ exports.settlementInitiateReceiver = async (req, res) => {
                 DISBURSEMENT_DATE, AUTHORIZATION, MERCHANT_NAME, MERCHANT_EMAIL, 
                 MERCHANT_ID, CREATED_BY, CREATED_AT
             ) VALUES (
-                :s_id, TO_DATE(:s_created, 'YYYY-MM-DD HH24:MI:SS'), :d_type, 
+                :s_id, TO_TIMESTAMP(:s_created, 'YYYY-MM-DD HH24:MI:SS.FF6'), :d_type, 
                 :b_bank, :b_name, :b_acc, :b_ifsc, :b_upi, :utr, :pay_mode, :curr, 
                 :amt, :schg, :gst, :schg_gst, :narr, :txn_status, :fail_rsn, 
-                TO_DATE(:d_date, 'YYYY-MM-DD HH24:MI:SS'), :auth, :m_name, :m_email, 
-                :m_id, :c_by, SYSDATE
+                TO_TIMESTAMP(:d_date, 'YYYY-MM-DD HH24:MI:SS.FF6'), :auth, :m_name, :m_email, 
+                :m_id, :c_by, SYSTIMESTAMP
             )
         `;
 
-        // Map payload to table definition, enforcing byte limits
+        // Map payload to table definition — limits match actual column widths
         const settleValues = {
-            s_id: safeString(data.id, 50),
-            s_created: formatLevantDate(data.created_at),
-            d_type: safeString(data.disbursement_type, 30), 
-            b_bank: safeString(data.beneficiary_bank_name, 100),
-            b_name: safeString(data.beneficiary_account_name, 100),
-            b_acc: safeString(data.beneficiary_account_number, 30),
-            b_ifsc: safeString(data.beneficiary_account_ifsc, 20),
-            b_upi: safeString(data.beneficiary_upi_handle, 50),
-            utr: safeString(data.unique_transaction_reference, 50),
-            pay_mode: safeString(data.payment_mode, 20),
-            curr: safeString(data.currency, 10),
-            amt: data.amount || 0,
-            schg: data.service_charge || 0,
-            gst: data.gst_amount || 0,
-            schg_gst: data.service_charge_with_gst || 0,
-            narr: safeString(data.narration, 200),
-            txn_status: safeString(data.status, 30), 
-            fail_rsn: safeString(data.failure_reason, 200),
-            d_date: formatLevantDate(data.disbursement_date),
-            auth: safeString(data.Authorization, 100), 
+            s_id: safeString(data.id, 1000),                                     // VARCHAR2(1000)
+            s_created: formatLevantTimestamp(data.created_at),                   // TIMESTAMP(6)
+            d_type: safeString(data.disbursement_type, 100),                     // VARCHAR2(100)
+            b_bank: safeString(data.beneficiary_bank_name, 1000),                // VARCHAR2(1000)
+            b_name: safeString(data.beneficiary_account_name, 1000),             // VARCHAR2(1000)
+            b_acc: safeString(data.beneficiary_account_number, 1000),            // VARCHAR2(1000)
+            b_ifsc: safeString(data.beneficiary_account_ifsc, 1000),             // VARCHAR2(1000)
+            b_upi: safeString(data.beneficiary_upi_handle, 1000),               // VARCHAR2(1000)
+            utr: safeString(data.unique_transaction_reference, 100),             // VARCHAR2(100)
+            pay_mode: safeString(data.payment_mode, 30),                         // VARCHAR2(30)
+            curr: safeString(data.currency, 10),                                 // VARCHAR2(10)
+            amt: data.amount || 0,                                               // NUMBER(10,2)
+            schg: data.service_charge || 0,                                      // NUMBER(10,2)
+            gst: data.gst_amount || 0,                                           // NUMBER(10,2)
+            schg_gst: data.service_charge_with_gst || 0,                         // NUMBER(10,2)
+            narr: safeString(data.narration, 1000),                              // VARCHAR2(1000)
+            txn_status: safeString(data.status, 10),                             // VARCHAR2(10)
+            fail_rsn: safeString(data.failure_reason, 1000),                     // VARCHAR2(1000)
+            d_date: formatLevantTimestamp(data.disbursement_date),               // TIMESTAMP(6)
+            auth: safeString(data.Authorization, 1000),                          // VARCHAR2(1000)
             
             // Nested Merchant Object
-            m_name: safeString(data.merchant?.name, 100),
-            m_email: safeString(data.merchant?.email, 100),
-            m_id: safeString(data.merchant?.id, 50),
+            m_name: safeString(data.merchant?.name, 1000),                       // VARCHAR2(1000)
+            m_email: safeString(data.merchant?.email, 1000),                     // VARCHAR2(1000)
+            m_id: safeString(data.merchant?.id, 1000),                           // VARCHAR2(1000)
             
-            c_by: 'LEVANT_WEBHOOK'
+            c_by: 'LEVANT_WEBHOOK'                                               // VARCHAR2(1000)
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
