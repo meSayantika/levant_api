@@ -75,20 +75,20 @@ exports.kycReceiver = async (req, res) => {
         // Map payload data — use safeString() to truncate to column limits
         const kycValues = {
             sub_id: safeString(data.id, 50),
-            v_acc_id: safeString(data.virtual_account?.id, 30),
-            v_acc_no: safeString(data.virtual_account?.account_number, 30),
+            v_acc_id: safeString(data.virtual_account?.id, 1000),
+            v_acc_no: safeString(data.virtual_account?.account_number, 1000),
             balance: data.virtual_account?.balance || 0,
             is_active: data.virtual_account?.is_active ? 'TRUE' : 'FALSE',
-            bank_name: safeString(data.virtual_account?.bank_name, 100),
+            bank_name: safeString(data.virtual_account?.bank_name, 1000),
             txn_status: safeString(data.virtual_account?.status, 30),
-            ifsc: safeString(data.virtual_account?.ifsc, 20),
+            ifsc: safeString(data.virtual_account?.ifsc, 1000),
             is_conn_bnk: data.virtual_account?.is_connected_banking ? 'TRUE' : 'FALSE',
-            insta_vpa: safeString(data.insta_primary_vpa, 50),
+            insta_vpa: safeString(data.insta_primary_vpa, 1000),
             kyc_status: data.kyc_status ? 'TRUE' : 'FALSE',
             bank_status: data.bank_status ? 'TRUE' : 'FALSE',
             kyc_prof_status: safeString(data.kyc_profile_status, 30),
             kyc_exp_dt: data.kyc_expiry_date || null, 
-            store_name: safeString(data.name, 100),
+            store_name: safeString(data.name, 1000),
             created_by: 'LEVANT_WEBHOOK',
             
             // Convert entire arrays into stringified JSON. 
