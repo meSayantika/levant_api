@@ -90,13 +90,13 @@ exports.kycReceiver = async (req, res) => {
         if (req.method === 'GET') {
             payload = req.query;
 
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
@@ -176,13 +176,13 @@ exports.transactionReceiver = async (req, res) => {
             payload = req.query;
             
             // If Levant passes complex JSON inside a GET URL, convert it back to a real object
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
@@ -275,13 +275,13 @@ exports.settlementInitiateReceiver = async (req, res) => {
             payload = req.query;
             
             // If Levant passes complex JSON inside a GET URL, convert it back to a real object
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
@@ -367,13 +367,13 @@ exports.settlementUpdateReceiver = async (req, res) => {
             payload = req.query;
             
             // If Levant passes complex JSON inside a GET URL, convert it back to a real object
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
