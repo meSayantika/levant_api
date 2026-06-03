@@ -135,11 +135,8 @@ app.use((req, res) => {
         });
     }
 
-    return res.status(404).render("pages/login", {
-        layout: false,
-        title: "404 Not Found | Synergic Pay",
-        error: "Page not found. Please login to continue."
-    });
+    // Redirect to login route so it can handle existing token redirect or render properly
+    return res.redirect("/admin/login");
 });
 
 // Global Error Handler
@@ -153,11 +150,7 @@ app.use((err, req, res, next) => {
         });
     }
 
-    return res.status(500).render("pages/login", {
-        layout: false,
-        title: "Error | Synergic Pay",
-        error: "Something went wrong. Please try again."
-    });
+    return res.redirect("/admin/login");
 });
 
 // ============================================

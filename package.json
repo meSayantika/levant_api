@@ -7,7 +7,12 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["payment", "qr-code", "admin-panel", "oracle"],
+  "keywords": [
+    "payment",
+    "qr-code",
+    "admin-panel",
+    "oracle"
+  ],
   "author": "Synergic Pay Team",
   "license": "ISC",
   "dependencies": {
@@ -20,7 +25,9 @@
     "express-ejs-layouts": "^2.5.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "oracledb": "^6.6.0"
+    "nodemailer": "^8.0.10",
+    "oracledb": "^6.6.0",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

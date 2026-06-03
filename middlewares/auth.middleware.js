@@ -9,6 +9,7 @@
  */
 
 const jwt = require("jsonwebtoken");
+const { fetchUserMenu } = require("./menu.middleware");
 
 /**
  * Middleware: Verify Web (Admin Panel) Authentication.
@@ -30,7 +31,8 @@ function verifyWebAuth(req, res, next) {
         // Attach decoded user info to request object
         req.user = decoded;
 
-        return next();
+        // Fetch dynamic user menus and attach to res.locals.menus, then call next()
+        return fetchUserMenu(req, res, next);
     } catch (err) {
         console.error("[Auth Middleware] Web auth failed:", err.message);
         // Invalid or expired token — clear cookie and redirect

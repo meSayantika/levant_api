@@ -131,6 +131,38 @@ body {
     transition: var(--sp-transition);
 }
 
+/* ---- Sidebar Collapsed State (Desktop) ---- */
+@media (min-width: 992px) {
+    body.sidebar-collapsed .sp-sidebar {
+        width: 80px;
+    }
+    body.sidebar-collapsed #mainContentArea {
+        margin-left: 80px;
+    }
+    body.sidebar-collapsed .sp-brand-text,
+    body.sidebar-collapsed .sp-nav-label,
+    body.sidebar-collapsed .sp-nav-link span,
+    body.sidebar-collapsed .sp-nav-link .bi-chevron-down,
+    body.sidebar-collapsed .sp-sidebar-footer small {
+        display: none !important;
+    }
+    body.sidebar-collapsed .sp-nav-link {
+        justify-content: center;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    body.sidebar-collapsed .sp-nav-link i {
+        margin: 0 !important;
+        font-size: 1.3rem;
+    }
+    body.sidebar-collapsed .ps-4 {
+        padding-left: 0 !important;
+    }
+    body.sidebar-collapsed .sp-brand-icon {
+        margin: 0 auto;
+    }
+}
+
 /* ============================================= */
 /*  TOP NAVBAR                                    */
 /* ============================================= */

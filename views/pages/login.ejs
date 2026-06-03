@@ -71,7 +71,7 @@
 
         .sp-login-container {
             position: relative; z-index: 1;
-            width: 100%; max-width: 440px;
+            width: 100%; max-width: 470px;
             padding: 0 1rem;
         }
 
@@ -108,7 +108,7 @@
 
         .sp-login-subtitle {
             color: #7c7c8d; font-size: 0.9rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .sp-form-group {
@@ -225,27 +225,32 @@
 
             <!-- Title -->
             <h1 class="sp-login-title text-center">Welcome Back</h1>
-            <p class="sp-login-subtitle text-center">Sign in to Synergic Pay Admin Panel</p>
+            <p class="sp-login-subtitle text-center" id="panelTitle">Sign in to Synergic Pay Admin Panel</p>
 
-            <!-- Error Message -->
-            <% if (typeof error !== 'undefined' && error) { %>
-                <div class="sp-error-alert d-flex align-items-center gap-2" id="loginErrorAlert">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    <span><%= error %></span>
+            <!-- Smoothly Expanding Error Space -->
+            <div id="errorWrapper" style="max-height: <%= (typeof error !== 'undefined' && error) ? '100px' : '0' %>; overflow: hidden; transition: max-height 0.4s ease-out;">
+                <div id="errorContainer" style="padding-bottom: 1rem;">
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="sp-error-alert d-flex align-items-center gap-2 mb-0" id="loginErrorAlert" style="padding: 0.5rem 0.8rem; border-radius: 8px;">
+                            <i class="bi bi-exclamation-circle-fill" style="font-size: 0.9rem;"></i>
+                            <span id="errorText" style="font-size: 0.8rem;"><%= error %></span>
+                        </div>
+                    <% } %>
                 </div>
-            <% } %>
+            </div>
 
             <!-- Login Form -->
             <form action="/admin/login" method="POST" id="loginForm">
-                <!-- Username -->
+                <!-- Username (Email) -->
                 <div class="sp-form-group">
-                    <label for="username">Username</label>
+                    <label for="username">Email Address</label>
                     <div class="input-group">
                         <span class="input-group-text">
-                            <i class="bi bi-person-fill"></i>
+                            <i class="bi bi-envelope-fill"></i>
                         </span>
-                        <input type="text" class="form-control" id="username" name="username"
-                               placeholder="Enter your username" required autocomplete="username" autofocus>
+                        <input type="email" class="form-control" id="username" name="username"
+                               placeholder="Enter your email address" required autocomplete="username" autofocus
+                               value="<%= typeof savedEmail !== 'undefined' ? savedEmail : '' %>">
                     </div>
                 </div>
 
@@ -267,10 +272,10 @@
                 <!-- Remember Me & Forgot -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" <%= (typeof savedEmail !== 'undefined' && savedEmail) ? 'checked' : '' %>>
                         <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
                     </div>
-                    <a href="#" class="small text-decoration-none" style="color: #667eea;">Forgot Password?</a>
+                    <a href="/admin/forgot-password" class="small text-decoration-none" style="color: #667eea;">Forgot Password?</a>
                 </div>
 
                 <!-- Submit Button -->
@@ -292,8 +297,40 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
             crossorigin="anonymous"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         $(document).ready(function () {
+            // Check for flash success cookie
+            const successMatch = document.cookie.match(new RegExp('(^| )sp_flash_success=([^;]+)'));
+            if (successMatch) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: decodeURIComponent(successMatch[2]),
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                document.cookie = "sp_flash_success=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+
+            // Client-side flash error handler for rendering the inline alert
+            const errorMatch = document.cookie.match(new RegExp('(^| )sp_flash_error=([^;]+)'));
+            if (errorMatch) {
+                const flashErr = decodeURIComponent(errorMatch[2]);
+                const errorHtml = `
+                    <div class="sp-error-alert d-flex align-items-center gap-2 mb-0" id="loginErrorAlert" style="padding: 0.5rem 0.8rem; border-radius: 8px;">
+                        <i class="bi bi-exclamation-circle-fill" style="font-size: 0.9rem;"></i>
+                        <span id="errorText" style="font-size: 0.8rem;">${flashErr}</span>
+                    </div>
+                `;
+                $("#errorContainer").html(errorHtml);
+                $("#errorWrapper").css("max-height", "100px");
+                document.cookie = "sp_flash_error=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+
             // ---- Toggle Password Visibility ----
             $("#togglePassword").on("click", function () {
                 var $pwField = $("#password");
@@ -308,8 +345,49 @@
                 }
             });
 
+            // ---- AJAX Check User Type on Email Blur ----
+            $("#username").on("blur", function() {
+                const email = $(this).val();
+                if (email && email.includes('@')) {
+                    $.get('/admin/api/v1/auth/check-user-type', { email: email })
+                        .done(function(res) {
+                            if (res.success && res.userType === 'S') {
+                                $("#panelTitle").text("Sign in to Synergic Pay Merchant Panel");
+                            } else {
+                                $("#panelTitle").text("Sign in to Synergic Pay Admin Panel");
+                            }
+                        });
+                } else {
+                    $("#panelTitle").text("Sign in to Synergic Pay Admin Panel");
+                }
+            });
+            
+            // Trigger blur on load in case email was remembered
+            if ($("#username").val()) {
+                $("#username").trigger("blur");
+            }
+
             // ---- Login Form Submit Handler ----
-            $("#loginForm").on("submit", function () {
+            $("#loginForm").on("submit", function (e) {
+                const email = $("#username").val();
+                if (!email || !email.includes('@')) {
+                    e.preventDefault();
+                    // Render the beautiful inline alert in the reserved space
+                    const errorHtml = `
+                        <div class="sp-error-alert d-flex align-items-center gap-2 mb-0" id="loginErrorAlert" style="padding: 0.5rem 0.8rem; border-radius: 8px;">
+                            <i class="bi bi-exclamation-circle-fill" style="font-size: 0.9rem;"></i>
+                            <span id="errorText" style="font-size: 0.8rem;">Invalid Email.</span>
+                        </div>
+                    `;
+                    $("#errorContainer").html(errorHtml);
+                    $("#errorWrapper").css("max-height", "100px");
+                    return;
+                }
+                
+                // Clear any inline errors and restore smooth height
+                $("#errorWrapper").css("max-height", "0");
+                setTimeout(() => $("#errorContainer").empty(), 400);
+                
                 var $btn = $("#loginBtn");
                 $btn.addClass("loading").prop("disabled", true);
             });

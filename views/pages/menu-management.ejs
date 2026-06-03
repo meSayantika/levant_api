@@ -1,0 +1,157 @@
+<div class="container-fluid py-4 px-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1 fw-bold text-dark">Menu Management</h4>
+            <p class="text-muted small mb-0">Create new parent or child menus dynamically.</p>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card border-0 shadow-sm rounded-4" style="background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);">
+        <div class="card-body p-4 p-lg-5">
+            <form id="menuForm">
+                
+                <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">Menu Details</h6>
+                
+                <div class="row g-4 mb-4">
+                    <!-- Menu Type -->
+                    <div class="col-md-6">
+                        <label for="menuType" class="form-label fw-semibold small text-dark">Menu Type <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="menuType" name="menuType" required style="font-size: 0.9rem; border-color: #e8e8f0; border-radius: 10px;">
+                            <option value="" disabled selected>Select Type</option>
+                            <option value="P">Parent Menu (Top Level)</option>
+                            <option value="C">Child Menu (Dropdown Item)</option>
+                        </select>
+                    </div>
+
+                    <!-- Parent Selection (Hidden by default) -->
+                    <div class="col-md-6" id="parentMenuContainer" style="display: none;">
+                        <label for="parentId" class="form-label fw-semibold small text-dark">Select Parent Menu <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="parentId" name="parentId" style="font-size: 0.9rem; border-color: #e8e8f0; border-radius: 10px;">
+                            <option value="" disabled selected>Select Parent...</option>
+                            <% if (typeof parentMenus !== 'undefined' && parentMenus.length > 0) { %>
+                                <% parentMenus.forEach(p => { %>
+                                    <option value="<%= p.ID %>"><%= p.LABEL_NAME %></option>
+                                <% }) %>
+                            <% } else { %>
+                                <option value="" disabled>No parents available</option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Label Name -->
+                    <div class="col-md-6">
+                        <label for="labelName" class="form-label fw-semibold small text-dark">Display Label <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="labelName" name="labelName" placeholder="e.g., Onboard Submerchant" required style="font-size: 0.9rem; border-color: #e8e8f0; border-radius: 10px;">
+                    </div>
+
+                    <!-- Link URL -->
+                    <div class="col-md-6">
+                        <label for="link" class="form-label fw-semibold small text-dark">URL Link <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="link" name="link" placeholder="e.g., /admin/onboard-submerchant or #" required style="font-size: 0.9rem; border-color: #e8e8f0; border-radius: 10px;">
+                    </div>
+
+                    <!-- Key ID -->
+                    <div class="col-md-6">
+                        <label for="keyId" class="form-label fw-semibold small text-dark">Key ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="keyId" name="keyId" placeholder="e.g., sub3-4 or variant" required style="font-size: 0.9rem; border-color: #e8e8f0; border-radius: 10px;">
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div class="col-md-6">
+                        <label for="slNo" class="form-label fw-semibold small text-dark">Sort Order (SL_NO) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control form-control-lg" id="slNo" name="slNo" placeholder="e.g., 1" required style="font-size: 0.9rem; border-color: #e8e8f0; border-radius: 10px;">
+                    </div>
+                </div>
+
+                <hr class="opacity-10 my-4">
+
+                <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">User Assignment</h6>
+                
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <p class="small text-muted mb-2">Select which user roles can see this menu:</p>
+                        
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="userAdmin" name="userTypes" value="A" checked>
+                            <label class="form-check-label small" for="userAdmin">Admin ('A')</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="userMerchant" name="userTypes" value="S">
+                            <label class="form-check-label small" for="userMerchant">Merchant ('S')</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn text-white px-4 py-2" id="saveMenuBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; font-weight: 500;">
+                        Create Menu Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        // Toggle Parent Dropdown based on Menu Type
+        $('#menuType').on('change', function() {
+            if ($(this).val() === 'C') {
+                $('#parentMenuContainer').slideDown();
+                $('#parentId').prop('required', true);
+            } else {
+                $('#parentMenuContainer').slideUp();
+                $('#parentId').prop('required', false);
+                $('#parentId').val('');
+            }
+        });
+
+        // Handle Form Submission
+        $('#menuForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic validation for checkboxes
+            if ($('input[name="userTypes"]:checked').length === 0) {
+                Swal.fire('Error', 'Please select at least one User Type.', 'error');
+                return;
+            }
+
+            const formData = $(this).serialize();
+            const $btn = $('#saveMenuBtn');
+            const originalText = $btn.html();
+            
+            $btn.html('<span class="spinner-border spinner-border-sm"></span> Creating...').prop('disabled', true);
+
+            $.ajax({
+                url: '/admin/api/menu/create',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonColor: '#667eea'
+                        }).then(() => {
+                            // Reload the page to reflect sidebar updates instantly
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                        $btn.html(originalText).prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    Swal.fire('Server Error', 'Failed to connect to the server.', 'error');
+                    $btn.html(originalText).prop('disabled', false);
+                }
+            });
+        });
+    });
+</script>

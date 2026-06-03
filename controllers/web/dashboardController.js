@@ -21,13 +21,14 @@ async function renderDashboard(req, res) {
         let totalRevenue = 0;
         let activeQRCodes = 0;
 
-        // --- User count from MD_USER (the real users table) ---
-        try {
-            const userCount = await F_Select(0, `SELECT COUNT(*) AS TOTAL FROM MD_USER`, []);
-            totalUsers = (userCount && userCount.length > 0) ? userCount[0].TOTAL : 0;
-        } catch (dbErr) {
-            console.warn("[DashboardController] Could not fetch user count:", dbErr.message);
-        }
+        // --- User count ---
+        // (Table not decided yet, show 0)
+        // try {
+        //     const userCount = await F_Select(0, `SELECT COUNT(*) AS TOTAL FROM MD_ADMIN_USER`, []);
+        //     totalUsers = (userCount && userCount.length > 0) ? userCount[0].TOTAL : 0;
+        // } catch (dbErr) {
+        //     console.warn("[DashboardController] Could not fetch user count:", dbErr.message);
+        // }
 
         // TODO: Replace table/column names below with your actual tables once they exist.
         // --- Transaction count ---

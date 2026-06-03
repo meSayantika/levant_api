@@ -10,11 +10,15 @@
 $(document).ready(function () {
 
     // ============================================
-    //  SIDEBAR TOGGLE (Mobile)
+    //  SIDEBAR TOGGLE (Mobile & Desktop)
     // ============================================
     $("#sidebarToggleBtn").on("click", function () {
+        // Mobile toggle
         $("#sidebarNav").toggleClass("show");
         $(".sp-sidebar-overlay").toggleClass("show");
+        
+        // Desktop collapse toggle
+        $("body").toggleClass("sidebar-collapsed");
     });
 
     // Close sidebar when overlay is clicked
