@@ -137,23 +137,21 @@ $(function () {
     });
 
     // ============================================
-    //  STATE DROPDOWN API INTEGRATION
+    //  STATE DROPDOWN INTERNAL API FETCH
     // ============================================
     var cachedStates = null;
     
-    // Fetch states once and cache them
+    // Fetch states from the local proxy router (master.js) to avoid CORS
     $.ajax({
-        url: 'https://app.levanttech.in/api/states',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ mid: "21" }),
+        url: '/admin/master/states',
+        method: 'GET',
         success: function(response) {
             if (response && response.status && response.data) {
                 cachedStates = response.data;
             }
         },
         error: function(err) {
-            console.error("Error fetching states API:", err);
+            console.error("Error fetching states from master API:", err);
         }
     });
 

@@ -85,7 +85,22 @@ const formatLevantTimestamp = (input) => {
 
 exports.kycReceiver = async (req, res) => {
     try {
-        const payload = req.body;
+        let payload;
+
+        if (req.method === 'GET') {
+            payload = req.query;
+
+            if (payload.data && typeof payload.data === 'string') {
+                try {
+                    payload.data = JSON.parse(payload.data);
+                } catch (parseErr) {
+                    console.warn("Could not parse GET query data as JSON.");
+                }
+            }
+        } else {
+            // For POST, PUT, PATCH, etc.
+            payload = req.body;
+        }
         
         if (!payload || !payload.data) {
             return res.status(400).json({ success: false, message: "Invalid payload format" });
@@ -155,7 +170,23 @@ exports.kycReceiver = async (req, res) => {
 // --- 2. TRANSACTION WEBHOOK HANDLER ---
 exports.transactionReceiver = async (req, res) => {
     try {
-        const payload = req.body;
+        let payload;
+
+        if (req.method === 'GET') {
+            payload = req.query;
+            
+            // If Levant passes complex JSON inside a GET URL, convert it back to a real object
+            if (payload.data && typeof payload.data === 'string') {
+                try {
+                    payload.data = JSON.parse(payload.data);
+                } catch (parseErr) {
+                    console.warn("Could not parse GET query data as JSON.");
+                }
+            }
+        } else {
+            // For POST, PUT, PATCH, etc.
+            payload = req.body;
+        }
         
         if (!payload || !payload.data) {
             return res.status(400).json({ success: false, message: "Invalid payload format" });
@@ -238,7 +269,23 @@ exports.transactionReceiver = async (req, res) => {
 // --- 3. SETTLEMENT INITIATED HANDLER ---
 exports.settlementInitiateReceiver = async (req, res) => {
     try {
-        const payload = req.body;
+        let payload;
+
+        if (req.method === 'GET') {
+            payload = req.query;
+            
+            // If Levant passes complex JSON inside a GET URL, convert it back to a real object
+            if (payload.data && typeof payload.data === 'string') {
+                try {
+                    payload.data = JSON.parse(payload.data);
+                } catch (parseErr) {
+                    console.warn("Could not parse GET query data as JSON.");
+                }
+            }
+        } else {
+            // For POST, PUT, PATCH, etc.
+            payload = req.body;
+        }
         
         if (!payload || !payload.data) {
             return res.status(400).json({ success: false, message: "Invalid payload format" });
@@ -314,7 +361,23 @@ exports.settlementInitiateReceiver = async (req, res) => {
 // --- 4. SETTLEMENT STATUS UPDATE HANDLER ---
 exports.settlementUpdateReceiver = async (req, res) => {
     try {
-        const payload = req.body;
+        let payload;
+
+        if (req.method === 'GET') {
+            payload = req.query;
+            
+            // If Levant passes complex JSON inside a GET URL, convert it back to a real object
+            if (payload.data && typeof payload.data === 'string') {
+                try {
+                    payload.data = JSON.parse(payload.data);
+                } catch (parseErr) {
+                    console.warn("Could not parse GET query data as JSON.");
+                }
+            }
+        } else {
+            // For POST, PUT, PATCH, etc.
+            payload = req.body;
+        }
         
         if (!payload || !payload.data) {
             return res.status(400).json({ success: false, message: "Invalid payload format" });

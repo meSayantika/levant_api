@@ -14,10 +14,12 @@ const router = express.Router();
 const authRoutes = require("./auth.routes");
 const dashboardRoutes = require("./dashboard.routes");
 const menuRoutes = require("./menu.routes");
+const masterRoutes = require("./master.routes");
 
 // ---- Mount routes ----
 router.use("/", authRoutes);       // /admin/login, /admin/logout
 router.use("/", dashboardRoutes);  // /admin/dashboard
 router.use("/", menuRoutes);       // /admin/menu-management
+router.use("/master", masterRoutes); // /admin/master/states
 
 module.exports = router;
