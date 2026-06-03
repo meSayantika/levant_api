@@ -16,4 +16,13 @@ const dashboardController = require("../../controllers/web/dashboardController")
 // ---- Dashboard Page (Protected) ----
 router.get("/dashboard", verifyWebAuth, dashboardController.renderDashboard);
 
+// ---- Sub Merchant Form (Protected) ----
+router.get("/merchants", verifyWebAuth, (req, res) => {
+    res.render("pages/submerchant/submerchant", {
+        title: "Sub Merchant Onboarding | Synergic Pay",
+        user: req.user,
+        currentRoute: "/admin/merchants"
+    });
+});
+
 module.exports = router;

@@ -5,8 +5,8 @@ const LEVANT_ALLOWED_IPS = [
     '127.0.0.1', 
     '192.168.1.33',        // Postman / IIS Named Pipe fallback
     '::1',               // Postman local IPv6
-    '::ffff:127.0.0.1'   // Mapped IPv4
-    // Add actual Levant IPs here when going live...
+    '::ffff:127.0.0.1' ,  // Mapped IPv4
+    '103.102.234.178' // Add actual Levant IPs here when going live...
 ];
 
 exports.verifyLevantIP = (req, res, next) => {

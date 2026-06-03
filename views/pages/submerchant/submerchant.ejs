@@ -1,0 +1,193 @@
+
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+    <div>
+        <h1 class="fs-4 fw-bold text-dark mb-1">Sub Merchant Onboarding</h1>
+        <p class="text-muted small mb-0">Register a new sub-merchant into the Levant API ecosystem</p>
+    </div>
+</div>
+
+<form action="/admin/submerchant/create" method="POST" id="subMerchantForm">
+    
+    <div class="card border-0 rounded-4 shadow-sm mb-5">
+        <div class="card-header bg-white border-bottom-0 rounded-top-4 px-4 pt-4 pb-0">
+            <ul class="nav nav-tabs border-bottom" id="merchantTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-medium px-4 py-3" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal-tab-pane" type="button" role="tab" aria-controls="personal-tab-pane" aria-selected="true">
+                        <i class="bi bi-person-badge-fill me-2 text-primary"></i><span class="tab-label">Personal Details</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-medium px-4 py-3" id="business-tab" data-bs-toggle="tab" data-bs-target="#business-tab-pane" type="button" role="tab" aria-controls="business-tab-pane" aria-selected="false" disabled>
+                        <i class="bi bi-briefcase-fill me-2 text-primary"></i><span class="tab-label">Business Details</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-medium px-4 py-3" id="location-tab" data-bs-toggle="tab" data-bs-target="#location-tab-pane" type="button" role="tab" aria-controls="location-tab-pane" aria-selected="false" disabled>
+                        <i class="bi bi-geo-alt-fill me-2 text-primary"></i><span class="tab-label">Location & Address</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body px-4 pb-5 pt-4">
+            <div class="tab-content" id="merchantTabsContent">
+                
+                <div class="tab-pane fade show active" id="personal-tab-pane" role="tabpanel" aria-labelledby="personal-tab" tabindex="0">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Merchant Name" required>
+                                <label for="name">Merchant Name (KYC) <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="name_on_bank" name="name_on_bank" placeholder="Name on Bank" required>
+                                <label for="name_on_bank">Bank Account Holder Name<span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
+                                <label for="email">Merchant Email ID <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone Number" required pattern="^[6-9]\d{9}$" maxlength="10" title="Please enter a valid 10-digit phone number">
+                                <label for="phone">Merchant Mobile Number <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm btn-sm" id="next-to-business">
+                            Next Step <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="business-tab-pane" role="tabpanel" aria-labelledby="business-tab" tabindex="0">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="business_name" name="business_name" placeholder="Business Name" required>
+                                <label for="business_name">Business / Shop Name <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <select class="form-select" id="state" name="state" required>
+                                    <option value="" disabled selected></option>
+                                </select>
+                                <label for="state">State <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="nature_of_business" name="nature_of_business" placeholder="Nature of Business" required>
+                                <label for="nature_of_business">Nature of Business <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="number" class="form-control" id="category_code" name="category_code" placeholder="Category Code" required>
+                                <label for="category_code">Category Code <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="number" class="form-control" id="business_type_code" name="business_type_code" placeholder="Business Type Code" required>
+                                <label for="business_type_code">Business Type Code <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="number" class="form-control" id="entity_type" name="entity_type" placeholder="Entity Type" required>
+                                <label for="entity_type">Entity Type Code <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="gstin" name="gstin" placeholder="GSTIN (Optional)">
+                                <label for="gstin">GSTIN (Optional)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="primary_vpa" name="primary_vpa" placeholder="Primary VPA" required>
+                                <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-light px-4 py-2 rounded-3 shadow-sm border" id="prev-to-personal">
+                            <i class="bi bi-arrow-left me-2"></i> Previous
+                        </button>
+                        <button type="button" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm" id="next-to-location">
+                            Next Step <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="location-tab-pane" role="tabpanel" aria-labelledby="location-tab" tabindex="0">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Aadhaar Address" required>
+                                <label for="address">Aadhaar Address (No special characters) <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="business_address" name="business_address" placeholder="Business Address" required>
+                                <label for="business_address">Complete Business Address (No special characters) <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                                <label for="city">City <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
+                                <label for="pincode">Pincode <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="lati" name="lati" placeholder="Latitude" required>
+                                <label for="lati">Latitude <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="longi" name="longi" placeholder="Longitude" required>
+                                <label for="longi">Longitude <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+                        <button type="button" class="btn btn-light px-4 py-2 rounded-3 shadow-sm border" id="prev-to-business">
+                            <i class="bi bi-arrow-left me-2"></i> Previous
+                        </button>
+                        <div>
+                            <button type="reset" class="btn btn-light px-4 py-2 me-3 rounded-3 shadow-sm fw-medium border">Clear Form</button>
+                            <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 shadow-sm fw-semibold">
+                                <i class="bi bi-cloud-upload-fill me-2"></i> Submit Merchant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</form>

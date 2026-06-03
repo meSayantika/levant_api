@@ -355,3 +355,88 @@ body {
 .sp-stat-card:nth-child(2) { animation-delay: 0.1s; }
 .sp-stat-card:nth-child(3) { animation-delay: 0.15s; }
 .sp-stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+/* ============================================= */
+/*  SUB MERCHANT FORM - MATERIAL OUTLINED        */
+/* ============================================= */
+
+/* ---- Custom Tab Navigation ---- */
+#subMerchantForm .nav-tabs .nav-link { border: none; color: #6c757d; position: relative; transition: color 0.3s ease; font-weight: 500;}
+#subMerchantForm .nav-tabs .nav-link:hover { border: none; color: #667eea; background: transparent; }
+#subMerchantForm .nav-tabs .nav-link.active { border: none; color: #1a1a2e; background: transparent; font-weight: 600;}
+#subMerchantForm .nav-tabs .nav-link.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 3px 3px 0 0; }
+
+/* ---- Bulletproof Material Outlined Fields ---- */
+#subMerchantForm .material-outline {
+    position: relative !important;
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+    background-color: #fff !important; 
+    border-radius: 8px !important;
+}
+
+#subMerchantForm .material-outline input.form-control,
+#subMerchantForm .material-outline select.form-select {
+    height: 56px !important;
+    border-radius: 8px !important;
+    padding: 0 16px !important; 
+    border: 1px solid #ced4da !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    box-shadow: none !important;
+    color: #212529 !important;
+    line-height: normal !important;
+}
+
+#subMerchantForm .material-outline input.form-control:focus,
+#subMerchantForm .material-outline select.form-select:focus {
+    border-color: #667eea !important; 
+    border-width: 2px !important;
+    padding: 0 15px !important; 
+    outline: none !important;
+}
+
+/* The Label (Starts inside the center of the input) */
+#subMerchantForm .material-outline label {
+    position: absolute !important;
+    top: 50% !important;
+    left: 12px !important;
+    transform: translateY(-50%) !important;
+    background-color: #fff !important; 
+    padding: 0 6px !important;
+    color: #6c757d !important;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease-in-out, font-weight 0.2s !important;
+    pointer-events: none !important; 
+    margin: 0 !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    z-index: 5 !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+/* The Magic Float (Triggers on Focus or when Text exists) */
+#subMerchantForm .material-outline input.form-control:focus ~ label,
+#subMerchantForm .material-outline input.form-control:not(:placeholder-shown) ~ label,
+#subMerchantForm .material-outline select.form-select ~ label {
+    top: 0 !important;
+    transform: translateY(-50%) scale(0.85) !important;
+    font-weight: 600 !important;
+}
+
+#subMerchantForm .material-outline input.form-control:focus ~ label,
+#subMerchantForm .material-outline select.form-select:focus ~ label {
+    color: #667eea !important;
+}
+
+/* Keep label gray if text is there but not focused */
+#subMerchantForm .material-outline input.form-control:not(:focus):not(:placeholder-shown) ~ label,
+#subMerchantForm .material-outline select.form-select:not(:focus) ~ label {
+    color: #6c757d !important;
+}
+
+/* Force hide the actual placeholder text so it doesn't show up inside the box */
+#subMerchantForm .material-outline input.form-control::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+}
