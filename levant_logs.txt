@@ -1,0 +1,133 @@
+
+========================================
+TIME: 2026-06-04T10:43:17.829Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "f7d7a844-7da3-48f5-9a21-bac90dfdd214",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "content-length": "892"
+}
+BODY/QUERY: {
+  "event": "MERCHANT_KYC_APPROVAL",
+  "data": {
+    "id": 23653,
+    "virtual_account": {
+      "id": "va10b06787194703b9c11003e2804d23",
+      "account_number": "000119125114123653",
+      "balance": 0,
+      "is_active": true,
+      "bank_name": "RBL Bank",
+      "status": "active",
+      "ifsc": "RATN0000088",
+      "is_connected_banking": false
+    },
+    "kyc": [],
+    "commission_charges": {
+      "UPI": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ],
+      "IMPS": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ],
+      "NEFT": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ],
+      "RTGS": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ]
+    },
+    "insta_primary_vpa": "bpay9382033778@yesbank",
+    "kyc_status": true,
+    "bank_status": true,
+    "kyc_profile_status": "Completed",
+    "kyc_expiry_date": "2026-05-19 19:43:18",
+    "name": "Khamrai Stores"
+  }
+}
+========================================
+
+========================================
+TIME: 2026-06-04T10:44:43.666Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "0145cc0d-8a9b-4c2c-b0e8-6c989384132a",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "content-length": "892",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3"
+}
+BODY/QUERY: {
+  "event": "MERCHANT_KYC_APPROVAL",
+  "data": {
+    "id": 23653,
+    "virtual_account": {
+      "id": "va10b06787194703b9c11003e2804d23",
+      "account_number": "000119125114123653",
+      "balance": 0,
+      "is_active": true,
+      "bank_name": "RBL Bank",
+      "status": "active",
+      "ifsc": "RATN0000088",
+      "is_connected_banking": false
+    },
+    "kyc": [],
+    "commission_charges": {
+      "UPI": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ],
+      "IMPS": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ],
+      "NEFT": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ],
+      "RTGS": [
+        {
+          "charge": 0,
+          "min_txn_amount": 1
+        }
+      ]
+    },
+    "insta_primary_vpa": "bpay9382033778@yesbank",
+    "kyc_status": true,
+    "bank_status": true,
+    "kyc_profile_status": "Completed",
+    "kyc_expiry_date": "2026-05-19 19:43:18",
+    "name": "Khamrai Stores"
+  }
+}
+========================================

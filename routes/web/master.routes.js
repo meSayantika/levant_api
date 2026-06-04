@@ -65,4 +65,22 @@ router.get("/business-types", verifyWebAuth, async (req, res) => {
     }
 });
 
+// ---- Proxy for External API (Entity Types) ----
+router.get("/entity-types", verifyWebAuth, async (req, res) => {
+    try {
+        const response = await fetch("https://app.levanttech.in/api/entity-types", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ mid: 21 })
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        console.error("Error in proxy business-types API:", err);
+        res.status(500).json({ status: false, error: "Server Error" });
+    }
+});
+
 module.exports = router;

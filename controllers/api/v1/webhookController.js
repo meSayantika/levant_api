@@ -158,7 +158,7 @@ exports.kycReceiver = async (req, res) => {
 
         // Insert into td_kyc_approval — F_Insert(dbId, query, params)
         const insertLog = await F_Insert(DB_ID, insertQuery, kycValues);
-        
+        // const insertLog = 'test';
         console.log(`Successfully inserted into td_kyc_approval. Rows affected: ${insertLog.rowsAffected}`);
 
     } catch (error) {

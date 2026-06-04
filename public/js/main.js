@@ -132,6 +132,10 @@ $(function () {
         e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 10);
     });
 
+    $(document).on("input", "input[name='pincode']", function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 6);
+    });
+
     $(document).on("input", "#address", function(e) {
         e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, '');
     });
@@ -140,6 +144,31 @@ $(function () {
         var val = e.target.value;
         if (/[^a-zA-Z0-9\s]/.test(val)) {
             e.target.value = val.replace(/[^a-zA-Z0-9\s]/g, '');
+        }
+    });
+
+    $(document).on("input blur change", ".material-outline .form-control", function() {
+        if ($(this).val().trim() !== '') {
+            $(this).closest('.material-outline').addClass('has-value');
+        } else {
+            $(this).closest('.material-outline').removeClass('has-value');
+        }
+    });
+
+    $(document).on("change", "#nature_of_business", function() {
+        var selectedVal = $(this).val();
+        if (cachedCategories) {
+            var catArray = Array.isArray(cachedCategories) ? cachedCategories : (cachedCategories.data || []);
+            var found = catArray.find(function(c) {
+                return c.name === selectedVal || c.category_name === selectedVal || c.nature_of_business === selectedVal || c === selectedVal;
+            });
+            if (found) {
+                var code = found.category_code || found.code || found.id || '';
+                var $catCodeInput = $('#category_code');
+                $catCodeInput.val(code);
+                // Trigger focus/blur to correctly position material label, or just add has-value
+                $catCodeInput.closest('.material-outline').addClass('has-value');
+            }
         }
     });
 
@@ -211,10 +240,33 @@ $(function () {
         }
     });
 
+    // ============================================
+    //  ENTITY TYPES DROPDOWN API FETCH
+    // ============================================
+    var cachedEntityTypes = null;
+    
+    $.ajax({
+        url: '/admin/master/entity-types',
+        method: 'GET',
+        success: function(response) {
+            if (response && response.status && response.data) {
+                cachedEntityTypes = response.data;
+            } else if (response && response.data) {
+                cachedEntityTypes = response.data;
+            } else if (Array.isArray(response)) {
+                cachedEntityTypes = response;
+            }
+        },
+        error: function(err) {
+            console.error("Error fetching entity types from external API:", err);
+        }
+    });
+
     // Initialize Select2 Dynamically when the user interacts with the container
     // This perfectly supports AJAX loaded dashboards!
     $(document).on('mouseenter click focus', '#subMerchantForm .material-outline', function() {
         var $stateSelect = $(this).find('select#state');
+        var $entitySelect = $(this).find('select#entity_type');
         
         if ($stateSelect.length > 0 && !$stateSelect.hasClass('select2-hidden-accessible')) {
             // 1. Populate options
@@ -232,8 +284,7 @@ $(function () {
                 $stateSelect.closest('.material-outline').addClass('has-select2');
                 $stateSelect.select2({
                     theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: '' // Placeholder left empty so the material label works
+                    width: '100%'
                 });
 
                 // Add focus classes for floating label color
@@ -243,6 +294,26 @@ $(function () {
                 $stateSelect.on('select2:close', function() {
                     $(this).closest('.material-outline').removeClass('select2-focused');
                 });
+            }
+        }
+
+        if ($entitySelect.length > 0 && !$entitySelect.hasClass('select2-hidden-accessible')) {
+            if (cachedEntityTypes && $entitySelect.children('option').length <= 1) {
+                var entArray = Array.isArray(cachedEntityTypes) ? cachedEntityTypes : (cachedEntityTypes.data || []);
+                entArray.forEach(function(et) {
+                    var val = et.entity_type_id || et.id || et.code || et.value || et;
+                    var text = et.entity_type_name || et.name || et.label || et.title || val;
+                    $entitySelect.append($('<option>', {
+                        value: val,
+                        text: text
+                    }));
+                });
+            }
+            if ($.fn.select2) {
+                $entitySelect.closest('.material-outline').addClass('has-select2');
+                $entitySelect.select2({ theme: 'bootstrap-5', width: '100%' });
+                $entitySelect.on('select2:open', function() { $(this).closest('.material-outline').addClass('select2-focused'); });
+                $entitySelect.on('select2:close', function() { $(this).closest('.material-outline').removeClass('select2-focused'); });
             }
         }
         
@@ -265,8 +336,7 @@ $(function () {
                 $catSelect.closest('.material-outline').addClass('has-select2');
                 $catSelect.select2({
                     theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: '' // Placeholder left empty so the material label works
+                    width: '100%'
                 });
 
                 // Add focus classes for floating label color
@@ -279,41 +349,27 @@ $(function () {
             }
         }
 
-        var $catCodeSelect = $(this).find('select#category_code');
-        if ($catCodeSelect.length > 0 && !$catCodeSelect.hasClass('select2-hidden-accessible')) {
-            if (cachedCategories && $catCodeSelect.children('option').length <= 1) {
-                var catArray = Array.isArray(cachedCategories) ? cachedCategories : (cachedCategories.data || []);
-                catArray.forEach(function(cat) {
-                    var val = cat.category_code || cat.code || cat.id || cat.name || cat.category_name || cat;
-                    $catCodeSelect.append($('<option>', {
-                        value: val,
-                        text: val
-                    }));
-                });
-            }
-            if ($.fn.select2) {
-                $catCodeSelect.closest('.material-outline').addClass('has-select2');
-                $catCodeSelect.select2({ theme: 'bootstrap-5', width: '100%', placeholder: '' });
-                $catCodeSelect.on('select2:open', function() { $(this).closest('.material-outline').addClass('select2-focused'); });
-                $catCodeSelect.on('select2:close', function() { $(this).closest('.material-outline').removeClass('select2-focused'); });
-            }
-        }
+        // category_code is now a read-only input, removed select2 initialization
 
         var $bizTypeSelect = $(this).find('select#business_type_code');
         if ($bizTypeSelect.length > 0 && !$bizTypeSelect.hasClass('select2-hidden-accessible')) {
             if (cachedBusinessTypes && $bizTypeSelect.children('option').length <= 1) {
                 var btArray = Array.isArray(cachedBusinessTypes) ? cachedBusinessTypes : (cachedBusinessTypes.data || []);
                 btArray.forEach(function(bt) {
-                    var val = bt.business_type_code || bt.code || bt.name || bt.type_name || bt;
+                    var val = bt.business_type_code || bt.code || bt.id || bt.name || bt.type_name || bt;
+                    var text = bt.name || bt.type_name || bt.business_type_name || bt.business_type_code || bt.code || bt;
                     $bizTypeSelect.append($('<option>', {
                         value: val,
-                        text: val
+                        text: text
                     }));
                 });
             }
             if ($.fn.select2) {
                 $bizTypeSelect.closest('.material-outline').addClass('has-select2');
-                $bizTypeSelect.select2({ theme: 'bootstrap-5', width: '100%', placeholder: '' });
+                $bizTypeSelect.select2({ 
+                    theme: 'bootstrap-5', 
+                    width: '100%'
+                });
                 $bizTypeSelect.on('select2:open', function() { $(this).closest('.material-outline').addClass('select2-focused'); });
                 $bizTypeSelect.on('select2:close', function() { $(this).closest('.material-outline').removeClass('select2-focused'); });
             }
