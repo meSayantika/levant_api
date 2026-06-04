@@ -157,8 +157,8 @@ exports.kycReceiver = async (req, res) => {
         };
 
         // Insert into td_kyc_approval — F_Insert(dbId, query, params)
-        const insertLog = await F_Insert(DB_ID, insertQuery, kycValues);
-        // const insertLog = 'test';
+        // const insertLog = await F_Insert(DB_ID, insertQuery, kycValues);
+        const insertLog = 'test kyc';
         console.log(`Successfully inserted into td_kyc_approval. Rows affected: ${insertLog.rowsAffected}`);
 
     } catch (error) {
@@ -257,8 +257,9 @@ exports.transactionReceiver = async (req, res) => {
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
-        const insertResult = await F_Insert(DB_ID, insertQuery, transValues);
-
+        // const insertResult = await F_Insert(DB_ID, insertQuery, transValues);
+        const insertResult = 'test credit transaction';
+        
         console.log(`Successfully inserted into td_transaction_credit. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
@@ -349,8 +350,8 @@ exports.settlementInitiateReceiver = async (req, res) => {
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
-        const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
-
+        // const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
+        insertResult = 'Test settlement initiated' ;
         console.log(`Successfully inserted into td_settlement_initiated. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
@@ -440,8 +441,9 @@ exports.settlementUpdateReceiver = async (req, res) => {
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
-        const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
-
+        // const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
+        insertResult = 'Test settlement approval' ;
+        
         console.log(`Successfully inserted into td_settlement_approval. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
