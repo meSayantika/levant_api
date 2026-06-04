@@ -19,7 +19,6 @@ const express = require("express");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const cookieParser = require("cookie-parser");
-const csrf = require("csurf")
 const helmet = require("helmet");
 const cors = require("cors");
 
@@ -80,26 +79,8 @@ app.use(express.json({ limit: "10mb" }));
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-// 2. TEXT FILE LOGGER & WEBHOOK ROUTE
-const levantLogger = (req, res, next) => {
-    try {
-        const timestamp = new Date().toISOString();
-        const logEntry = `
-========================================
-TIME: ${timestamp}
-METHOD: ${req.method}
-URL: ${req.originalUrl}
-HEADERS: ${JSON.stringify(req.headers, null, 2)}
-BODY/QUERY: ${JSON.stringify(req.method === 'GET' ? req.query : req.body, null, 2)}
-========================================\n`;
-
-        // Write the data to a file called 'levant_logs.txt' in your root folder
-        fs.appendFileSync(path.join(__dirname, "levant_logs.txt"), logEntry);
-    } catch (err) {
-        console.error("Failed to write to text file", err);
-    }
-    next();
-};
+// Import your new logger middleware
+const {levantLogger} = require('./middlewares/logger.middleware')
 
 // Import Webhook Routes
 const webhookRoutes = require('./routes/api/v1/webhook.routes');
@@ -107,8 +88,8 @@ const webhookRoutes = require('./routes/api/v1/webhook.routes');
 app.use('/api/v1/webhooks', levantLogger,webhookRoutes);
 
 // We initialize CSRF here. Everything BELOW this line requires a CSRF token.
-const csrfProtection = csrf({ cookie: true });
-app.use(csrfProtection);
+// const csrfProtection = csrf({ cookie: true });
+// app.use(csrfProtection);
 
 // Cookie Parser
 

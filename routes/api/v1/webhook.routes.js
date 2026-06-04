@@ -1,10 +1,14 @@
 // routes/api/v1/webhook.routes.js
 const express = require('express');
 const router = express.Router();
+const csrf = require("csurf");
 
 // Import the security middleware and the controller
 const { verifyLevantIP } = require('../../../middlewares/webhookAuth.middleware');
 const webhookController = require('../../../controllers/api/v1/webhookController');
+
+const csrfProtection = csrf({ cookie: true });
+router.use(csrfProtection);
 
 // 1. SECURITY FIRST: Apply IP Whitelisting to ALL webhook routes
 router.use(verifyLevantIP);
