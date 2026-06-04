@@ -380,9 +380,9 @@ exports.settlementUpdateReceiver = async (req, res) => {
             payload = req.body;
         }
         
-        if (!payload || !payload.data) {
-            return res.status(400).json({ success: false, message: "Invalid payload format" });
-        }
+        // if (!payload || !payload.data) {
+        //     return res.status(400).json({ success: false, message: "Invalid payload format" });
+        // }
         
         // Immediately acknowledge receipt to Levant
         return res.status(200).json({ success: true, message: "Settlement Update received" });
