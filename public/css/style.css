@@ -440,3 +440,59 @@ body {
     color: transparent !important;
     opacity: 0 !important;
 }
+
+/* ============================================= */
+/*  Select2 Integration for Material Outline     */
+/* ============================================= */
+#subMerchantForm .material-outline .select2-container--bootstrap-5 .select2-selection {
+    height: 56px !important;
+    border-radius: 8px !important;
+    border: 1px solid #ced4da !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    box-shadow: none !important;
+    padding: 0 !important; 
+    display: flex !important;
+    align-items: center !important;
+}
+
+#subMerchantForm .material-outline .select2-container--bootstrap-5 .select2-selection__rendered {
+    padding: 0 16px !important; 
+    line-height: normal !important;
+    width: 100% !important;
+    color: #212529 !important;
+}
+
+/* Position the dropdown arrow properly */
+#subMerchantForm .material-outline .select2-container--bootstrap-5 .select2-selection__arrow {
+    height: 54px !important;
+    right: 12px !important;
+    top: 0 !important;
+}
+
+#subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+#subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--open .select2-selection {
+    border-color: #667eea !important; 
+    border-width: 2px !important;
+}
+
+/* Permanently float the label when Select2 is used */
+#subMerchantForm .material-outline.has-select2 label {
+    top: 0 !important;
+    transform: translateY(-50%) scale(0.85) !important;
+    font-weight: 600 !important;
+    color: #6c757d !important;
+    z-index: 10 !important;
+}
+
+/* Highlight label in primary color when Select2 is open/focused */
+#subMerchantForm .material-outline.has-select2.select2-focused label {
+    color: #667eea !important;
+}
+
+/* Synergic Pay QR Color for Dropdown Selection */
+.select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+}
+

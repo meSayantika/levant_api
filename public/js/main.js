@@ -132,10 +132,18 @@ $(function () {
         e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 10);
     });
 
-    $(document).on("input", "#address, #business_address", function(e) {
+    $(document).on("input", "#address", function(e) {
         e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, '');
     });
 
+    $(document).on("input", "#business_address", function(e) {
+        e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+    });
+
+    // ============================================
+    //  STATE DROPDOWN INTERNAL API FETCH
+    // ============================================
+    
     // ============================================
     //  STATE DROPDOWN INTERNAL API FETCH
     // ============================================
@@ -155,17 +163,157 @@ $(function () {
         }
     });
 
-    // Populate the dropdown when the user clicks/focuses it (works even if injected via AJAX later)
-    $(document).on('focus mousedown', 'select#state', function() {
-        var $select = $(this);
-        // Only populate if it hasn't been populated yet (length 1 means only the placeholder exists)
-        if ($select.children('option').length <= 1 && cachedStates) {
-            cachedStates.forEach(function(state) {
-                $select.append($('<option>', {
-                    value: state.name,
-                    text: state.name
-                }));
-            });
+    // ============================================
+    //  CATEGORY DROPDOWN INTERNAL API FETCH
+    // ============================================
+    var cachedCategories = null;
+    
+    // Fetch categories from the local proxy router
+    $.ajax({
+        url: '/admin/master/categories',
+        method: 'GET',
+        success: function(response) {
+            if (response && response.status && response.data) {
+                cachedCategories = response.data;
+            } else if (response && response.data) {
+                cachedCategories = response.data;
+            } else if (Array.isArray(response)) {
+                cachedCategories = response;
+            }
+        },
+        error: function(err) {
+            console.error("Error fetching categories from master API:", err);
+        }
+    });
+
+    // ============================================
+    //  BUSINESS TYPES DROPDOWN INTERNAL API FETCH
+    // ============================================
+    var cachedBusinessTypes = null;
+    
+    $.ajax({
+        url: '/admin/master/business-types',
+        method: 'GET',
+        success: function(response) {
+            if (response && response.status && response.data) {
+                cachedBusinessTypes = response.data;
+            } else if (response && response.data) {
+                cachedBusinessTypes = response.data;
+            } else if (Array.isArray(response)) {
+                cachedBusinessTypes = response;
+            }
+        },
+        error: function(err) {
+            console.error("Error fetching business types from master API:", err);
+        }
+    });
+
+    // Initialize Select2 Dynamically when the user interacts with the container
+    // This perfectly supports AJAX loaded dashboards!
+    $(document).on('mouseenter click focus', '#subMerchantForm .material-outline', function() {
+        var $stateSelect = $(this).find('select#state');
+        
+        if ($stateSelect.length > 0 && !$stateSelect.hasClass('select2-hidden-accessible')) {
+            // 1. Populate options
+            if (cachedStates && $stateSelect.children('option').length <= 1) {
+                cachedStates.forEach(function(state) {
+                    $stateSelect.append($('<option>', {
+                        value: state.name,
+                        text: state.name
+                    }));
+                });
+            }
+            
+            // 2. Initialize Gorgeous Select2
+            if ($.fn.select2) {
+                $stateSelect.closest('.material-outline').addClass('has-select2');
+                $stateSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: '' // Placeholder left empty so the material label works
+                });
+
+                // Add focus classes for floating label color
+                $stateSelect.on('select2:open', function() {
+                    $(this).closest('.material-outline').addClass('select2-focused');
+                });
+                $stateSelect.on('select2:close', function() {
+                    $(this).closest('.material-outline').removeClass('select2-focused');
+                });
+            }
+        }
+        
+        var $catSelect = $(this).find('select#nature_of_business');
+        if ($catSelect.length > 0 && !$catSelect.hasClass('select2-hidden-accessible')) {
+            // 1. Populate options
+            if (cachedCategories && $catSelect.children('option').length <= 1) {
+                var catArray = Array.isArray(cachedCategories) ? cachedCategories : (cachedCategories.data || []);
+                catArray.forEach(function(cat) {
+                    var val = cat.name || cat.category_name || cat.nature_of_business || cat.category_code || cat;
+                    $catSelect.append($('<option>', {
+                        value: val,
+                        text: val
+                    }));
+                });
+            }
+            
+            // 2. Initialize Gorgeous Select2
+            if ($.fn.select2) {
+                $catSelect.closest('.material-outline').addClass('has-select2');
+                $catSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: '' // Placeholder left empty so the material label works
+                });
+
+                // Add focus classes for floating label color
+                $catSelect.on('select2:open', function() {
+                    $(this).closest('.material-outline').addClass('select2-focused');
+                });
+                $catSelect.on('select2:close', function() {
+                    $(this).closest('.material-outline').removeClass('select2-focused');
+                });
+            }
+        }
+
+        var $catCodeSelect = $(this).find('select#category_code');
+        if ($catCodeSelect.length > 0 && !$catCodeSelect.hasClass('select2-hidden-accessible')) {
+            if (cachedCategories && $catCodeSelect.children('option').length <= 1) {
+                var catArray = Array.isArray(cachedCategories) ? cachedCategories : (cachedCategories.data || []);
+                catArray.forEach(function(cat) {
+                    var val = cat.category_code || cat.code || cat.id || cat.name || cat.category_name || cat;
+                    $catCodeSelect.append($('<option>', {
+                        value: val,
+                        text: val
+                    }));
+                });
+            }
+            if ($.fn.select2) {
+                $catCodeSelect.closest('.material-outline').addClass('has-select2');
+                $catCodeSelect.select2({ theme: 'bootstrap-5', width: '100%', placeholder: '' });
+                $catCodeSelect.on('select2:open', function() { $(this).closest('.material-outline').addClass('select2-focused'); });
+                $catCodeSelect.on('select2:close', function() { $(this).closest('.material-outline').removeClass('select2-focused'); });
+            }
+        }
+
+        var $bizTypeSelect = $(this).find('select#business_type_code');
+        if ($bizTypeSelect.length > 0 && !$bizTypeSelect.hasClass('select2-hidden-accessible')) {
+            if (cachedBusinessTypes && $bizTypeSelect.children('option').length <= 1) {
+                var btArray = Array.isArray(cachedBusinessTypes) ? cachedBusinessTypes : (cachedBusinessTypes.data || []);
+                btArray.forEach(function(bt) {
+                    var val = bt.business_type_code || bt.code || bt.name || bt.type_name || bt;
+                    $bizTypeSelect.append($('<option>', {
+                        value: val,
+                        text: val
+                    }));
+                });
+            }
+            if ($.fn.select2) {
+                $bizTypeSelect.closest('.material-outline').addClass('has-select2');
+                $bizTypeSelect.select2({ theme: 'bootstrap-5', width: '100%', placeholder: '' });
+                $bizTypeSelect.on('select2:open', function() { $(this).closest('.material-outline').addClass('select2-focused'); });
+                $bizTypeSelect.on('select2:close', function() { $(this).closest('.material-outline').removeClass('select2-focused'); });
+            }
         }
     });
 });
