@@ -24,7 +24,7 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link fw-medium px-4 py-3" id="location-tab" data-bs-toggle="tab" data-bs-target="#location-tab-pane" type="button" role="tab" aria-controls="location-tab-pane" aria-selected="false" disabled>
-                        <i class="bi bi-geo-alt-fill me-2 text-primary"></i><span class="tab-label">Location & Address</span>
+                        <i class="bi bi-geo-alt-fill me-2 text-primary"></i><span class="tab-label">Address Details</span>
                     </button>
                 </li>
             </ul>
@@ -69,13 +69,13 @@
 
                 <div class="tab-pane fade" id="business-tab-pane" role="tabpanel" aria-labelledby="business-tab" tabindex="0">
                     <div class="row g-4">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="material-outline">
                                 <input type="text" class="form-control" id="business_name" name="business_name" placeholder="Business Name" required>
                                 <label for="business_name">Business / Shop Name <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                          <div class="col-md-6">
+                          <div class="col-md-4">
                               <div class="material-outline">
                                   <select class="form-select" id="state" name="state" required>
                                       <option value="" disabled selected></option>
@@ -83,7 +83,7 @@
                                   <label for="state">State <span class="text-danger">*</span></label>
                               </div>
                           </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="material-outline">
                                 <select class="form-select" id="nature_of_business" name="nature_of_business" required>
                                     <option value="" disabled selected></option>
@@ -91,7 +91,8 @@
                                 <label for="nature_of_business">Business Category Name<span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        
+                        </div>
+                        <div class="row g-4">
                         <div class="col-md-4">
                             <div class="material-outline">
                                 <select class="form-select" id="category_code" name="category_code" required>
@@ -108,12 +109,12 @@
                                 <label for="business_type_code">Business Type Code <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-6">
                             <div class="material-outline">
                                 <input type="number" class="form-control" id="entity_type" name="entity_type" placeholder="Entity Type" required>
                                 <label for="entity_type">Entity Type Code <span class="text-danger">*</span></label>
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="col-md-4">
                             <div class="material-outline">
@@ -121,17 +122,26 @@
                                 <label for="pan_no">PAN No <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-4">
                             <div class="material-outline">
                                 <input type="text" class="form-control" id="gstin" name="gstin" placeholder="GSTIN (Optional)">
                                 <label for="gstin">GSTIN (Optional)</label>
                             </div>
-                        </div>
-                        <div class="col-md-4">
+                        </div> -->
+                        <!-- <div class="col-md-4">
                             <div class="material-outline">
                                 <input type="text" class="form-control" id="primary_vpa" name="primary_vpa" placeholder="Primary VPA" required>
                                 <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
                             </div>
+                        </div> -->
+                    </div>
+                    <div class="row g-4">
+                         <div class="col-12">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="business_address" name="business_address" placeholder="Business Address" required>
+                                <label for="business_address">Business Address <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-text text-danger fw-bold mt-1" id="business_address_error" style="font-size: 0.85rem;">(No special characters are allowed (e.g. @, #, $, %, ^, &, *, !, ?, etc.))</div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between mt-4">
@@ -152,12 +162,7 @@
                                 <label for="address">Aadhaar Address (No special characters) <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="material-outline">
-                                <textarea class="form-control" id="business_address" name="business_address" placeholder="Business Address" rows="3" required></textarea>
-                                <label for="business_address">Complete Business Address (No special characters) <span class="text-danger">*</span></label>
-                            </div>
-                        </div>
+
                         
                         <div class="col-md-4">
                             <div class="material-outline">
@@ -170,6 +175,26 @@
                             <div class="material-outline">
                                 <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
                                 <label for="pincode">Pincode <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="gstin" name="gstin" placeholder="GSTIN (Optional)">
+                                <label for="gstin">GSTIN (Optional)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="text" class="form-control" id="primary_vpa" name="primary_vpa" placeholder="Primary VPA" required>
+                                <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+
+                         <div class="col-md-4">
+                            <div class="material-outline">
+                                <input type="number" class="form-control" id="entity_type" name="entity_type" placeholder="Entity Type" required>
+                                <label for="entity_type">Entity Type Code <span class="text-danger">*</span></label>
                             </div>
                         </div>
 

@@ -137,7 +137,10 @@ $(function () {
     });
 
     $(document).on("input", "#business_address", function(e) {
-        e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+        var val = e.target.value;
+        if (/[^a-zA-Z0-9\s]/.test(val)) {
+            e.target.value = val.replace(/[^a-zA-Z0-9\s]/g, '');
+        }
     });
 
     // ============================================
