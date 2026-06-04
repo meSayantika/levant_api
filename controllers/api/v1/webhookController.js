@@ -90,24 +90,24 @@ exports.kycReceiver = async (req, res) => {
         if (req.method === 'GET') {
             payload = req.query;
 
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
         }
         
-        if (!payload || !payload.data) {
-            return res.status(400).json({ success: false, message: "Invalid payload format" });
-        }
+        // if (!payload || !payload.data) {
+        //     return res.status(400).json({ success: false, message: "Invalid payload format" });
+        // }
         
         // Immediately acknowledge receipt
-        res.status(200).json({ success: true, message: "KYC Webhook received" });
+        return res.status(200).json({ success: true, message: "KYC Webhook received" });
 
         const data = payload.data;
         console.log(`Processing KYC for Merchant ID: ${data.id}`);
@@ -157,8 +157,8 @@ exports.kycReceiver = async (req, res) => {
         };
 
         // Insert into td_kyc_approval — F_Insert(dbId, query, params)
-        // const insertLog = await F_Insert(DB_ID, insertQuery, kycValues);
-        const insertLog = 'test kyc';
+        const insertLog = await F_Insert(DB_ID, insertQuery, kycValues);
+        // const insertLog = 'test kyc';
         console.log(`Successfully inserted into td_kyc_approval. Rows affected: ${insertLog.rowsAffected}`);
 
     } catch (error) {
@@ -176,24 +176,24 @@ exports.transactionReceiver = async (req, res) => {
             payload = req.query;
             
         //     //If Levant passes complex JSON inside a GET URL, convert it back to a real object
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
         }
         
-        if (!payload || !payload.data) {
-            return res.status(400).json({ success: false, message: "Invalid payload format" });
-        }
+        // if (!payload || !payload.data) {
+        //     return res.status(400).json({ success: false, message: "Invalid payload format" });
+        // }
         
         // Immediately acknowledge receipt to Levant
-        res.status(200).json({ success: true, message: "Transaction Webhook received" });
+        return res.status(200).json({ success: true, message: "Transaction Webhook received" });
 
         const data = payload.data;
         console.log(`Processing Transaction Credit. UTR: ${data.unique_transaction_reference}, Amount: ${data.amount}`);
@@ -257,8 +257,8 @@ exports.transactionReceiver = async (req, res) => {
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
-        // const insertResult = await F_Insert(DB_ID, insertQuery, transValues);
-        const insertResult = 'test credit transaction';
+        const insertResult = await F_Insert(DB_ID, insertQuery, transValues);
+        // const insertResult = 'test credit transaction';
         
         console.log(`Successfully inserted into td_transaction_credit. Rows affected: ${insertResult.rowsAffected}`);
 
@@ -276,24 +276,24 @@ exports.settlementInitiateReceiver = async (req, res) => {
             payload = req.query;
             
         //     //If Levant passes complex JSON inside a GET URL, convert it back to a real object
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
         }
         
-        if (!payload || !payload.data) {
-            return res.status(400).json({ success: false, message: "Invalid payload format" });
-        }
+        // if (!payload || !payload.data) {
+        //     return res.status(400).json({ success: false, message: "Invalid payload format" });
+        // }
         
         // Immediately acknowledge receipt to Levant
-        res.status(200).json({ success: true, message: "Settlement Initiate received" });
+        return res.status(200).json({ success: true, message: "Settlement Initiate received" });
 
         const data = payload.data;
         console.log(`Processing Settlement Initiated. ID: ${data.id}, Amount: ${data.amount}`);
@@ -350,8 +350,8 @@ exports.settlementInitiateReceiver = async (req, res) => {
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
-        // const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
-        insertResult = 'Test settlement initiated' ;
+        const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
+        // insertResult = 'Test settlement initiated' ;
         console.log(`Successfully inserted into td_settlement_initiated. Rows affected: ${insertResult.rowsAffected}`);
 
     } catch (error) { 
@@ -368,13 +368,13 @@ exports.settlementUpdateReceiver = async (req, res) => {
             payload = req.query;
             
         //     // If Levant passes complex JSON inside a GET URL, convert it back to a real object
-            if (payload.data && typeof payload.data === 'string') {
-                try {
-                    payload.data = JSON.parse(payload.data);
-                } catch (parseErr) {
-                    console.warn("Could not parse GET query data as JSON.");
-                }
-            }
+            // if (payload.data && typeof payload.data === 'string') {
+            //     try {
+            //         payload.data = JSON.parse(payload.data);
+            //     } catch (parseErr) {
+            //         console.warn("Could not parse GET query data as JSON.");
+            //     }
+            // }
         } else {
             // For POST, PUT, PATCH, etc.
             payload = req.body;
@@ -385,7 +385,7 @@ exports.settlementUpdateReceiver = async (req, res) => {
         }
         
         // Immediately acknowledge receipt to Levant
-        res.status(200).json({ success: true, message: "Settlement Update received" });
+        return res.status(200).json({ success: true, message: "Settlement Update received" });
 
         const data = payload.data;
         console.log(`Processing Settlement Update. ID: ${data.id}, Status: ${data.status}`);
@@ -441,8 +441,8 @@ exports.settlementUpdateReceiver = async (req, res) => {
         };
 
         // Execute DB Insert — F_Insert(dbId, query, params)
-        // const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
-        insertResult = 'Test settlement approval' ;
+        const insertResult = await F_Insert(DB_ID, insertQuery, settleValues);
+        // insertResult = 'Test settlement updated' ;
         
         console.log(`Successfully inserted into td_settlement_approval. Rows affected: ${insertResult.rowsAffected}`);
 

@@ -198,3 +198,233 @@ BODY/QUERY: {
   }
 }
 ========================================
+
+========================================
+TIME: 2026-06-04T10:58:40.822Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "70f40e8e-c840-4b7d-843c-88c5753e330b",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:00:39.299Z
+METHOD: GET
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "host": "localhost:3000",
+  "connection": "keep-alive",
+  "sec-ch-ua": "\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+  "sec-ch-ua-mobile": "?0",
+  "sec-ch-ua-platform": "\"Windows\"",
+  "upgrade-insecure-requests": "1",
+  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+  "sec-fetch-site": "none",
+  "sec-fetch-mode": "navigate",
+  "sec-fetch-user": "?1",
+  "sec-fetch-dest": "document",
+  "accept-encoding": "gzip, deflate, br, zstd",
+  "accept-language": "en-US,en;q=0.9",
+  "cookie": "sp_remember=sayantika%40synergicsoftek.in; _csrf=bSf3R1IRuZeaJARI3v23r5KS; sp_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNheWFudGlrYUBzeW5lcmdpY3NvZnRlay5pbiIsInVzZXJUeXBlIjoiUyIsImJhbmtJZCI6NCwiaWF0IjoxNzgwNTU4ODkyLCJleHAiOjE3ODA2NDUyOTJ9.seetVPEq8zcmjN7VuLw83TfrOachrMFhwBEBxf5uNWU"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:12:53.077Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "ebca39bc-865f-464f-b9d1-9de2e69dc8b1",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:15:18.588Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "848f401b-b1e2-4b05-9d92-e4814c01bf44",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:15:47.114Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "777ee83a-b0d1-4306-8023-7010588150d1",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:16:20.643Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "b6728b9b-7e03-4c17-8be2-871e333fcac7",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:16:56.089Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "61a32808-c415-4808-b16a-9ee6256b49dd",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:17:59.084Z
+METHOD: GET
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "46d7f927-16eb-4ed8-a1fd-79d2a85b13c5",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:18:33.790Z
+METHOD: GET
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "3f5f9ef1-7a20-45ef-a27e-cfd57dfd28a5",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:18:49.192Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "ced6c503-5c93-4ded-aab4-8518da8bbe4b",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:20:51.262Z
+METHOD: POST
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "f840e669-0833-425b-b4a1-fea4028cba81",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3",
+  "content-length": "0"
+}
+BODY/QUERY: {}
+========================================
+
+========================================
+TIME: 2026-06-04T11:20:56.883Z
+METHOD: GET
+URL: /api/v1/webhooks/kyc
+HEADERS: {
+  "content-type": "application/json",
+  "user-agent": "PostmanRuntime/7.54.0",
+  "accept": "*/*",
+  "cache-control": "no-cache",
+  "postman-token": "e0b67293-9e13-4183-a86a-352e175d39c8",
+  "host": "localhost:3000",
+  "accept-encoding": "gzip, deflate, br",
+  "connection": "keep-alive",
+  "cookie": "_csrf=dPrBW_TbUZws460P5oH6x1p3"
+}
+BODY/QUERY: {}
+========================================
