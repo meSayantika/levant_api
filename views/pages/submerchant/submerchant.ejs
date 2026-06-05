@@ -262,12 +262,19 @@
     }
 </style>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDANjx3bosEtIyzJaoWs50Wnt6nt_1rmxU"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=<%= googleMapsApiKey %>"></script>
 <script type="text/javascript" src="/autocomplete.js"></script>
 
 <script>
     // Remove existing handlers to prevent double binding on re-renders
     $(document).off('submit', '#subMerchantForm');
+
+    // Prevent pasting into address fields so users are forced to type and use Autocomplete
+    $(document).on('paste', '#business_address, #address', function(e) {
+        e.preventDefault();
+        alert("Pasting is disabled for address fields. Please type to use the location search.");
+        return false;
+    });
 
     // 2. Handle Form Submission
     $(document).on('submit', '#subMerchantForm', function (e) {

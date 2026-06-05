@@ -45,10 +45,10 @@ async function processCreateSubMerchant(req, res) {
             state: payload.state,
             nature_of_business: payload.nature_of_business,
             business_address: payload.business_address,
-            bank_name: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name || null,
-            bank_branch: bankDetails.BANK_BRANCH || bankDetails.bank_branch || null,
-            account_number: bankDetails.ACC_NUM || bankDetails.acc_num || null,
-            account_ifsc: bankDetails.IFSC || bankDetails.ifsc || null,
+            bank_name: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name || 'Kotak Mahindra Bank',
+            bank_branch: bankDetails.BANK_BRANCH || bankDetails.bank_branch || 'Main Branch',
+            account_number: bankDetails.ACC_NUM || bankDetails.acc_num || 'XXXXXXXXXXX',
+            account_ifsc: bankDetails.IFSC || bankDetails.ifsc || 'KKBK0006565',
             category_code: payload.category_code,
             pan_number: payload.pan_no, // Field is pan_no in UI
             business_type_code: payload.business_type_code,
@@ -63,6 +63,11 @@ async function processCreateSubMerchant(req, res) {
         };
 
         const rawReqPayload = JSON.stringify(apiPayload);
+        
+        console.log("==========================================");
+        console.log("PAYLOAD SENT TO LEVANT API:");
+        console.log(rawReqPayload);
+        console.log("==========================================");
 
         // 2. Pre-save to Oracle Database
         const custCd = await generateCustCd();
@@ -83,7 +88,7 @@ async function processCreateSubMerchant(req, res) {
                 :custCd, :merchantCode, :subMerchantCode, :legalName, :nameOnBank, :email, :phone,
                 'A', :businessName, :state, :natureOfBusiness, :businessAddress,
                 :categoryCode, :panNumber, :businessTypeCode, :address, :city, :pincode,
-                :entityType, :gstin, SYSTIMESTAMP, SYSTIMESTAMP, :createdBy, :modifiedBy, :primaryVpa,
+                :entityType, :gstin, SYSTIMESTAMP, NULL, :createdBy, NULL, :primaryVpa,
                 :rawReqPayload, :bankName, :bankBranch, :bankAccountNumber, :bankAccountIfsc,
                 :gpsLat, :gpsLong
             )
@@ -110,7 +115,6 @@ async function processCreateSubMerchant(req, res) {
             entityType: apiPayload.entity_type,
             gstin: apiPayload.gstin,
             createdBy: req.user ? req.user.username : 'ADMIN',
-            modifiedBy: req.user ? req.user.username : 'ADMIN',
             primaryVpa: apiPayload.primary_vpa,
             rawReqPayload: rawReqPayload,
             bankName: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name || null,

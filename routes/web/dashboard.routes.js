@@ -21,7 +21,8 @@ router.get("/merchants", verifyWebAuth, (req, res) => {
     res.render("pages/submerchant/submerchant", {
         title: "Sub Merchant Onboarding | Synergic Pay",
         user: req.user,
-        currentRoute: "/admin/merchants"
+        currentRoute: "/admin/merchants",
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
     });
 });
 
