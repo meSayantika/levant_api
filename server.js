@@ -38,8 +38,11 @@ app.use(helmet({
             scriptSrc: [
                 "'self'",
                 "'unsafe-inline'",
+                "'unsafe-eval'",
                 "https://code.jquery.com",
-                "https://cdn.jsdelivr.net"
+                "https://cdn.jsdelivr.net",
+                "https://maps.googleapis.com",
+                "https://maps.gstatic.com"
             ],
             styleSrc: [
                 "'self'",
@@ -53,7 +56,7 @@ app.use(helmet({
                 "https://cdn.jsdelivr.net"
             ],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://cdn.jsdelivr.net"]
+            connectSrc: ["'self'", "https://cdn.jsdelivr.net", "https://maps.googleapis.com"]
         }
     },
     crossOriginEmbedderPolicy: false

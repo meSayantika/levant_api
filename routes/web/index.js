@@ -15,11 +15,13 @@ const authRoutes = require("./auth.routes");
 const dashboardRoutes = require("./dashboard.routes");
 const menuRoutes = require("./menu.routes");
 const masterRoutes = require("./master.routes");
+const submerchantRoutes = require("./submerchant.routes");
 
 // ---- Mount routes ----
 router.use("/", authRoutes);       // /admin/login, /admin/logout
 router.use("/", dashboardRoutes);  // /admin/dashboard
 router.use("/", menuRoutes);       // /admin/menu-management
 router.use("/master", masterRoutes); // /admin/master/states
+router.use("/submerchant", submerchantRoutes); // /admin/submerchant/submerchant_onboard
 
 module.exports = router;

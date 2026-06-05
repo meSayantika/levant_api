@@ -25,6 +25,7 @@
 
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="/css/style.css?v=8">
+    <%- typeof style !== 'undefined' ? style : '' %>
 </head>
 <body>
 
@@ -62,5 +63,6 @@
 
     <!-- Custom JS -->
     <script src="/js/main.js?v=6"></script>
+    <%- typeof script !== 'undefined' ? script : '' %>
 </body>
 </html>

@@ -5,7 +5,7 @@
     </div>
 </div>
 
-<form action="/admin/submerchant/create" method="POST" id="subMerchantForm">
+<form action="/admin/submerchant/submerchant_onboard" method="POST" id="subMerchantForm">
     <div class="card border-0 rounded-4 shadow-sm mb-5">
         <div class="card-header bg-white border-bottom-0 rounded-top-4 px-4 pt-4 pb-0">
             <ul class="nav nav-tabs border-bottom" id="merchantTabs" role="tablist">
@@ -96,7 +96,7 @@
                     </div>
                     <div class="d-flex justify-content-end mt-2">
                         <button type="button" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm btn-sm"
-                            id="next-to-business" style = "color: white;
+                            id="next-to-business" style="color: white;
     background-color: #57a947; border-color: #061014;">
                             Next Step <i class="bi bi-arrow-right ms-2"></i>
                         </button>
@@ -160,13 +160,15 @@
                         </div>
                     </div>
                     <div class="row g-3 mt-1">
-                        <div class="col-12">
+                        <div class="col-12 position-relative">
                             <div class="material-outline">
                                 <input type="text" class="form-control" id="business_address" name="business_address"
-                                    placeholder="Business Address" required>
+                                    placeholder="Business Address" required autocomplete="off">
                                 <label for="business_address">Business Address <span
                                         class="text-danger">*</span></label>
                             </div>
+                            <ul id="address-suggestions" class="list-group position-absolute w-100 shadow-sm"
+                                style="display:none; z-index: 1050; max-height: 200px; overflow-y: auto;"></ul>
                             <div class="text-danger fw-bold"
                                 style="font-size: 0.85rem; margin-top: 2px; padding-left: 4px;">(No special characters
                                 are allowed (e.g. @, #, $, %, ^, &, *, !, ?, etc.))</div>
@@ -178,7 +180,7 @@
                             <i class="bi bi-arrow-left me-2"></i> Previous
                         </button>
                         <button type="button" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm"
-                            id="next-to-location" style = "color: white;
+                            id="next-to-location" style="color: white;
     background-color: #57a947; border-color: #061014;">
                             Next Step <i class="bi bi-arrow-right ms-2"></i>
                         </button>
@@ -231,18 +233,8 @@
                             </div>
                         </div> -->
 
-                        <!-- <div class="col-md-6">
-                            <div class="material-outline">
-                                <input type="text" class="form-control" id="lati" name="lati" placeholder="Latitude" required>
-                                <label for="lati">Latitude <span class="text-danger">*</span></label>
-                            </div>
-                        </div> -->
-                        <!-- <div class="col-md-6">
-                            <div class="material-outline">
-                                <input type="text" class="form-control" id="longi" name="longi" placeholder="Longitude" required>
-                                <label for="longi">Longitude <span class="text-danger">*</span></label>
-                            </div>
-                        </div> -->
+                        <input type="hidden" id="lati" name="lati" value="0.0000">
+                        <input type="hidden" id="longi" name="longi" value="0.0000">
                     </div>
                     <div class="d-flex justify-content-between mt-5 pt-3 border-top">
                         <button type="button" class="btn btn-info text-white px-4 py-2 rounded-3 shadow-sm"
@@ -251,7 +243,8 @@
                         </button>
                         <div>
                             <!-- <button type="reset" class="btn btn-light px-4 py-2 me-3 rounded-3 shadow-sm fw-medium border">Clear Form</button> -->
-                            <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 shadow-sm fw-semibold" style = "color: white;
+                            <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 shadow-sm fw-semibold"
+                                style="color: white;
     background-color: #57a947; border-color: #061014;">
                                 <i class="bi bi-cloud-upload-fill me-2"></i> Submit SubMerchant
                             </button>
@@ -261,5 +254,61 @@
 
             </div>
         </div>
-    </div>
-</form>
+<style>
+    /* Force Google Maps Autocomplete dropdown to appear above Bootstrap tabs/modals */
+    .pac-container {
+        z-index: 10500 !important;
+        min-width: 300px !important;
+    }
+</style>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDANjx3bosEtIyzJaoWs50Wnt6nt_1rmxU"></script>
+<script type="text/javascript" src="/autocomplete.js"></script>
+
+<script>
+    // Remove existing handlers to prevent double binding on re-renders
+    $(document).off('submit', '#subMerchantForm');
+
+    // 2. Handle Form Submission
+    $(document).on('submit', '#subMerchantForm', function (e) {
+        e.preventDefault(); // Prevent standard form submission
+
+        var $form = $(this);
+        var $submitBtn = $form.find('button[type="submit"]');
+        var originalBtnText = $submitBtn.html();
+        $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+        // Helper function to submit via AJAX after coordinates are resolved
+        function executeAjaxSubmission() {
+            var formData = $form.serialize();
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+
+                    if (response.success) {
+                        // Show success message
+                        alert(response.message || 'Sub-merchant onboarded successfully!');
+                        // Refresh the page to clear the form and load fresh data
+                        window.location.reload();
+                    } else {
+                        // Show error message
+                        alert('Error: ' + (response.message || 'Failed to onboard sub-merchant.'));
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+                    alert('An unexpected error occurred. Please try again.');
+                    console.error("Submission Error:", error);
+                }
+            });
+        }
+        
+        // Actually call the function to submit the form!
+        executeAjaxSubmission();
+    });
+
+</script>
