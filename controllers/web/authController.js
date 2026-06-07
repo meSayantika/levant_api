@@ -125,7 +125,7 @@ async function processLogin(req, res) {
         // ---- Update LAST_LOGIN timestamp ----
         try {
             const updateQry = `UPDATE MD_ADMIN_USER SET LAST_LOGIN = SYSTIMESTAMP WHERE UPPER(USER_ID) = UPPER(:username)`;
-            await F_Select(0, updateQry, { username: user.USER_ID });
+            await F_Insert(0, updateQry, { username: user.USER_ID });
         } catch(updateErr) {
             logger.error(`Could not update LAST_LOGIN for ${username}: ${updateErr.message}`);
         }

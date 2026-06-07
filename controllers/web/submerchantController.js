@@ -148,27 +148,31 @@ async function processCreateSubMerchant(req, res) {
         const rawResponseStr = JSON.stringify(jsonResponse);
 
         // 4. Update the Oracle record with the response
-        // let finalSubMerchantCode = initialSubMerchantCode;
-        // if (jsonResponse.success && jsonResponse.response?.data?.merchant?.id) {
-        //     finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
-        // }
+        let finalSubMerchantCode = initialSubMerchantCode;
+        if (jsonResponse.success && jsonResponse.response?.data?.merchant?.id) {
+            finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
+        }
 
-        // const updateQuery = `
-        //     UPDATE SUB_MERCHANTS
-        //     SET 
-        //         SUB_MERCHANT_CODE = :subMerchantCode,
-        //         RAW_RESPONSE = :rawResponse,
-        //         UPDATED_AT = SYSTIMESTAMP
-        //     WHERE CUST_CD = :custCd
-        // `;
+        const modifiedBy = req.user ? req.user.username : 'ADMIN';
 
-        // await F_Insert(0, updateQuery, {
-        //     subMerchantCode: finalSubMerchantCode,
-        //     rawResponse: rawResponseStr,
-        //     custCd: custCd
-        // });
+        const updateQuery = `
+            UPDATE SUB_MERCHANTS
+            SET 
+                SUB_MERCHANT_CODE = :subMerchantCode,
+                RAW_RESPONSE = :rawResponse,
+                UPDATED_AT = SYSTIMESTAMP,
+                MODIFIED_BY = :modifiedBy
+            WHERE CUST_CD = :custCd
+        `;
 
-        // logger.info(`[SubMerchant Controller] Response updated for CUST_CD: ${custCd}`);
+        await F_Insert(0, updateQuery, {
+            subMerchantCode: finalSubMerchantCode,
+            rawResponse: rawResponseStr,
+            modifiedBy: modifiedBy,
+            custCd: custCd
+        });
+
+        logger.info(`[SubMerchant Controller] Response updated for CUST_CD: ${custCd}`);
 
         if (jsonResponse.success) {
             // Can redirect or render success based on standard app pattern
