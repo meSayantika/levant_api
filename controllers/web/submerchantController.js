@@ -25,9 +25,10 @@ async function processCreateSubMerchant(req, res) {
         const payload = req.body;
         console.log(payload);
         
+        const bank_id = '4';
 
         // Fetch bank details based on bank_id = 4
-        const bankResult = await F_Select(0, `SELECT merchant_code, mer_bank_name, bank_branch, acc_num, ifsc FROM md_bank WHERE bank_id = 4`);
+        const bankResult = await F_Select(0, `SELECT merchant_code, mer_bank_name, bank_branch, acc_num, ifsc FROM md_bank WHERE bank_id = ${bank_id}`);
         if (!bankResult || bankResult.length === 0) {
             return res.json({ success: false, message: "Bank details not found for bank_id 4." });
         }
@@ -45,10 +46,10 @@ async function processCreateSubMerchant(req, res) {
             state: payload.state,
             nature_of_business: payload.nature_of_business,
             business_address: payload.business_address,
-            bank_name: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name || 'Kotak Mahindra Bank',
-            bank_branch: bankDetails.BANK_BRANCH || bankDetails.bank_branch || 'Main Branch',
-            account_number: bankDetails.ACC_NUM || bankDetails.acc_num || 'XXXXXXXXXXX',
-            account_ifsc: bankDetails.IFSC || bankDetails.ifsc || 'KKBK0006565',
+            bank_name: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name,
+            bank_branch: bankDetails.BANK_BRANCH || bankDetails.bank_branch,
+            account_number: bankDetails.ACC_NUM || bankDetails.acc_num,
+            account_ifsc: bankDetails.IFSC || bankDetails.ifsc,
             category_code: payload.category_code,
             pan_number: payload.pan_no, // Field is pan_no in UI
             business_type_code: payload.business_type_code,

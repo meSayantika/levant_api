@@ -28,6 +28,7 @@ oracledb.fetchAsString = [oracledb.CLOB];
 
 // ---- Pool Cache ----
 const poolCache = {};
+const poolCreationPromises = {}; // Cache to track in-progress pool creations
 
 /**
  * Get or create an Oracle connection pool for the given DB ID.
@@ -49,6 +50,11 @@ async function getPool(dbId) {
         } catch (e) {
             delete poolCache[poolAlias];
         }
+    }
+
+    // If another request is currently creating this pool, wait for it instead of trying to create a new one
+    if (poolCreationPromises[poolAlias]) {
+        return poolCreationPromises[poolAlias];
     }
 
     // Check oracledb internal cache directly to prevent NJS-046
@@ -79,40 +85,47 @@ async function getPool(dbId) {
         throw new Error(`[OracleModel] No connection config found for DB ID: ${dbId}`);
     }
 
-    try {
-        const pool = await oracledb.createPool({
-            user: config.user,
-            password: config.password,
-            connectString: config.connectionString,
-            poolMax: config.poolMax,
-            poolMin: config.poolMin,
-            poolIncrement: config.poolIncrement,
-            poolAlias: poolAlias
-        });
+    poolCreationPromises[poolAlias] = (async () => {
+        try {
+            const pool = await oracledb.createPool({
+                user: config.user,
+                password: config.password,
+                connectString: config.connectionString,
+                poolMax: config.poolMax,
+                poolMin: config.poolMin,
+                poolIncrement: config.poolIncrement,
+                poolAlias: poolAlias
+            });
 
-        poolCache[poolAlias] = pool;
-        console.log(`[OracleModel] Connection pool created for DB ID: ${dbId}`);
-        return pool;
-    } catch (err) {
-        // Fallback: NJS-046 pool alias already exists in the oracledb internal cache
-        if (err.message && err.message.includes('NJS-046')) {
-            try {
-                const existingPool = oracledb.getPool(poolAlias);
-                if (existingPool && existingPool.status === oracledb.POOL_STATUS_OPEN) {
-                    poolCache[poolAlias] = existingPool;
-                    console.log(`[OracleModel] Recovered existing pool for DB ID: ${dbId}`);
-                    return existingPool;
+            poolCache[poolAlias] = pool;
+            console.log(`[OracleModel] Connection pool created for DB ID: ${dbId}`);
+            return pool;
+        } catch (err) {
+            // Fallback: NJS-046 pool alias already exists in the oracledb internal cache
+            if (err.message && err.message.includes('NJS-046')) {
+                try {
+                    const existingPool = oracledb.getPool(poolAlias);
+                    if (existingPool && existingPool.status === oracledb.POOL_STATUS_OPEN) {
+                        poolCache[poolAlias] = existingPool;
+                        console.log(`[OracleModel] Recovered existing pool for DB ID: ${dbId}`);
+                        return existingPool;
+                    }
+                    // Pool exists but is not open — close it and let the caller retry
+                    try { await existingPool.close(0); } catch (closeErr) { /* ignore */ }
+                } catch (getErr) {
+                    // Could not retrieve the pool either — nothing more we can do
                 }
-                // Pool exists but is not open — close it and let the caller retry
-                try { await existingPool.close(0); } catch (closeErr) { /* ignore */ }
-            } catch (getErr) {
-                // Could not retrieve the pool either — nothing more we can do
             }
-        }
 
-        console.error(`[OracleModel] Failed to create pool for DB ID: ${dbId}`, err.message);
-        throw err;
-    }
+            console.error(`[OracleModel] Failed to create pool for DB ID: ${dbId}`, err.message);
+            throw err;
+        } finally {
+            // Remove the creation promise once done (whether success or error)
+            delete poolCreationPromises[poolAlias];
+        }
+    })();
+
+    return poolCreationPromises[poolAlias];
 }
 
 /**
