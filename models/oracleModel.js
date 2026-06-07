@@ -51,6 +51,29 @@ async function getPool(dbId) {
         }
     }
 
+    // Check oracledb internal cache directly to prevent NJS-046
+    try {
+        const existingPool = oracledb.getPool(poolAlias);
+        if (existingPool) {
+            if (existingPool.status === oracledb.POOL_STATUS_OPEN) {
+                poolCache[poolAlias] = existingPool;
+                return existingPool;
+            } else {
+                try { 
+                    await existingPool.close(0); 
+                } catch (closeErr) { 
+                    console.warn(`[OracleModel] Warning: Could not close stale pool ${poolAlias}:`, closeErr.message); 
+                }
+            }
+        }
+    } catch (getErr) {
+        // Safe to ignore: pool doesn't exist internally yet.
+        // We log it at debug level just in case.
+        if (getErr.message && !getErr.message.includes('NJS-047')) {
+            console.debug(`[OracleModel] getPool check for ${poolAlias}:`, getErr.message);
+        }
+    }
+
     const config = conString[dbId];
     if (!config) {
         throw new Error(`[OracleModel] No connection config found for DB ID: ${dbId}`);
@@ -71,9 +94,7 @@ async function getPool(dbId) {
         console.log(`[OracleModel] Connection pool created for DB ID: ${dbId}`);
         return pool;
     } catch (err) {
-        // NJS-046: pool alias already exists in the oracledb internal cache
-        // This can happen if a previous createPool registered the alias but
-        // the connection timed out (ORA-12170). Try to retrieve the existing pool.
+        // Fallback: NJS-046 pool alias already exists in the oracledb internal cache
         if (err.message && err.message.includes('NJS-046')) {
             try {
                 const existingPool = oracledb.getPool(poolAlias);
