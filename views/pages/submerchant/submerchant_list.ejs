@@ -1,0 +1,243 @@
+<style>
+    :root {
+        --sm-primary: #667eea;
+        --sm-secondary: #764ba2;
+        --sm-surface: #ffffff;
+        --sm-bg: #f8f9fc;
+        --sm-text: #1a1a2e;
+        --sm-muted: #6c757d;
+        --sm-border: #e8e8f0;
+    }
+
+    body {
+        background-color: var(--sm-bg);
+    }
+
+    .sm-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.6rem;
+    }
+
+    .sm-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .sm-page-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+    }
+
+    .sm-page-title h4 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--sm-text);
+        letter-spacing: -0.3px;
+    }
+
+    .sm-page-title p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--sm-muted);
+    }
+
+    .sm-card {
+        background: #ffffff;
+        border: 1px solid #e8e8f0;
+        border-left: 5px solid #667eea;    /* THICK LEFT BORDER */
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* ===== TABLE STYLING MATCHING GENERATE KYC ===== */
+    .sm-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+    .sm-table thead tr, .sm-table thead th {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        color: #ffffff !important;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.15rem;
+        border: none;
+        white-space: nowrap;
+    }
+    .sm-table tbody tr {
+        border-bottom: 1px solid #f1f2f8;
+        transition: background 0.15s;
+    }
+    .sm-table tbody tr:hover { 
+        background: rgba(102, 126, 234, 0.05); 
+    }
+    .sm-table tbody td {
+        padding: 0.88rem 1.15rem;
+        color: #2d3748;
+        vertical-align: middle;
+    }
+
+    .btn-onboard {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-onboard:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .sm-results-header {
+        padding: 0.9rem 1.4rem;
+        background: rgba(102, 126, 234, 0.08);
+        border-bottom: 1px solid #e8e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin: -1.5rem -1.5rem 1.5rem -1.5rem; /* pull to edges of padding */
+        border-top-right-radius: 12px;
+    }
+    .sm-results-header .results-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .sm-count-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 0.15rem 0.65rem;
+        line-height: 1.4;
+    }
+
+    /* DataTable Overrides */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #667eea !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+    }
+    .dataTables_wrapper .dataTables_length select {
+        padding: 0.3rem 1.5rem 0.3rem 0.75rem;
+        border-radius: 6px;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        padding: 0.3rem 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="sm-page-header">
+        <div class="sm-header-left">
+            <div class="sm-page-icon">
+                <i class="bi bi-shop"></i>
+            </div>
+            <div class="sm-page-title">
+                <h4>Sub Merchants</h4>
+                <p>Manage and view all onboarded sub-merchants</p>
+            </div>
+        </div>
+        <div class="sm-header-right">
+            <a href="/admin/merchants/create" class="btn btn-onboard">
+                <i class="bi bi-plus-circle me-1"></i> Onboard Submerchant
+            </a>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="sm-card">
+        <div class="sm-results-header">
+            <i class="bi bi-card-list text-primary fs-5"></i>
+            <span class="results-title">Onboarded Merchants List</span>
+            <span class="sm-count-badge ms-auto"><%= merchants ? merchants.length : 0 %> Records</span>
+        </div>
+        <div class="table-responsive">
+            <table id="submerchantTable" class="table sm-table align-middle w-100">
+                <thead>
+                    <tr>
+                        <th>Submerchant Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Business Address</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (merchants && merchants.length > 0) { %>
+                        <% merchants.forEach(merchant => { %>
+                            <tr>
+                                <td class="fw-semibold"><%= merchant.LEGAL_NAME || 'N/A' %></td>
+                                <td><%= merchant.EMAIL || 'N/A' %></td>
+                                <td><%= merchant.PHONE || 'N/A' %></td>
+                                <td>
+                                    <span class="d-inline-block text-truncate" style="max-width: 200px;" title="<%= merchant.BUSINESS_ADDRESS || 'N/A' %>">
+                                        <%= merchant.BUSINESS_ADDRESS || 'N/A' %>
+                                    </span>
+                                </td>
+                                <td><%= merchant.CREATED_DATE || 'N/A' %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <i class="bi bi-inbox fs-1 text-muted mb-3 opacity-50"></i>
+                                    <h6 class="text-muted fw-semibold mb-0">No data on onboard submerchant</h6>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- DataTables Integration -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#submerchantTable').DataTable({
+            "order": [],
+            "pageLength": 10,
+            "language": {
+                "search": "Search:",
+                "searchPlaceholder": "Search merchants...",
+                "emptyTable": "<div class='py-5 text-center'><i class='bi bi-inbox fs-1 text-muted opacity-50 d-block mb-3'></i><h6 class='text-muted fw-semibold mb-0'>No data on onboard submerchant</h6></div>",
+                "zeroRecords": "<div class='py-5 text-center'><i class='bi bi-search fs-1 text-muted opacity-50 d-block mb-3'></i><h6 class='text-muted fw-semibold mb-0'>No data on onboard submerchant</h6></div>"
+            }
+        });
+    });
+</script>

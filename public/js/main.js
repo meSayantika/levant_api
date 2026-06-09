@@ -249,12 +249,29 @@ $(function () {
         url: '/admin/master/entity-types',
         method: 'GET',
         success: function(response) {
+            var entArray = [];
             if (response && response.status && response.data) {
                 cachedEntityTypes = response.data;
+                entArray = response.data;
             } else if (response && response.data) {
                 cachedEntityTypes = response.data;
+                entArray = response.data;
             } else if (Array.isArray(response)) {
                 cachedEntityTypes = response;
+                entArray = response;
+            }
+            
+            // Populate immediately to avoid hover issues
+            var $entitySelect = $('select#entity_type');
+            if ($entitySelect.length > 0 && entArray.length > 0 && $entitySelect.children('option').length <= 1) {
+                entArray.forEach(function(et) {
+                    var val = et.entity_type_id || et.id || et.code || et.value || et;
+                    var text = et.entity_type_name || et.name || et.label || et.title || val;
+                    $entitySelect.append($('<option>', {
+                        value: val,
+                        text: text
+                    }));
+                });
             }
         },
         error: function(err) {

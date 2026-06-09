@@ -19,13 +19,14 @@ const uploadKyc = multer({ storage: storage });
 async function renderGenerateKycPage(req, res) {
     res.render("pages/kyc/generate_kyc", {
         title: "Generate KYC Access Key",
-        user: req.user
+        user: req.user,
+        currentRoute: "/admin/kyc/generate_kyc"
     });
 }
 
 async function renderUploadKycPage(req, res) {
     const { submerch_id, acc_token, entity_type } = req.query;
-    
+
     // Fetch merchant details from DB
     let merchantData = {};
     if (submerch_id) {
@@ -46,7 +47,8 @@ async function renderUploadKycPage(req, res) {
         submerch_id: submerch_id || '',
         acc_token: acc_token || '',
         entity_type: entity_type || merchantData.ENTITY_TYPE || '0',
-        merchantData
+        merchantData,
+        currentRoute: "/admin/kyc/generate_kyc"
     });
 }
 
@@ -74,7 +76,7 @@ async function generateAccessKey(req, res) {
     const { merchant_id } = req.body;
     try {
         const payload = JSON.stringify({ merchant_id });
-        
+
         const options = {
             hostname: 'app.levanttech.in',
             port: 443,
@@ -122,9 +124,9 @@ async function processUploadKyc(req, res) {
     try {
         const payload = req.body;
         const files = req.files;
-        
+
         const baseUrl = req.protocol + '://' + req.get('host') + '/uploads/kyc/';
-        
+
         // Map files to payload keys
         if (files && files.length > 0) {
             files.forEach(file => {
@@ -134,9 +136,9 @@ async function processUploadKyc(req, res) {
 
         // Add additional mapped fields if required
         // e.g. payload.gstin_status mapping if not already mapped correctly
-        
-        const levantApiUrl = 'https://app.levanttech.in/api/v1/updatekyc';
-        
+
+        const levantApiUrl = process.env.GENERATE_KYC_KEY_API;
+
         const apiResponse = await fetch(levantApiUrl, {
             method: 'POST',
             headers: {
@@ -149,7 +151,7 @@ async function processUploadKyc(req, res) {
         });
 
         const jsonResponse = await apiResponse.json();
-        
+
         if (jsonResponse.success) {
             res.json({ success: true, message: "KYC Details updated successfully", data: jsonResponse });
         } else {

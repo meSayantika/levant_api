@@ -16,14 +16,10 @@ const dashboardController = require("../../controllers/web/dashboardController")
 // ---- Dashboard Page (Protected) ----
 router.get("/dashboard", verifyWebAuth, dashboardController.renderDashboard);
 
-// ---- Sub Merchant Form (Protected) ----
-router.get("/merchants", verifyWebAuth, (req, res) => {
-    res.render("pages/submerchant/submerchant", {
-        title: "Sub Merchant Onboarding | Synergic Pay",
-        user: req.user,
-        currentRoute: "/admin/merchants",
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
-    });
-});
+const submerchantController = require("../../controllers/web/submerchantController");
+
+// ---- Sub Merchant Flow (Protected) ----
+router.get("/merchants", verifyWebAuth, submerchantController.renderSubMerchantList);
+router.get("/merchants/create", verifyWebAuth, submerchantController.renderCreateSubMerchant);
 
 module.exports = router;

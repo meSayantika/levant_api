@@ -11,9 +11,53 @@ const logger = require("../../utils/logger");
  * Helper to generate CUST_CD (Assuming it's generated via MAX(CUST_CD) + 1 for now)
  */
 async function generateCustCd() {
-    // TODO: Update table name if TD_SUB_MERCHANT is incorrect
     const result = await F_Select(0, `SELECT NVL(MAX(CUST_CD), 0) + 1 AS NEXT_ID FROM SUB_MERCHANTS`);
     return result[0].NEXT_ID;
+}
+
+/**
+ * GET /admin/merchants
+ * Renders the list of sub-merchants
+ */
+async function renderSubMerchantList(req, res) {
+    try {
+        const query = `
+            SELECT 
+                SUB_MERCHANT_CODE, LEGAL_NAME, EMAIL, PHONE, BUSINESS_ADDRESS, 
+                CUST_STATUS, TO_CHAR(CREATED_AT, 'DD-Mon-YYYY') as CREATED_DATE 
+            FROM SUB_MERCHANTS 
+            ORDER BY CREATED_AT DESC
+        `;
+        const merchants = await F_Select(0, query);
+
+        res.render("pages/submerchant/submerchant_list", {
+            title: "Sub Merchants | Synergic Pay",
+            user: req.user,
+            currentRoute: "/admin/merchants",
+            merchants: merchants || []
+        });
+    } catch (error) {
+        logger.error(`[SubMerchant Controller] Error fetching list: ${error.message}`);
+        res.render("pages/submerchant/submerchant_list", {
+            title: "Sub Merchants | Synergic Pay",
+            user: req.user,
+            currentRoute: "/admin/merchants",
+            merchants: []
+        });
+    }
+}
+
+/**
+ * GET /admin/merchants/create
+ * Renders the form to onboard a new sub-merchant
+ */
+async function renderCreateSubMerchant(req, res) {
+    res.render("pages/submerchant/submerchant", {
+        title: "Sub Merchant Onboarding | Synergic Pay",
+        user: req.user,
+        currentRoute: "/admin/merchants", // Keep same route to keep sidebar active
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+    });
 }
 
 /**
@@ -24,7 +68,7 @@ async function processCreateSubMerchant(req, res) {
     try {
         const payload = req.body;
         console.log(payload);
-        
+
         const bank_id = '4';
 
         // Fetch bank details based on bank_id = 4
@@ -64,18 +108,46 @@ async function processCreateSubMerchant(req, res) {
         };
 
         const rawReqPayload = JSON.stringify(apiPayload);
-        
+
         console.log("==========================================");
         console.log("PAYLOAD SENT TO LEVANT API:");
         console.log(rawReqPayload);
         console.log("==========================================");
 
-        // 2. Pre-save to Oracle Database
+        // 2. Call Levant API FIRST
+        const levantApiUrl = process.env.ONBOARD_SUBMERCHANT_API;
+
+        const apiResponse = await fetch(levantApiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': process.env.LEVANT_API_KEY,
+                'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
+                'X-Environment': process.env.LEVANT_ENV
+            },
+            body: rawReqPayload
+        });
+
+        const jsonResponse = await apiResponse.json();
+        const rawResponseStr = JSON.stringify(jsonResponse);
+
+        // If Levant API fails, abort immediately and DO NOT save to DB
+        if (!jsonResponse.success) {
+            logger.warn(`[SubMerchant Controller] Levant API rejected payload: ${jsonResponse.message}`);
+            return res.json({ 
+                success: false, 
+                message: "External API Failed: " + (jsonResponse.message || "Unknown error") 
+            });
+        }
+
+        // 3. If Levant succeeded, proceed to save to local database
         const custCd = await generateCustCd();
-        const initialSubMerchantCode = 'TMP_' + custCd;
-        
-        // Use merchant_code from md_bank
         const merchantCode = bankDetails.MERCHANT_CODE || '01';
+        
+        let finalSubMerchantCode = '0';
+        if (jsonResponse.response?.data?.merchant?.id) {
+            finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
+        }
 
         const insertQuery = `
             INSERT INTO SUB_MERCHANTS (
@@ -83,14 +155,14 @@ async function processCreateSubMerchant(req, res) {
                 CUST_STATUS, BUSINESS_NAME, CUST_STATE, NATURE_OF_BUSINESS, BUSINESS_ADDRESS, 
                 CATEGORY_CODE, PAN_NUMBER, BUSINESS_TYPE_CODE, SUB_ADDRESS, SUB_CITY, SUB_PIN_CODE, 
                 ENTITY_TYPE, GSTIN, CREATED_AT, UPDATED_AT, CREATED_BY, MODIFIED_BY, PRIMARY_VPA,
-                RAW_REQ_PAYLOAD, BANK_NAME, BANK_BRANCH, BANK_ACCOUNT_NUMBER, BANK_ACCOUNT_IFSC,
+                RAW_REQ_PAYLOAD, RAW_RESPONSE, BANK_NAME, BANK_BRANCH, BANK_ACCOUNT_NUMBER, BANK_ACCOUNT_IFSC,
                 GPS_LAT, GPS_LONG
             ) VALUES (
                 :custCd, :merchantCode, :subMerchantCode, :legalName, :nameOnBank, :email, :phone,
                 'A', :businessName, :state, :natureOfBusiness, :businessAddress,
                 :categoryCode, :panNumber, :businessTypeCode, :address, :city, :pincode,
                 :entityType, :gstin, SYSTIMESTAMP, SYSTIMESTAMP, :createdBy, NULL, :primaryVpa,
-                :rawReqPayload, :bankName, :bankBranch, :bankAccountNumber, :bankAccountIfsc,
+                :rawReqPayload, :rawResponse, :bankName, :bankBranch, :bankAccountNumber, :bankAccountIfsc,
                 :gpsLat, :gpsLong
             )
         `;
@@ -98,7 +170,7 @@ async function processCreateSubMerchant(req, res) {
         const bindParams = {
             custCd: custCd,
             merchantCode: merchantCode,
-            subMerchantCode: initialSubMerchantCode,
+            subMerchantCode: finalSubMerchantCode,
             legalName: apiPayload.name,
             nameOnBank: apiPayload.name_on_bank,
             email: apiPayload.email,
@@ -118,6 +190,7 @@ async function processCreateSubMerchant(req, res) {
             createdBy: req.user ? req.user.username : 'ADMIN',
             primaryVpa: apiPayload.primary_vpa,
             rawReqPayload: rawReqPayload,
+            rawResponse: rawResponseStr,
             bankName: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name || null,
             bankBranch: bankDetails.BANK_BRANCH || bankDetails.bank_branch || null,
             bankAccountNumber: bankDetails.ACC_NUM || bankDetails.acc_num || null,
@@ -128,60 +201,14 @@ async function processCreateSubMerchant(req, res) {
 
         // Note: Clob is handled implicitly by node-oracledb for strings if size is within limits.
         await F_Insert(0, insertQuery, bindParams);
-        logger.info(`[SubMerchant Controller] Data pre-saved for CUST_CD: ${custCd}`);
-
-        // 3. Send request payload to Levant API
-        const levantApiUrl = process.env.ONBOARD_SUBMERCHANT_API;
-
-        const apiResponse = await fetch(levantApiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': process.env.LEVANT_API_KEY,
-                'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
-                'X-Environment': process.env.LEVANT_ENV
-            },
-            body: rawReqPayload
+        logger.info(`[SubMerchant Controller] Data successfully saved for CUST_CD: ${custCd}`);
+        
+        // 4. Return success to frontend
+        return res.json({ 
+            success: true, 
+            message: "Sub-merchant onboarded successfully", 
+            data: jsonResponse 
         });
-
-        const jsonResponse = await apiResponse.json();
-        const rawResponseStr = JSON.stringify(jsonResponse);
-
-        // 4. Update the Oracle record with the response
-        let finalSubMerchantCode = initialSubMerchantCode;
-        if (jsonResponse.success && jsonResponse.response?.data?.merchant?.id) {
-            finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
-        }
-
-        const modifiedBy = req.user ? req.user.username : 'ADMIN';
-
-        const updateQuery = `
-            UPDATE SUB_MERCHANTS
-            SET 
-                SUB_MERCHANT_CODE = :subMerchantCode,
-                RAW_RESPONSE = :rawResponse,
-                UPDATED_AT = SYSTIMESTAMP,
-                MODIFIED_BY = :modifiedBy
-            WHERE CUST_CD = :custCd
-        `;
-
-        await F_Insert(0, updateQuery, {
-            subMerchantCode: finalSubMerchantCode,
-            rawResponse: rawResponseStr,
-            modifiedBy: modifiedBy,
-            custCd: custCd
-        });
-
-        logger.info(`[SubMerchant Controller] Response updated for CUST_CD: ${custCd}`);
-
-        if (jsonResponse.success) {
-            // Can redirect or render success based on standard app pattern
-            return res.json({ success: true, message: "Sub-merchant onboarded successfully", data: jsonResponse });
-        } else {
-            // Data was inserted into DB successfully, but external API failed.
-            // Return success: true so the frontend clears the form, but pass the API error message.
-            return res.json({ success: true, message: "Data saved locally, but external API failed: " + (jsonResponse.message || "Unknown error"), data: jsonResponse });
-        }
 
     } catch (err) {
         logger.error(`[SubMerchant Controller] Create Sub-Merchant Error: ${err.message}`);
@@ -190,5 +217,7 @@ async function processCreateSubMerchant(req, res) {
 }
 
 module.exports = {
+    renderSubMerchantList,
+    renderCreateSubMerchant,
     processCreateSubMerchant
 };

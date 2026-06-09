@@ -392,6 +392,11 @@
                         <p class="sm-page-subtitle">Register a new sub-merchant into the Levant API ecosystem</p>
                     </div>
                 </div>
+                <div class="sm-header-right">
+                    <a href="/admin/merchants" class="btn" style="background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary)); color: white; border: none; border-radius: 8px; font-weight: 600; padding: 0.6rem 1.2rem; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
             </div>
 
             <!-- ============================
@@ -649,6 +654,7 @@
             <script type="text/javascript"
                 src="https://maps.googleapis.com/maps/api/js?libraries=places&key=<%= googleMapsApiKey %>">
                 </script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script type="text/javascript" src="/autocomplete.js"></script>
 
             <script>
@@ -725,15 +731,49 @@
                             success: function (response) {
                                 $submitBtn.prop('disabled', false).html(originalText);
                                 if (response.success) {
-                                    alert(response.message || 'Sub-merchant onboarded successfully!');
-                                    window.location.reload();
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: response.message || 'Sub-merchant onboarded successfully!',
+                                            icon: 'success',
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        }).then(() => {
+                                            window.location.href = '/admin/merchants';
+                                        });
+                                    } else {
+                                        alert(response.message || 'Sub-merchant onboarded successfully!');
+                                        window.location.href = '/admin/merchants';
+                                    }
                                 } else {
-                                    alert('Error: ' + (response.message || 'Failed to onboard sub-merchant.'));
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: response.message || 'Failed to onboard sub-merchant.',
+                                            icon: 'error'
+                                        }).then(() => {
+                                            window.location.reload();
+                                        });
+                                    } else {
+                                        alert('Error: ' + (response.message || 'Failed to onboard sub-merchant.'));
+                                        window.location.reload();
+                                    }
                                 }
                             },
                             error: function (xhr, status, error) {
                                 $submitBtn.prop('disabled', false).html(originalText);
-                                alert('An unexpected error occurred. Please try again.');
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: 'An unexpected error occurred. Please try again.',
+                                        icon: 'error'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                } else {
+                                    alert('An unexpected error occurred. Please try again.');
+                                    window.location.reload();
+                                }
                                 console.error('Submission Error:', error);
                             }
                         });
