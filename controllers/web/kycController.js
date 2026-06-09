@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 const uploadKyc = multer({ storage: storage });
 
 async function renderGenerateKycPage(req, res) {
-    res.render("pages/submerchant/generate_kyc", {
+    res.render("pages/kyc/generate_kyc", {
         title: "Generate KYC Access Key",
         user: req.user
     });
@@ -40,7 +40,7 @@ async function renderUploadKycPage(req, res) {
         }
     }
 
-    res.render("pages/submerchant/upload_kyc", {
+    res.render("pages/kyc/upload_kyc", {
         title: "Upload KYC Details",
         user: req.user,
         submerch_id: submerch_id || '',

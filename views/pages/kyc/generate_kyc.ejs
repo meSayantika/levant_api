@@ -77,7 +77,7 @@
         margin-bottom: 1.5rem;
     }
     .kyc-section-label {
-        font-size: 0.72rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: var(--kyc-primary);
         text-transform: uppercase;
@@ -203,7 +203,7 @@
     /* ===== TABLE CELL STYLES ===== */
     .merchant-id-pill {
         display: inline-block;
-        font-size: 0.76rem;
+        font-size: 0.85rem;
         color: var(--kyc-primary);
         font-weight: 600;
         font-family: 'Courier New', monospace;
@@ -218,13 +218,14 @@
         font-size: 0.875rem;
     }
     .merchant-email-text {
-        font-size: 0.79rem;
-        color: var(--kyc-muted);
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--kyc-text);
     }
     .merchant-phone-text {
         font-size: 0.82rem;
-        color: #495057;
-        font-weight: 500;
+        color: #0b0c0e;
+        font-weight: 600;
     }
     .entity-badge {
         background: var(--kyc-primary-soft);
@@ -320,17 +321,18 @@
     .kyc-empty-state {
         padding: 3rem 1rem;
         text-align: center;
-        color: var(--kyc-muted);
+        color: var(--kyc-text);
     }
     .kyc-empty-state i {
         font-size: 2.8rem;
-        color: rgba(102, 126, 234, 0.18);
+        color: rgba(8, 12, 29, 0.18);
         display: block;
         margin-bottom: 0.65rem;
     }
     .kyc-empty-state p {
         font-size: 0.88rem;
         margin: 0;
+        font-weight: 600;
     }
 
     @media (max-width: 767px) {
@@ -402,7 +404,6 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
-                    <th>Entity Type</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -462,7 +463,6 @@ $(document).ready(function () {
                             <td><div class="merchant-name-text">${item.LEGAL_NAME || '—'}</div></td>
                             <td><div class="merchant-email-text">${item.EMAIL || '—'}</div></td>
                             <td><div class="merchant-phone-text">${item.PHONE || '—'}</div></td>
-                            <td><span class="entity-badge">${entityLabel}</span></td>
                             <td>
                                 <div class="d-flex flex-column gap-1" id="action-area-${merchantCode}">
                                     <div>

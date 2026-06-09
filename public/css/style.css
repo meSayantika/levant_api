@@ -113,13 +113,14 @@ body {
 }
 
 .sp-nav-link.active {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
-    color: var(--sp-primary);
+    background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary));
+    color: #fff;
     font-weight: 600;
+    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
 }
 
 .sp-nav-link.active i {
-    color: var(--sp-primary);
+    color: #fff;
 }
 
 /* ============================================= */
