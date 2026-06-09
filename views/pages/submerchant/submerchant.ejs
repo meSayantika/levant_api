@@ -1,629 +1,743 @@
-<%# ============================================= %>
-<%# SYNERGIC PAY - Sub Merchant Onboarding Page  %>
-<%# ============================================= %>
+<%#=============================================%>
+    <%# SYNERGIC PAY - Sub Merchant Onboarding Page %>
+        <%#=============================================%>
 
-<style>
-    /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
-    :root {
-        --sm-primary:       #667eea;
-        --sm-primary-dark:  #5a67d8;
-        --sm-secondary:     #764ba2;
-        --sm-primary-soft:  rgba(102, 126, 234, 0.08);
-        --sm-primary-mid:   rgba(102, 126, 234, 0.15);
-        --sm-border:        #e8e8f0;
-        --sm-text:          #1a1a2e;
-        --sm-muted:         #6c757d;
-        --sm-surface:       #ffffff;
-        --sm-bg:            #f8f9fc;
-    }
+            <style>
+                /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
+                :root {
+                    --sm-primary: #667eea;
+                    --sm-primary-dark: #5a67d8;
+                    --sm-secondary: #764ba2;
+                    --sm-primary-soft: rgba(102, 126, 234, 0.08);
+                    --sm-primary-mid: rgba(102, 126, 234, 0.15);
+                    --sm-border: #e8e8f0;
+                    --sm-text: #1a1a2e;
+                    --sm-muted: #6c757d;
+                    --sm-surface: #ffffff;
+                    --sm-bg: #f8f9fc;
+                }
 
-    /* ===== PAGE HEADER ===== */
-    .sm-page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.6rem;
-    }
-    .sm-header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-    }
-    .sm-page-icon {
-        width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
-    }
-    .sm-page-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--sm-text);
-        margin: 0;
-        line-height: 1.2;
-    }
-    .sm-page-subtitle {
-        font-size: 0.78rem;
-        color: var(--sm-muted);
-        margin: 0;
-        margin-top: 2px;
-    }
+                /* ===== BLUE BORDER — ALL INPUT & SELECT FIELDS ===== */
+                /* #subMerchantForm .material-outline input.form-control,
+                #subMerchantForm .material-outline select.form-select {
+                    border: 1.5px solid #667eea !important;
+                    border-radius: 8px !important;
+                } */
 
-    /* ===== MAIN FORM CARD (thick left border) ===== */
-    .sm-form-card {
-        background: var(--sm-surface);
-        border: 1px solid var(--sm-border);
-        border-left: 5px solid var(--sm-primary);
-        border-radius: 12px;
-        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
+                /* #subMerchantForm .material-outline input.form-control:focus,
+                #subMerchantForm .material-outline select.form-select:focus {
+                    border: 2px solid #5a67d8 !important;
+                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
+                } */
 
-    /* ===== TAB NAV ===== */
-    .sm-tab-header {
-        background: var(--sm-surface);
-        border-bottom: 1px solid var(--sm-border);
-        padding: 0 1.5rem;
-    }
-    .sm-nav-tabs {
-        display: flex;
-        gap: 0;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        border: none;
-    }
-    .sm-nav-tabs .sm-tab-btn {
-        background: transparent;
-        border: none;
-        padding: 1rem 1.4rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: var(--sm-muted);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        position: relative;
-        transition: color 0.2s;
-        white-space: nowrap;
-        outline: none;
-    }
-    .sm-nav-tabs .sm-tab-btn i {
-        font-size: 1rem;
-        transition: color 0.2s;
-    }
-    .sm-nav-tabs .sm-tab-btn:hover {
-        color: var(--sm-primary);
-    }
-    .sm-nav-tabs .sm-tab-btn::after {
-        content: '';
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 3px;
-        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
-        border-radius: 3px 3px 0 0;
-        transform: scaleX(0);
-        transition: transform 0.2s;
-    }
-    .sm-nav-tabs .sm-tab-btn.active {
-        color: var(--sm-text);
-        font-weight: 600;
-    }
-    .sm-nav-tabs .sm-tab-btn.active i {
-        color: var(--sm-primary);
-    }
-    .sm-nav-tabs .sm-tab-btn.active::after {
-        transform: scaleX(1);
-    }
-    .sm-nav-tabs .sm-tab-btn:disabled,
-    .sm-nav-tabs .sm-tab-btn[disabled] {
-        opacity: 0.4;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
+                /* Select2 container blue border */
+                /* #subMerchantForm .material-outline .select2-container--bootstrap-5 .select2-selection {
+                    border: 1.5px solid #667eea !important;
+                    border-radius: 8px !important;
+                } */
 
-    /* ===== TAB CONTENT ===== */
-    .sm-tab-body {
-        padding: 1.75rem 1.75rem 1.5rem;
-    }
-    .sm-tab-pane { display: none; }
-    .sm-tab-pane.active { display: block; }
+                /* #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+                #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--open .select2-selection {
+                    border: 2px solid #5a67d8 !important;
+                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
+                } */
 
-    /* ===== SECTION LABEL ===== */
-    .sm-section-label {
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: var(--sm-primary);
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        margin-bottom: 1.1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-    }
 
-    /* ===== DIVIDER ===== */
-    .sm-divider {
-        border: none;
-        border-top: 1px solid var(--sm-border);
-        margin: 1.25rem 0;
-    }
+                /* ===== LABEL COLOR → BLACK (all states) ===== */
+                /* #subMerchantForm .material-outline label {
+                    color: #1a1a2e !important;
+                } */
 
-    /* ===== HINT TEXT ===== */
-    .sm-hint {
-        font-size: 0.75rem;
-        color: #e74c3c;
-        font-weight: 600;
-        margin-top: 4px;
-        padding-left: 2px;
-    }
+                /* Focused label → black */
+                /* #subMerchantForm .material-outline input.form-control:focus~label,
+                #subMerchantForm .material-outline select.form-select:focus~label {
+                    color: #1a1a2e !important;
+                } */
 
-    /* ===== BUTTONS ===== */
-    .btn-sm-primary {
-        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
-        border: none;
-        color: #fff;
-        border-radius: 8px;
-        padding: 0.55rem 1.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
-        cursor: pointer;
-    }
-    .btn-sm-primary:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
-        color: #fff;
-    }
-    .btn-sm-primary:disabled { opacity: 0.65; transform: none; }
+                /* Filled but not focused → black */
+                /* #subMerchantForm .material-outline input.form-control:not(:focus):not(:placeholder-shown)~label,
+                #subMerchantForm .material-outline select.form-select:not(:focus)~label {
+                    color: #1a1a2e !important;
+                } */
 
-    .btn-sm-secondary {
-        background: transparent;
-        border: 1.5px solid var(--sm-primary);
-        color: var(--sm-primary);
-        border-radius: 8px;
-        padding: 0.52rem 1.4rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        cursor: pointer;
-    }
-    .btn-sm-secondary:hover {
-        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
-        color: #fff;
-        border-color: transparent;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
-    }
+                /* Select2 resting label → black */
+                /* #subMerchantForm .material-outline.has-select2 label {
+                    color: #1a1a2e !important;
+                } */
 
-    /* ===== STEP FOOTER AREA ===== */
-    .sm-step-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1.5rem;
-        padding-top: 1.25rem;
-        border-top: 1px solid var(--sm-border);
-    }
-    .sm-step-footer.end {
-        justify-content: flex-end;
-    }
+                /* #subMerchantForm .material-outline.has-select2.select2-focused label {
+                    color: #1a1a2e !important;
+                } */
 
-    /* ===== STEP PROGRESS DOTS ===== */
-    .sm-step-dots {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .sm-dot {
-        width: 8px; height: 8px;
-        border-radius: 50%;
-        background: var(--sm-border);
-        transition: all 0.25s;
-    }
-    .sm-dot.active {
-        background: var(--sm-primary);
-        width: 22px;
-        border-radius: 4px;
-    }
-    .sm-dot.done {
-        background: var(--sm-primary);
-        opacity: 0.4;
-    }
 
-    /* ===== ADDRESS SUGGESTIONS ===== */
-    #address-suggestions {
-        border: 1px solid var(--sm-border);
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
-    }
-    #address-suggestions .list-group-item {
-        font-size: 0.83rem;
-        padding: 0.55rem 1rem;
-        cursor: pointer;
-        transition: background 0.15s;
-    }
-    #address-suggestions .list-group-item:hover {
-        background: var(--sm-primary-soft);
-        color: var(--sm-primary);
-    }
+                .sm-page-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 1.6rem;
+                }
 
-    /* ===== GOOGLE MAPS AUTOCOMPLETE ===== */
-    .pac-container {
-        z-index: 10500 !important;
-        min-width: 300px !important;
-        border-radius: 8px;
-        border: 1px solid var(--sm-border);
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
-    }
+                .sm-header-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.85rem;
+                }
 
-    @media (max-width: 767px) {
-        .sm-tab-btn { padding: 0.75rem 0.85rem; font-size: 0.8rem; }
-        .sm-tab-body { padding: 1.25rem 1rem; }
-        .sm-page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-    }
-</style>
+                .sm-page-icon {
+                    width: 44px;
+                    height: 44px;
+                    background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-size: 1.25rem;
+                    flex-shrink: 0;
+                    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+                }
 
-<!-- ============================
+                .sm-page-title {
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: var(--sm-text);
+                    margin: 0;
+                    line-height: 1.2;
+                }
+
+                .sm-page-subtitle {
+                    font-size: 0.78rem;
+                    color: var(--sm-muted);
+                    margin: 0;
+                    margin-top: 2px;
+                }
+
+                /* ===== MAIN FORM CARD (thick left border) ===== */
+                .sm-form-card {
+                    background: var(--sm-surface);
+                    border: 1px solid var(--sm-border);
+                    border-left: 5px solid var(--sm-primary);
+                    border-radius: 12px;
+                    box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+                    overflow: hidden;
+                    margin-bottom: 2rem;
+                }
+
+                /* ===== TAB NAV ===== */
+                .sm-tab-header {
+                    background: var(--sm-surface);
+                    border-bottom: 1px solid var(--sm-border);
+                    padding: 0 1.5rem;
+                }
+
+                .sm-nav-tabs {
+                    display: flex;
+                    gap: 0;
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                }
+
+                .sm-nav-tabs .sm-tab-btn {
+                    background: transparent;
+                    border: none;
+                    padding: 1rem 1.4rem;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    color: var(--sm-muted);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.45rem;
+                    position: relative;
+                    transition: color 0.2s;
+                    white-space: nowrap;
+                    outline: none;
+                }
+
+                .sm-nav-tabs .sm-tab-btn i {
+                    font-size: 1rem;
+                    transition: color 0.2s;
+                }
+
+                .sm-nav-tabs .sm-tab-btn:hover {
+                    color: var(--sm-primary);
+                }
+
+                .sm-nav-tabs .sm-tab-btn::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+                    border-radius: 3px 3px 0 0;
+                    transform: scaleX(0);
+                    transition: transform 0.2s;
+                }
+
+                .sm-nav-tabs .sm-tab-btn.active {
+                    color: var(--sm-text);
+                    font-weight: 600;
+                }
+
+                .sm-nav-tabs .sm-tab-btn.active i {
+                    color: var(--sm-primary);
+                }
+
+                .sm-nav-tabs .sm-tab-btn.active::after {
+                    transform: scaleX(1);
+                }
+
+                .sm-nav-tabs .sm-tab-btn:disabled,
+                .sm-nav-tabs .sm-tab-btn[disabled] {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                /* ===== TAB CONTENT ===== */
+                .sm-tab-body {
+                    padding: 1.75rem 1.75rem 1.5rem;
+                }
+
+                .sm-tab-pane {
+                    display: none;
+                }
+
+                .sm-tab-pane.active {
+                    display: block;
+                }
+
+                /* ===== SECTION LABEL ===== */
+                .sm-section-label {
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    color: var(--sm-primary);
+                    text-transform: uppercase;
+                    letter-spacing: 0.07em;
+                    margin-bottom: 1.1rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                }
+
+                /* ===== DIVIDER ===== */
+                .sm-divider {
+                    border: none;
+                    border-top: 1px solid var(--sm-border);
+                    margin: 1.25rem 0;
+                }
+
+                /* ===== HINT TEXT ===== */
+                .sm-hint {
+                    font-size: 0.75rem;
+                    color: #e74c3c;
+                    font-weight: 600;
+                    margin-top: 4px;
+                    padding-left: 2px;
+                }
+
+                /* ===== BUTTONS ===== */
+                .btn-sm-primary {
+                    background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+                    border: none;
+                    color: #fff;
+                    border-radius: 8px;
+                    padding: 0.55rem 1.5rem;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    letter-spacing: 0.02em;
+                    transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+                    cursor: pointer;
+                }
+
+                .btn-sm-primary:hover {
+                    opacity: 0.92;
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+                    color: #fff;
+                }
+
+                .btn-sm-primary:disabled {
+                    opacity: 0.65;
+                    transform: none;
+                }
+
+                .btn-sm-secondary {
+                    background: transparent;
+                    border: 1.5px solid var(--sm-primary);
+                    color: var(--sm-primary);
+                    border-radius: 8px;
+                    padding: 0.52rem 1.4rem;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    cursor: pointer;
+                }
+
+                .btn-sm-secondary:hover {
+                    background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+                    color: #fff;
+                    border-color: transparent;
+                    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+                }
+
+                /* ===== STEP FOOTER AREA ===== */
+                .sm-step-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-top: 0.6rem;
+                    padding-top: 0.6rem;
+                    border-top: 1px solid var(--sm-border);
+                }
+
+                .sm-step-footer.end {
+                    justify-content: flex-end;
+                }
+
+                /* ===== STEP PROGRESS DOTS ===== */
+                .sm-step-dots {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+
+                .sm-dot {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: var(--sm-border);
+                    transition: all 0.25s;
+                }
+
+                .sm-dot.active {
+                    background: var(--sm-primary);
+                    width: 22px;
+                    border-radius: 4px;
+                }
+
+                .sm-dot.done {
+                    background: var(--sm-primary);
+                    opacity: 0.4;
+                }
+
+                /* ===== ADDRESS SUGGESTIONS ===== */
+                #address-suggestions {
+                    border: 1px solid var(--sm-border);
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+                }
+
+                #address-suggestions .list-group-item {
+                    font-size: 0.83rem;
+                    padding: 0.55rem 1rem;
+                    cursor: pointer;
+                    transition: background 0.15s;
+                }
+
+                #address-suggestions .list-group-item:hover {
+                    background: var(--sm-primary-soft);
+                    color: var(--sm-primary);
+                }
+
+                /* ===== GOOGLE MAPS AUTOCOMPLETE ===== */
+                .pac-container {
+                    z-index: 10500 !important;
+                    min-width: 300px !important;
+                    border-radius: 8px;
+                    border: 1px solid var(--sm-border);
+                    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+                }
+
+                @media (max-width: 767px) {
+                    .sm-tab-btn {
+                        padding: 0.75rem 0.85rem;
+                        font-size: 0.8rem;
+                    }
+
+                    .sm-tab-body {
+                        padding: 1.25rem 1rem;
+                    }
+
+                    .sm-page-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.75rem;
+                    }
+                }
+            </style>
+
+            <!-- ============================
      PAGE HEADER
      ============================ -->
-<div class="sm-page-header">
-    <div class="sm-header-left">
-        <div class="sm-page-icon">
-            <i class="bi bi-person-plus-fill"></i>
-        </div>
-        <div>
-            <h1 class="sm-page-title">Sub Merchant Onboarding</h1>
-            <p class="sm-page-subtitle">Register a new sub-merchant into the Levant API ecosystem</p>
-        </div>
-    </div>
-</div>
+            <div class="sm-page-header">
+                <div class="sm-header-left">
+                    <div class="sm-page-icon">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div>
+                        <h1 class="sm-page-title">Sub Merchant Onboarding</h1>
+                        <p class="sm-page-subtitle">Register a new sub-merchant into the Levant API ecosystem</p>
+                    </div>
+                </div>
+            </div>
 
-<!-- ============================
+            <!-- ============================
      MAIN FORM CARD
      ============================ -->
-<div class="sm-form-card">
+            <div class="sm-form-card">
 
-    <!-- Tab Navigation -->
-    <div class="sm-tab-header">
-        <div class="sm-nav-tabs" role="tablist">
-            <button class="sm-tab-btn active" id="tab-personal" role="tab" onclick="switchTab('personal')">
-                <i class="bi bi-person-badge-fill"></i> Personal Details
-            </button>
-            <button class="sm-tab-btn" id="tab-business" role="tab" onclick="switchTab('business')" disabled>
-                <i class="bi bi-briefcase-fill"></i> Business Details
-            </button>
-            <button class="sm-tab-btn" id="tab-location" role="tab" onclick="switchTab('location')" disabled>
-                <i class="bi bi-geo-alt-fill"></i> Address Details
-            </button>
-        </div>
-    </div>
+                <!-- Tab Navigation -->
+                <div class="sm-tab-header">
+                    <div class="sm-nav-tabs" role="tablist">
+                        <button class="sm-tab-btn active" id="tab-personal" role="tab" onclick="switchTab('personal')">
+                            <i class="bi bi-person-badge-fill"></i> Personal Details
+                        </button>
+                        <button class="sm-tab-btn" id="tab-business" role="tab" onclick="switchTab('business')"
+                            disabled>
+                            <i class="bi bi-briefcase-fill"></i> Business Details
+                        </button>
+                        <button class="sm-tab-btn" id="tab-location" role="tab" onclick="switchTab('location')"
+                            disabled>
+                            <i class="bi bi-geo-alt-fill"></i> Address Details
+                        </button>
+                    </div>
+                </div>
 
-    <!-- Tab Body -->
-    <div class="sm-tab-body">
-        <form action="/admin/submerchant/submerchant_onboard" method="POST" id="subMerchantForm">
+                <!-- Tab Body -->
+                <div class="sm-tab-body">
+                    <form action="/admin/submerchant/submerchant_onboard" method="POST" id="subMerchantForm">
 
-            <!-- ========================
+                        <!-- ========================
                  TAB 1: PERSONAL DETAILS
                  ======================== -->
-            <div class="sm-tab-pane active" id="pane-personal">
-                <div class="sm-section-label">
-                    <i class="bi bi-person-lines-fill"></i> Personal Information
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="name" name="name"
-                                placeholder="Merchant Name" required>
-                            <label for="name">Merchant Name (KYC) <span class="text-danger">*</span></label>
+                        <div class="sm-tab-pane active" id="pane-personal">
+                            <div class="sm-section-label">
+                                <i class="bi bi-person-lines-fill"></i> Personal Information
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            placeholder="Merchant Name" required>
+                                        <label for="name">Merchant Name (KYC) <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="name_on_bank" name="name_on_bank"
+                                            placeholder="Name on Bank" required>
+                                        <label for="name_on_bank">Bank Account Holder Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="email" class="form-control" id="email" name="email"
+                                            placeholder="Email Address" required>
+                                        <label for="email">Merchant Email ID <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="tel" class="form-control" id="phone" name="phone"
+                                            placeholder="Phone Number" required pattern="^[6-9]\d{9}$" maxlength="10"
+                                            title="Please enter a valid 10-digit phone number">
+                                        <label for="phone">Merchant Mobile Number <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="city" name="city" placeholder="City"
+                                            required>
+                                        <label for="city">Merchant City <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="tel" class="form-control" id="pincode" name="pincode"
+                                            placeholder="Pincode" required pattern="^\d{6}$" maxlength="6" minlength="6"
+                                            title="Please enter a valid 6-digit Pincode">
+                                        <label for="pincode">Merchant Pincode <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sm-step-footer end" style="margin-top: 0.5rem; padding-top: 0.75rem;">
+                                <div class="sm-step-dots">
+                                    <div class="sm-dot active" id="dot-1"></div>
+                                    <div class="sm-dot" id="dot-2"></div>
+                                    <div class="sm-dot" id="dot-3"></div>
+                                </div>
+                                <button type="button" class="btn-sm-primary ms-auto" id="next-to-business">
+                                    Next Step <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="name_on_bank" name="name_on_bank"
-                                placeholder="Name on Bank" required>
-                            <label for="name_on_bank">Bank Account Holder Name <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="email" class="form-control" id="email" name="email"
-                                placeholder="Email Address" required>
-                            <label for="email">Merchant Email ID <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="tel" class="form-control" id="phone" name="phone"
-                                placeholder="Phone Number" required pattern="^[6-9]\d{9}$" maxlength="10"
-                                title="Please enter a valid 10-digit phone number">
-                            <label for="phone">Merchant Mobile Number <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="city" name="city"
-                                placeholder="City" required>
-                            <label for="city">Merchant City <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="tel" class="form-control" id="pincode" name="pincode"
-                                placeholder="Pincode" required pattern="^\d{6}$" maxlength="6" minlength="6"
-                                title="Please enter a valid 6-digit Pincode">
-                            <label for="pincode">Merchant Pincode <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                </div>
-                <div class="sm-step-footer end" style="margin-top: 0.5rem; padding-top: 0.75rem;">
-                    <div class="sm-step-dots">
-                        <div class="sm-dot active" id="dot-1"></div>
-                        <div class="sm-dot" id="dot-2"></div>
-                        <div class="sm-dot" id="dot-3"></div>
-                    </div>
-                    <button type="button" class="btn-sm-primary ms-auto" id="next-to-business">
-                        Next Step <i class="bi bi-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
 
-            <!-- ========================
+                        <!-- ========================
                  TAB 2: BUSINESS DETAILS
                  ======================== -->
-            <div class="sm-tab-pane" id="pane-business">
-                <div class="sm-section-label">
-                    <i class="bi bi-building-fill"></i> Business Information
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="business_name" name="business_name"
-                                placeholder="Business Name" required>
-                            <label for="business_name">Business / Shop Name <span class="text-danger">*</span></label>
+                        <div class="sm-tab-pane" id="pane-business">
+                            <div class="sm-section-label">
+                                <i class="bi bi-building-fill"></i> Business Information
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="business_name" name="business_name"
+                                            placeholder="Business Name" required>
+                                        <label for="business_name">Business / Shop Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="state" name="state" required>
+                                            <option value="" selected>Select State</option>
+                                        </select>
+                                        <label for="state">State <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="nature_of_business" name="nature_of_business"
+                                            required>
+                                            <option value="" selected>Select Business Category Name</option>
+                                        </select>
+                                        <label for="nature_of_business">Business Category Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control bg-light" id="category_code"
+                                            name="category_code" placeholder="Category Code" required readonly>
+                                        <label for="category_code">Category Code <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="business_type_code" name="business_type_code"
+                                            required>
+                                            <option value="" selected>Select Business Type Name</option>
+                                        </select>
+                                        <label for="business_type_code">Business Type Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="pan_no" name="pan_no"
+                                            placeholder="PAN Number" required maxlength="10" minlength="10"
+                                            oninput="this.value = this.value.toUpperCase()">
+                                        <label for="pan_no">PAN Number <span class="text-danger">* (e.g.
+                                                ABCDE1234F)</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-12 position-relative">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="business_address"
+                                            name="business_address" placeholder="Business Address" required
+                                            autocomplete="off">
+                                        <label for="business_address">Business Address <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <ul id="address-suggestions" class="list-group position-absolute w-100"
+                                        style="display:none; z-index: 1050; max-height: 200px; overflow-y: auto; top: 100%;">
+                                    </ul>
+                                    <p class="sm-hint"><i class="bi bi-info-circle me-1"></i>No special characters
+                                        allowed (e.g. @, #, $, %, ^, &amp;, *, !, ?, etc.)</p>
+                                </div>
+                            </div>
+                            <div class="sm-step-footer">
+                                <button type="button" class="btn-sm-secondary" id="prev-to-personal">
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+                                <div class="sm-step-dots">
+                                    <div class="sm-dot done" id="dot-1b"></div>
+                                    <div class="sm-dot active" id="dot-2b"></div>
+                                    <div class="sm-dot" id="dot-3b"></div>
+                                </div>
+                                <button type="button" class="btn-sm-primary" id="next-to-location">
+                                    Next Step <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <select class="form-select" id="state" name="state" required>
-                                <option value="" selected>Select State</option>
-                            </select>
-                            <label for="state">State <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <select class="form-select" id="nature_of_business" name="nature_of_business" required>
-                                <option value="" selected>Select Business Category Name</option>
-                            </select>
-                            <label for="nature_of_business">Business Category Name <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="text" class="form-control bg-light" id="category_code" name="category_code"
-                                placeholder="Category Code" required readonly>
-                            <label for="category_code">Category Code <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <select class="form-select" id="business_type_code" name="business_type_code" required>
-                                <option value="" selected>Select Business Type Name</option>
-                            </select>
-                            <label for="business_type_code">Business Type Name <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="pan_no" name="pan_no"
-                                placeholder="PAN Number" required maxlength="10" minlength="10"
-                                oninput="this.value = this.value.toUpperCase()">
-                            <label for="pan_no">PAN Number <span class="text-danger">* (e.g. ABCDE1234F)</span></label>
-                        </div>
-                    </div>
-                    <div class="col-12 position-relative">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="business_address" name="business_address"
-                                placeholder="Business Address" required autocomplete="off">
-                            <label for="business_address">Business Address <span class="text-danger">*</span></label>
-                        </div>
-                        <ul id="address-suggestions" class="list-group position-absolute w-100"
-                            style="display:none; z-index: 1050; max-height: 200px; overflow-y: auto; top: 100%;"></ul>
-                        <p class="sm-hint"><i class="bi bi-info-circle me-1"></i>No special characters allowed (e.g. @, #, $, %, ^, &amp;, *, !, ?, etc.)</p>
-                    </div>
-                </div>
-                <div class="sm-step-footer">
-                    <button type="button" class="btn-sm-secondary" id="prev-to-personal">
-                        <i class="bi bi-arrow-left"></i> Previous
-                    </button>
-                    <div class="sm-step-dots">
-                        <div class="sm-dot done" id="dot-1b"></div>
-                        <div class="sm-dot active" id="dot-2b"></div>
-                        <div class="sm-dot" id="dot-3b"></div>
-                    </div>
-                    <button type="button" class="btn-sm-primary" id="next-to-location">
-                        Next Step <i class="bi bi-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
 
-            <!-- ========================
+                        <!-- ========================
                  TAB 3: ADDRESS DETAILS
                  ======================== -->
-            <div class="sm-tab-pane" id="pane-location">
-                <div class="sm-section-label">
-                    <i class="bi bi-pin-map-fill"></i> Address & Entity Details
-                </div>
-                <div class="row g-3">
-                    <div class="col-12">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="address" name="address"
-                                placeholder="Aadhaar Address" required>
-                            <label for="address">Aadhaar Address <span class="text-danger">*</span></label>
+                        <div class="sm-tab-pane" id="pane-location">
+                            <div class="sm-section-label">
+                                <i class="bi bi-pin-map-fill"></i> Address & Entity Details
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="address" name="address"
+                                            placeholder="Aadhaar Address" required>
+                                        <label for="address">Aadhaar Address <span class="text-danger">*</span></label>
+                                    </div>
+                                    <p class="sm-hint" id="business_address_error">
+                                        <i class="bi bi-info-circle me-1"></i>No special characters allowed (e.g. @, #,
+                                        $, %, ^, &amp;, *, !, ?, etc.)
+                                    </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="entity_type" name="entity_type" required>
+                                            <option value="" selected>Select Entity Type Name</option>
+                                        </select>
+                                        <label for="entity_type">Entity Type Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="gstin" name="gstin"
+                                            placeholder="GSTIN (Optional)">
+                                        <label for="gstin">GSTIN (Optional)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
+                                            placeholder="Primary VPA" required>
+                                        <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="lati" name="lati" value="0.0000">
+                                <input type="hidden" id="longi" name="longi" value="0.0000">
+                            </div>
+                            <div class="sm-step-footer">
+                                <button type="button" class="btn-sm-secondary" id="prev-to-business">
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+                                <div class="sm-step-dots">
+                                    <div class="sm-dot done" id="dot-1c"></div>
+                                    <div class="sm-dot done" id="dot-2c"></div>
+                                    <div class="sm-dot active" id="dot-3c"></div>
+                                </div>
+                                <button type="submit" class="btn-sm-primary" id="submitBtn">
+                                    <i class="bi bi-cloud-upload-fill"></i> Submit SubMerchant
+                                </button>
+                            </div>
                         </div>
-                        <p class="sm-hint" id="business_address_error">
-                            <i class="bi bi-info-circle me-1"></i>No special characters allowed (e.g. @, #, $, %, ^, &amp;, *, !, ?, etc.)
-                        </p>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="material-outline">
-                            <select class="form-select" id="entity_type" name="entity_type" required>
-                                <option value="" selected>Select Entity Type Name</option>
-                            </select>
-                            <label for="entity_type">Entity Type Name <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="gstin" name="gstin"
-                                placeholder="GSTIN (Optional)">
-                            <label for="gstin">GSTIN (Optional)</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="material-outline">
-                            <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
-                                placeholder="Primary VPA" required>
-                            <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
-                        </div>
-                    </div>
-                    <input type="hidden" id="lati" name="lati" value="0.0000">
-                    <input type="hidden" id="longi" name="longi" value="0.0000">
-                </div>
-                <div class="sm-step-footer">
-                    <button type="button" class="btn-sm-secondary" id="prev-to-business">
-                        <i class="bi bi-arrow-left"></i> Previous
-                    </button>
-                    <div class="sm-step-dots">
-                        <div class="sm-dot done" id="dot-1c"></div>
-                        <div class="sm-dot done" id="dot-2c"></div>
-                        <div class="sm-dot active" id="dot-3c"></div>
-                    </div>
-                    <button type="submit" class="btn-sm-primary" id="submitBtn">
-                        <i class="bi bi-cloud-upload-fill"></i> Submit SubMerchant
-                    </button>
-                </div>
-            </div>
 
-        </form>
-    </div><!-- /.sm-tab-body -->
-</div><!-- /.sm-form-card -->
+                    </form>
+                </div><!-- /.sm-tab-body -->
+            </div><!-- /.sm-form-card -->
 
 
-<!-- ============================
+            <!-- ============================
      Google Maps API
      ============================ -->
-<script type="text/javascript"
-    src="https://maps.googleapis.com/maps/api/js?libraries=places&key=<%= googleMapsApiKey %>">
-</script>
-<script type="text/javascript" src="/autocomplete.js"></script>
+            <script type="text/javascript"
+                src="https://maps.googleapis.com/maps/api/js?libraries=places&key=<%= googleMapsApiKey %>">
+                </script>
+            <script type="text/javascript" src="/autocomplete.js"></script>
 
-<script>
-/* ============================
-   TAB SWITCHING
-   ============================ */
-function switchTab(tab) {
-    // Hide all panes
-    document.querySelectorAll('.sm-tab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sm-tab-btn').forEach(b => b.classList.remove('active'));
+            <script>
+                /* ============================
+                   TAB SWITCHING
+                   ============================ */
+                function switchTab(tab) {
+                    // Hide all panes
+                    document.querySelectorAll('.sm-tab-pane').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('.sm-tab-btn').forEach(b => b.classList.remove('active'));
 
-    // Show target
-    document.getElementById('pane-' + tab).classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
-}
-
-$(document).ready(function () {
-
-    /* ---- NEXT: Personal → Business ---- */
-    $('#next-to-business').on('click', function () {
-        // Basic validation for tab 1
-        var valid = true;
-        $('#pane-personal input[required]').each(function () {
-            if (!$(this).val().trim()) { $(this).focus(); valid = false; return false; }
-        });
-        if (!valid) { alert('Please fill in all required fields before proceeding.'); return; }
-
-        $('#tab-business').prop('disabled', false);
-        switchTab('business');
-    });
-
-    /* ---- BACK: Business → Personal ---- */
-    $('#prev-to-personal').on('click', function () {
-        switchTab('personal');
-    });
-
-    /* ---- NEXT: Business → Location ---- */
-    $('#next-to-location').on('click', function () {
-        var valid = true;
-        $('#pane-business input[required], #pane-business select[required]').each(function () {
-            if (!$(this).val().trim()) { $(this).focus(); valid = false; return false; }
-        });
-        if (!valid) { alert('Please fill in all required fields before proceeding.'); return; }
-
-        $('#tab-location').prop('disabled', false);
-        switchTab('location');
-    });
-
-    /* ---- BACK: Location → Business ---- */
-    $('#prev-to-business').on('click', function () {
-        switchTab('business');
-    });
-
-    /* ---- Prevent paste in address fields ---- */
-    $(document).on('paste', '#business_address, #address', function (e) {
-        e.preventDefault();
-        alert('Pasting is disabled for address fields. Please type to use the location search.');
-        return false;
-    });
-
-    /* ---- FORM SUBMIT ---- */
-    $(document).off('submit', '#subMerchantForm');
-    $(document).on('submit', '#subMerchantForm', function (e) {
-        e.preventDefault();
-        var $form = $(this);
-        var $submitBtn = $('#submitBtn');
-        var originalText = $submitBtn.html();
-        $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Processing...');
-
-        $.ajax({
-            url: $form.attr('action'),
-            type: 'POST',
-            data: $form.serialize(),
-            success: function (response) {
-                $submitBtn.prop('disabled', false).html(originalText);
-                if (response.success) {
-                    alert(response.message || 'Sub-merchant onboarded successfully!');
-                    window.location.reload();
-                } else {
-                    alert('Error: ' + (response.message || 'Failed to onboard sub-merchant.'));
+                    // Show target
+                    document.getElementById('pane-' + tab).classList.add('active');
+                    document.getElementById('tab-' + tab).classList.add('active');
                 }
-            },
-            error: function (xhr, status, error) {
-                $submitBtn.prop('disabled', false).html(originalText);
-                alert('An unexpected error occurred. Please try again.');
-                console.error('Submission Error:', error);
-            }
-        });
-    });
 
-});
-</script>
+                $(document).ready(function () {
+
+                    /* ---- NEXT: Personal → Business ---- */
+                    $('#next-to-business').on('click', function () {
+                        // Basic validation for tab 1
+                        var valid = true;
+                        $('#pane-personal input[required]').each(function () {
+                            if (!$(this).val().trim()) { $(this).focus(); valid = false; return false; }
+                        });
+                        if (!valid) { alert('Please fill in all required fields before proceeding.'); return; }
+
+                        $('#tab-business').prop('disabled', false);
+                        switchTab('business');
+                    });
+
+                    /* ---- BACK: Business → Personal ---- */
+                    $('#prev-to-personal').on('click', function () {
+                        switchTab('personal');
+                    });
+
+                    /* ---- NEXT: Business → Location ---- */
+                    $('#next-to-location').on('click', function () {
+                        var valid = true;
+                        $('#pane-business input[required], #pane-business select[required]').each(function () {
+                            if (!$(this).val().trim()) { $(this).focus(); valid = false; return false; }
+                        });
+                        if (!valid) { alert('Please fill in all required fields before proceeding.'); return; }
+
+                        $('#tab-location').prop('disabled', false);
+                        switchTab('location');
+                    });
+
+                    /* ---- BACK: Location → Business ---- */
+                    $('#prev-to-business').on('click', function () {
+                        switchTab('business');
+                    });
+
+                    /* ---- Prevent paste in address fields ---- */
+                    $(document).on('paste', '#business_address, #address', function (e) {
+                        e.preventDefault();
+                        alert('Pasting is disabled for address fields. Please type to use the location search.');
+                        return false;
+                    });
+
+                    /* ---- FORM SUBMIT ---- */
+                    $(document).off('submit', '#subMerchantForm');
+                    $(document).on('submit', '#subMerchantForm', function (e) {
+                        e.preventDefault();
+                        var $form = $(this);
+                        var $submitBtn = $('#submitBtn');
+                        var originalText = $submitBtn.html();
+                        $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Processing...');
+
+                        $.ajax({
+                            url: $form.attr('action'),
+                            type: 'POST',
+                            data: $form.serialize(),
+                            success: function (response) {
+                                $submitBtn.prop('disabled', false).html(originalText);
+                                if (response.success) {
+                                    alert(response.message || 'Sub-merchant onboarded successfully!');
+                                    window.location.reload();
+                                } else {
+                                    alert('Error: ' + (response.message || 'Failed to onboard sub-merchant.'));
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                $submitBtn.prop('disabled', false).html(originalText);
+                                alert('An unexpected error occurred. Please try again.');
+                                console.error('Submission Error:', error);
+                            }
+                        });
+                    });
+
+                });
+            </script>
