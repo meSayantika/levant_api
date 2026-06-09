@@ -72,7 +72,7 @@ async function processCreateSubMerchant(req, res) {
 
         // 2. Pre-save to Oracle Database
         const custCd = await generateCustCd();
-        const initialSubMerchantCode = '0';
+        const initialSubMerchantCode = 'TMP_' + custCd;
         
         // Use merchant_code from md_bank
         const merchantCode = bankDetails.MERCHANT_CODE || '01';
@@ -89,7 +89,7 @@ async function processCreateSubMerchant(req, res) {
                 :custCd, :merchantCode, :subMerchantCode, :legalName, :nameOnBank, :email, :phone,
                 'A', :businessName, :state, :natureOfBusiness, :businessAddress,
                 :categoryCode, :panNumber, :businessTypeCode, :address, :city, :pincode,
-                :entityType, :gstin, SYSTIMESTAMP, NULL, :createdBy, NULL, :primaryVpa,
+                :entityType, :gstin, SYSTIMESTAMP, SYSTIMESTAMP, :createdBy, NULL, :primaryVpa,
                 :rawReqPayload, :bankName, :bankBranch, :bankAccountNumber, :bankAccountIfsc,
                 :gpsLat, :gpsLong
             )
