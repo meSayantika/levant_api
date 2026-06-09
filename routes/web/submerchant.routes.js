@@ -8,6 +8,7 @@ const express = require("express");
 const router = express.Router();
 const { verifyWebAuth } = require("../../middlewares/auth.middleware");
 const submerchantController = require("../../controllers/web/submerchantController");
+const kycController = require("../../controllers/web/kycController");
 
 // ---- Sub Merchant Onboarding Form Submission ----
 // Protected by verifyWebAuth

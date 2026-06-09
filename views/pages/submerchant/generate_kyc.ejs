@@ -1,0 +1,539 @@
+<%# ============================================= %>
+<%# SYNERGIC PAY - Generate KYC Access Key Page   %>
+<%# ============================================= %>
+
+<style>
+    /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
+    :root {
+        --kyc-primary:      #667eea;
+        --kyc-primary-dark: #5a67d8;
+        --kyc-secondary:    #764ba2;
+        --kyc-primary-soft: rgba(102, 126, 234, 0.08);
+        --kyc-primary-mid:  rgba(102, 126, 234, 0.15);
+        --kyc-border:       #e8e8f0;
+        --kyc-text:         #1a1a2e;
+        --kyc-muted:        #6c757d;
+        --kyc-surface:      #ffffff;
+        --kyc-bg:           #f8f9fc;
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .kyc-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.6rem;
+    }
+    .kyc-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+    .kyc-page-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+    }
+    .kyc-page-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--kyc-text);
+        margin: 0;
+        line-height: 1.2;
+    }
+    .kyc-page-subtitle {
+        font-size: 0.78rem;
+        color: var(--kyc-muted);
+        margin: 0;
+        margin-top: 2px;
+    }
+
+    /* ===== SEARCH CARD (thick left border) ===== */
+    .kyc-search-card {
+        background: var(--kyc-surface);
+        border: 1px solid var(--kyc-border);
+        border-left: 5px solid var(--kyc-primary);    /* THICK LEFT BORDER */
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+    .kyc-section-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--kyc-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .kyc-search-card .form-control {
+        border: 1.5px solid var(--kyc-border);
+        border-radius: 8px;
+        padding: 0.58rem 0.95rem;
+        font-size: 0.875rem;
+        color: var(--kyc-text);
+        background: var(--kyc-bg);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .kyc-search-card .form-control:focus {
+        border-color: var(--kyc-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.13);
+        background: #fff;
+        outline: none;
+    }
+    .kyc-search-card .form-control::placeholder {
+        color: #b5b5c8;
+        font-size: 0.83rem;
+    }
+
+    /* ===== SEARCH BUTTON ===== */
+    .btn-kyc-search {
+        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.58rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition: all 0.2s;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+    }
+    .btn-kyc-search:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+        color: #fff;
+    }
+    .btn-kyc-search:disabled {
+        opacity: 0.65;
+        transform: none;
+    }
+
+    /* ===== RESULTS CARD (thick left border) ===== */
+    .kyc-results-card {
+        background: var(--kyc-surface);
+        border: 1px solid var(--kyc-border);
+        border-left: 5px solid var(--kyc-primary);    /* THICK LEFT BORDER */
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .kyc-results-header {
+        padding: 0.9rem 1.4rem;
+        background: var(--kyc-primary-soft);
+        border-bottom: 1px solid var(--kyc-border);
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+    .kyc-results-header .results-title {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--kyc-text);
+    }
+    .kyc-count-badge {
+        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 0.15rem 0.65rem;
+        line-height: 1.4;
+    }
+
+    /* ===== TABLE ===== */
+    .kyc-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+    .kyc-table thead tr {
+        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+    }
+    .kyc-table thead th {
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.73rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 0.88rem 1.15rem;
+        border: none;
+        white-space: nowrap;
+    }
+    .kyc-table tbody tr {
+        border-bottom: 1px solid #f1f2f8;
+        transition: background 0.15s;
+    }
+    .kyc-table tbody tr:last-child { border-bottom: none; }
+    .kyc-table tbody tr:hover { background: var(--kyc-primary-soft); }
+    .kyc-table tbody td {
+        padding: 0.88rem 1.15rem;
+        color: #2d3748;
+        vertical-align: middle;
+    }
+
+    /* ===== TABLE CELL STYLES ===== */
+    .merchant-id-pill {
+        display: inline-block;
+        font-size: 0.76rem;
+        color: var(--kyc-primary);
+        font-weight: 600;
+        font-family: 'Courier New', monospace;
+        background: var(--kyc-primary-soft);
+        padding: 0.18rem 0.55rem;
+        border-radius: 6px;
+        border: 1px solid rgba(102, 126, 234, 0.15);
+    }
+    .merchant-name-text {
+        font-weight: 600;
+        color: var(--kyc-text);
+        font-size: 0.875rem;
+    }
+    .merchant-email-text {
+        font-size: 0.79rem;
+        color: var(--kyc-muted);
+    }
+    .merchant-phone-text {
+        font-size: 0.82rem;
+        color: #495057;
+        font-weight: 500;
+    }
+    .entity-badge {
+        background: var(--kyc-primary-soft);
+        color: var(--kyc-primary-dark);
+        font-size: 0.71rem;
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 0.22rem 0.7rem;
+        display: inline-block;
+        border: 1px solid rgba(102, 126, 234, 0.18);
+    }
+
+    /* Sl. No. circle */
+    .kyc-table thead th:first-child,
+    .kyc-table tbody td:first-child {
+        text-align: center;
+        width: 62px;
+    }
+    .sl-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--kyc-primary-soft);
+        color: var(--kyc-primary-dark);
+        font-weight: 700;
+        font-size: 0.78rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: 1.5px solid rgba(102, 126, 234, 0.2);
+    }
+
+    /* ===== ACTION BUTTONS ===== */
+    .btn-gen-key {
+        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+        border: none;
+        color: #fff;
+        border-radius: 7px;
+        padding: 0.38rem 0.9rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+    }
+    .btn-gen-key:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+        color: #fff;
+    }
+    .btn-gen-key:disabled { opacity: 0.65; transform: none; }
+
+    .btn-upload-file {
+        background: transparent;
+        border: 1.5px solid var(--kyc-primary);
+        color: var(--kyc-primary);
+        border-radius: 7px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        text-decoration: none;
+    }
+    .btn-upload-file:hover {
+        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+    }
+
+    .expiry-info-box {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.71rem;
+        color: var(--kyc-muted);
+        background: #f4f4fb;
+        padding: 0.2rem 0.55rem;
+        border-radius: 5px;
+        margin-top: 0.35rem;
+        border: 1px solid var(--kyc-border);
+    }
+    .expiry-info-box i { color: var(--kyc-primary); font-size: 0.68rem; }
+
+    /* ===== NO RESULTS ===== */
+    .kyc-empty-state {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: var(--kyc-muted);
+    }
+    .kyc-empty-state i {
+        font-size: 2.8rem;
+        color: rgba(102, 126, 234, 0.18);
+        display: block;
+        margin-bottom: 0.65rem;
+    }
+    .kyc-empty-state p {
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    @media (max-width: 767px) {
+        .kyc-page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+        .kyc-table { font-size: 0.8rem; }
+        .btn-kyc-search { padding: 0.55rem 1rem; }
+    }
+</style>
+
+<!-- ============================
+     PAGE HEADER
+     ============================ -->
+<div class="kyc-page-header">
+    <div class="kyc-header-left">
+        <div class="kyc-page-icon">
+            <i class="bi bi-person-vcard-fill"></i>
+        </div>
+        <div>
+            <h1 class="kyc-page-title">Generate KYC Access Key</h1>
+            <p class="kyc-page-subtitle">Search sub-merchant and generate a KYC access token</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================
+     SEARCH CARD
+     ============================ -->
+<div class="kyc-search-card">
+    <div class="kyc-section-label">
+        <i class="bi bi-search"></i> Search Sub-Merchant
+    </div>
+    <form id="searchForm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-7 col-lg-8">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="searchQuery"
+                    name="searchQuery"
+                    placeholder="Enter Sub-Merchant Name or ID..."
+                    autocomplete="off"
+                    required
+                >
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <button type="submit" class="btn-kyc-search" id="searchBtn">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- ============================
+     RESULTS CARD
+     ============================ -->
+<div class="kyc-results-card" id="resultsContainer" style="display: none;">
+    <div class="kyc-results-header">
+        <i class="bi bi-table" style="color: var(--kyc-primary); font-size: 1rem;"></i>
+        <span class="results-title">Search Results</span>
+        <span class="kyc-count-badge" id="resultsCount">0</span>
+    </div>
+    <div class="table-responsive">
+        <table class="kyc-table">
+            <thead>
+                <tr>
+                    <th>Sl. No.</th>
+                    <th>Merchant ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Entity Type</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================
+     NO RESULTS CARD
+     ============================ -->
+<div id="noResults" style="display: none;" class="kyc-results-card">
+    <div class="kyc-empty-state">
+        <i class="bi bi-person-x-fill"></i>
+        <p>No sub-merchants found matching your search.</p>
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function () {
+
+    /* ---- SEARCH FORM ---- */
+    $('#searchForm').on('submit', function (e) {
+        e.preventDefault();
+        var query = $('#searchQuery').val().trim();
+        if (!query) return;
+
+        var $btn = $('#searchBtn');
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Searching...');
+
+        $.ajax({
+            url: '/admin/kyc/api/search_submerchant',
+            type: 'POST',
+            data: { query: query },
+            success: function (response) {
+                $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
+
+                if (response.success && response.data.length > 0) {
+                    $('#resultsCount').text(response.data.length);
+                    $('#resultsContainer').fadeIn(200);
+                    $('#noResults').hide();
+
+                    var tbody = $('#resultsTableBody');
+                    tbody.empty();
+
+                    response.data.forEach(function (item, index) {
+                        var merchantCode = item.SUB_MERCHANT_CODE || 'N/A';
+                        var entityLabel  = item.ENTITY_TYPE || 'N/A';
+
+                        var tr = `
+                        <tr>
+                            <td><div class="sl-circle">${index + 1}</div></td>
+                            <td><span class="merchant-id-pill">${merchantCode}</span></td>
+                            <td><div class="merchant-name-text">${item.LEGAL_NAME || '—'}</div></td>
+                            <td><div class="merchant-email-text">${item.EMAIL || '—'}</div></td>
+                            <td><div class="merchant-phone-text">${item.PHONE || '—'}</div></td>
+                            <td><span class="entity-badge">${entityLabel}</span></td>
+                            <td>
+                                <div class="d-flex flex-column gap-1" id="action-area-${merchantCode}">
+                                    <div>
+                                        <button class="btn-gen-key generate-key-btn"
+                                            id="gen-btn-${merchantCode}"
+                                            data-id="${merchantCode}"
+                                            data-entity="${item.ENTITY_TYPE}">
+                                            <i class="bi bi-key-fill"></i> Generate Key
+                                        </button>
+                                        <a href="/admin/kyc/upload_kyc?submerch_id=${merchantCode}&entity_type=${item.ENTITY_TYPE}"
+                                            class="btn-upload-file"
+                                            id="upload-btn-${merchantCode}"
+                                            style="display:none;">
+                                            <i class="bi bi-cloud-arrow-up-fill"></i> Upload File
+                                        </a>
+                                    </div>
+                                    <div class="expiry-info-box" id="expiry-${merchantCode}" style="display:none;">
+                                        <i class="bi bi-clock-fill"></i>
+                                        <span id="expiry-text-${merchantCode}"></span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                        tbody.append(tr);
+                    });
+
+                } else {
+                    $('#resultsContainer').hide();
+                    $('#noResults').fadeIn(200);
+                }
+            },
+            error: function () {
+                $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
+                alert('Error while searching. Please try again.');
+            }
+        });
+    });
+
+    /* ---- GENERATE KEY ---- */
+    $(document).on('click', '.generate-key-btn', function () {
+        var btn = $(this);
+        var merchant_id = btn.data('id');
+
+        if (!merchant_id || merchant_id === 'N/A') {
+            alert('This sub-merchant does not have a valid ID yet.');
+            return;
+        }
+
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Generating...');
+
+        $.ajax({
+            url: '/admin/kyc/api/generate_access_key',
+            type: 'POST',
+            data: { merchant_id: merchant_id },
+            success: function (response) {
+                if (response.success && response.data && response.data.access_key) {
+                    btn.hide();
+
+                    var uploadBtn = $('#upload-btn-' + merchant_id);
+                    uploadBtn.attr('href', uploadBtn.attr('href') + '&acc_token=' + response.data.access_key);
+                    uploadBtn.show();
+
+                    if (response.data.expired_at) {
+                        var expiryDate = new Date(response.data.expired_at).toLocaleString('en-IN', {
+                            day: '2-digit', month: 'short', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                        $('#expiry-text-' + merchant_id).text('Expires: ' + expiryDate);
+                        $('#expiry-' + merchant_id).show();
+                    }
+                } else {
+                    btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
+                    alert(response.message || 'Failed to generate access key.');
+                }
+            },
+            error: function () {
+                btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
+                alert('Error generating access key. Please try again.');
+            }
+        });
+    });
+
+});
+</script>

@@ -105,7 +105,7 @@ async function processLogin(req, res) {
         } catch (e) {
             logger.error(`Bcrypt compare error: ${e.message}`);
         }
-        
+
         if (!isMatch) {
             isMatch = (password === user.USER_PASS.trim());
         }
@@ -126,7 +126,7 @@ async function processLogin(req, res) {
         try {
             const updateQry = `UPDATE MD_ADMIN_USER SET LAST_LOGIN = SYSTIMESTAMP WHERE UPPER(USER_ID) = UPPER(:username)`;
             await F_Insert(0, updateQry, { username: user.USER_ID });
-        } catch(updateErr) {
+        } catch (updateErr) {
             logger.error(`Could not update LAST_LOGIN for ${username}: ${updateErr.message}`);
         }
 
@@ -186,7 +186,7 @@ async function handleLogout(req, res) {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 logger.info(`User ${decoded.username} logged out.`);
-            } catch(e) {}
+            } catch (e) { }
         }
         res.clearCookie("sp_token");
         res.clearCookie("sp_flash_success"); // Prevent showing success alert if logged out immediately
@@ -276,13 +276,13 @@ async function processForgotPassword(req, res) {
         `;
 
         const emailResult = await emailService.sendEmail(email, subject, textBody, htmlBody);
-        
+
         let successMessage = "If this email exists, a reset link has been sent.";
         if (emailResult.previewUrl) {
             // Include the Ethereal link in the UI so the developer/user can click it during testing
             successMessage = `Test mode: View the sent email here <a href="${emailResult.previewUrl}" target="_blank" style="color:#15803d; text-decoration:underline;">Preview Email</a>`;
         }
-        
+
         return res.render("pages/forgot-password", { layout: false, title: "Forgot Password", error: null, success: successMessage });
     } catch (err) {
         logger.error(`[AuthController] processForgotPassword Error: ${err.message}`);
@@ -374,7 +374,7 @@ async function fixMyDb(req, res) {
         // Use F_Select or F_Update (oracleModel.js F_Select commits if it's an execute with autoCommit? Actually F_Insert has autoCommit)
         const { F_Insert } = require("../../models/oracleModel");
         await F_Insert(0, query, []);
-        
+
         return res.send("<h1>SUCCESS!</h1><p>The password for sayantika@synergicsoftek.in has been forcefully updated via Node.js.</p><p>Please go back to <a href='/admin/login'>/admin/login</a> and login with the password <b>123456</b>.</p>");
     } catch (err) {
         logger.error(`fixMyDb Error: ${err.message}`);

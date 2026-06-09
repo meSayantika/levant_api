@@ -1,0 +1,266 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+    <div>
+        <h1 class="fs-4 fw-bold text-dark mb-1">Upload KYC Details</h1>
+        <p class="text-muted small mb-0">Complete the KYC submission for Sub Merchant</p>
+    </div>
+</div>
+
+<div class="card border-0 rounded-4 shadow-sm mb-5">
+    <div class="card-body px-4 pb-3 pt-4">
+        <form id="kycUploadForm" action="/admin/kyc/api/upload_kyc" method="POST" enctype="multipart/form-data">
+            
+            <input type="hidden" name="acc_token" value="<%= acc_token %>">
+            <input type="hidden" name="submerch_id" value="<%= submerch_id %>">
+            <input type="hidden" id="entityTypeInput" name="entity_type" value="<%= entity_type %>">
+            
+            <h5 class="mb-3 text-primary border-bottom pb-2">Basic & Bank Information</h5>
+            
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="name" value="<%= merchantData.LEGAL_NAME || '' %>" required>
+                        <label>Merchant Full Name <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="phone" value="<%= merchantData.PHONE || '' %>" required>
+                        <label>Mobile Number <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="address" value="<%= merchantData.SUB_ADDRESS || merchantData.BUSINESS_ADDRESS || '' %>" required>
+                        <label>Personal Address <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="city" value="<%= merchantData.SUB_CITY || '' %>" required>
+                        <label>City <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="state" value="<%= merchantData.CUST_STATE || '' %>" required>
+                        <label>State <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="pincode" value="<%= merchantData.SUB_PIN_CODE || '' %>" required>
+                        <label>Pincode <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="business_name" value="<%= merchantData.BUSINESS_NAME || '' %>" required>
+                        <label>Business Name <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="pan_number" value="<%= merchantData.PAN_NUMBER || '' %>" required>
+                        <label>PAN Number <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="websiteurl">
+                        <label>Website URL (Optional)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="account_holder_name" value="<%= merchantData.NAME_ON_BANK || '' %>" required>
+                        <label>Bank Account Holder Name <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="bank_name" value="<%= merchantData.BANK_NAME || '' %>" required>
+                        <label>Bank Name <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="branch_name" value="<%= merchantData.BANK_BRANCH || '' %>" required>
+                        <label>Branch Name <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="ifsc_code" value="<%= merchantData.BANK_ACCOUNT_IFSC || '' %>" required>
+                        <label>IFSC Code <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="account_number" value="<%= merchantData.BANK_ACCOUNT_NUMBER || '' %>" required>
+                        <label>Account Number <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Bank Proof <span class="text-danger">*</span></label>
+                        <input class="form-control form-control-sm" type="file" name="bank_proof" accept=".png, .jpg, .jpeg, .pdf" required>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">Business & GST Details</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <select class="form-select" id="gstin_status" name="gstin_status" required>
+                            <option value="1">1 = No GST</option>
+                            <option value="2">2 = GST Available</option>
+                        </select>
+                        <label>GSTIN Status <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="col-md-4 gstin-field" style="display:none;">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="gstin" value="<%= merchantData.GSTIN || '' %>">
+                        <label>GSTIN</label>
+                    </div>
+                </div>
+                <div class="col-md-4 gstin-agreement-field">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">GSTIN Agreement (No GST Decl.) <span class="text-danger">*</span></label>
+                        <input class="form-control form-control-sm" type="file" name="gstin_agreement" accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required>
+                    </div>
+                </div>
+                <div class="col-md-4 auth-signatory-field" style="display:none;">
+                    <div class="material-outline">
+                        <input type="text" class="form-control" name="authorized_signatory_name" id="authSignatoryInput">
+                        <label>Authorized Signatory Name <span class="text-danger">*</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">KYC Documents (Based on Entity: <span id="entityTypeDisplay"></span>)</h5>
+            <div class="row g-3" id="dynamicDocsContainer">
+                <!-- Dynamically populated file inputs -->
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-success px-5 py-2 rounded-3 shadow-sm fw-semibold" id="submitKycBtn">
+                    <i class="bi bi-cloud-upload-fill me-2"></i> Submit KYC Details
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        const entityType = parseInt($('#entityTypeInput').val()) || 0;
+        $('#entityTypeDisplay').text(entityType);
+
+        // Handle GSTIN Toggle
+        $('#gstin_status').on('change', function() {
+            var status = $(this).val();
+            if(status === '2') {
+                $('.gstin-field').show();
+                $('.gstin-agreement-field').hide();
+                $('#gstinAgreementInput').prop('required', false);
+            } else {
+                $('.gstin-field').hide();
+                $('.gstin-agreement-field').show();
+                $('#gstinAgreementInput').prop('required', true);
+            }
+        }).trigger('change');
+
+        // Dynamic Documents Based on Entity Type
+        const docsConfig = {
+            pan_card: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'PAN Card' },
+            address_proof_front_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Front (Aadhar)' },
+            address_proof_back_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Back (Aadhar)' },
+            aus_aadhar_card_front_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Front' },
+            aus_aadhar_card_back_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Back' },
+            aus_pan_card: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS PAN Card' },
+            business_registration_proof: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Business Registration Proof' },
+            aus_board_resolution_authorizing: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS Board Resolution' },
+            work_order: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Work Order' },
+            additional_document_1: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 1 (2nd Biz Proof)' },
+            additional_document_2: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 2 (Selfie)' },
+            additional_document_3: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 3 (Biz Proof MCC)' },
+            shop_board_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Shop Board Image' },
+            stock_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Stock Image' },
+            shop_full_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Shop Full Image' }
+        };
+
+        const requiredDocsByEntity = {
+            0: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3', 'shop_board_image', 'stock_image', 'shop_full_image'], // Individual
+            4: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2'], // Society/Trust
+            7: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_board_resolution_authorizing', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // LLP
+            9: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Partnership
+            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page'], // Sole Proprietor
+            11: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_board_resolution_authorizing', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Pvt/Pub Ltd
+            13: ['pan_card', 'work_order', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'] // Gov Entity
+        };
+
+        if(entityType === 9) { // Partnership
+            $('.auth-signatory-field').show();
+            $('#authSignatoryInput').prop('required', true);
+        }
+
+        const docsToRender = requiredDocsByEntity[entityType] || requiredDocsByEntity[0]; // fallback to Individual
+        const $container = $('#dynamicDocsContainer');
+        $container.empty();
+
+        docsToRender.forEach(docKey => {
+            const docInfo = docsConfig[docKey];
+            if(docInfo) {
+                const reqStar = docInfo.required ? '<span class="text-danger">*</span>' : '';
+                const reqAttr = docInfo.required ? 'required' : '';
+                const html = `
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">${docInfo.label} ${reqStar}</label>
+                        <input class="form-control form-control-sm" type="file" name="${docKey}" accept="${docInfo.accept}" ${reqAttr}>
+                    </div>
+                </div>
+                `;
+                $container.append(html);
+            }
+        });
+
+        // Handle form submission
+        $('#kycUploadForm').on('submit', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $submitBtn = $('#submitKycBtn');
+            var originalBtnText = $submitBtn.html();
+            
+            $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading & Submitting...');
+            
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+                    if(response.success) {
+                        alert("KYC Submitted Successfully!");
+                        window.location.href = '/admin/kyc/generate_kyc';
+                    } else {
+                        alert("Error: " + (response.message || "Failed to submit KYC"));
+                    }
+                },
+                error: function(err) {
+                    $submitBtn.prop('disabled', false).html(originalBtnText);
+                    alert("An error occurred during submission.");
+                }
+            });
+        });
+    });
+</script>
