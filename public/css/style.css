@@ -309,6 +309,7 @@ body {
 .sp-qa-purple { background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary)); }
 .sp-qa-blue   { background: linear-gradient(135deg, #3b82f6, #4facfe); }
 .sp-qa-green  { background: linear-gradient(135deg, #22c55e, #10b981); }
+.sp-qa-orange { background: linear-gradient(135deg, #f59e0b, #fb923c); }
 
 /* ============================================= */
 /*  RESPONSIVE — Mobile Sidebar                   */

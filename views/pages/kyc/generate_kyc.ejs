@@ -32,7 +32,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1.6rem;
+        margin-bottom: 1rem;
     }
     .kyc-header-left {
         display: flex;
@@ -73,8 +73,8 @@
         border-left: 5px solid var(--kyc-primary);    /* THICK LEFT BORDER */
         border-radius: 12px;
         box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
-        padding: 1.5rem 1.75rem;
-        margin-bottom: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1rem;
     }
     .kyc-section-label {
         font-size: 0.85rem;
@@ -335,6 +335,27 @@
         font-weight: 600;
     }
 
+    /* ===== CUSTOM SHAKE ANIMATION & ERROR TEXT ===== */
+    @keyframes kycShake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-6px); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
+    }
+    .input-shake-error {
+        animation: kycShake 0.4s ease-in-out;
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
+    .kyc-inline-error {
+        color: #ef4444;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.4rem;
+        display: none;
+    }
+
     @media (max-width: 767px) {
         .kyc-page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
         .kyc-table { font-size: 0.8rem; }
@@ -366,7 +387,7 @@
     </div>
     <form id="searchForm">
         <div class="row g-3 align-items-end">
-            <div class="col-md-7 col-lg-8">
+            <div class="col-md-7 col-lg-8" style="position: relative;">
                 <input
                     type="text"
                     class="form-control"
@@ -376,6 +397,7 @@
                     autocomplete="off"
                     required
                 >
+                <div id="searchQueryError" class="kyc-inline-error"><i class="bi bi-exclamation-circle-fill"></i> Please provide a valid sub-merchant ID.</div>
             </div>
             <div class="col-md-3 col-lg-2">
                 <button type="submit" class="btn-kyc-search" id="searchBtn">
@@ -394,9 +416,9 @@
             <span class="results-title" style="font-size: 0.95rem;">Search Results</span>
             <span class="kyc-count-badge" id="resultsCount">0</span>
         </div>
-        <div class="table-responsive">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
             <table class="kyc-table">
-                <thead>
+                <thead style="position: sticky; top: 0; z-index: 10;">
                     <tr>
                         <th>Sl. No.</th>
                         <th>Merchant ID</th>
@@ -425,15 +447,51 @@
 
 </div> <!-- END kyc-search-card -->
 
-
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
 $(document).ready(function () {
+
+    function showKycToast(msg, isError = true) {
+        Toastify({
+            text: msg,
+            duration: 3500,
+            close: true,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: isError ? "linear-gradient(135deg, #ef4444, #f87171)" : "linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary))",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                fontSize: "0.85rem",
+                fontWeight: "600"
+            }
+        }).showToast();
+    }
 
     /* ---- SEARCH FORM ---- */
     $('#searchForm').on('submit', function (e) {
         e.preventDefault();
         var query = $('#searchQuery').val().trim();
         if (!query) return;
+
+        // Hide error if previously shown
+        $('#searchQueryError').fadeOut(150);
+        $('#searchQuery').removeClass('input-shake-error');
+
+        // Validation for '0'
+        if (query === '0' || query === '00') {
+            $('#searchQuery').addClass('input-shake-error');
+            $('#searchQueryError').fadeIn(200);
+            $('#resultsContainer').hide();
+            $('#noResults').hide();
+            
+            setTimeout(() => {
+                $('#searchQuery').removeClass('input-shake-error');
+            }, 500);
+            return;
+        }
 
         var $btn = $('#searchBtn');
         $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Searching...');
@@ -456,6 +514,46 @@ $(document).ready(function () {
                     response.data.forEach(function (item, index) {
                         var merchantCode = item.SUB_MERCHANT_CODE || 'N/A';
                         var entityLabel  = item.ENTITY_TYPE || 'N/A';
+                        
+                        // State variables
+                        var canGenerateKey = item.canGenerateKey !== false;
+                        var hasActiveKey = item.hasActiveKey === true;
+                        
+                        // Generate Button properties
+                        var btnDisabledAttr = '';
+                        var btnStyle = '';
+                        var btnText = '<i class="bi bi-key-fill"></i> Generate Key';
+
+                        if (!canGenerateKey) {
+                            btnDisabledAttr = 'disabled';
+                            btnStyle = 'pointer-events: none; opacity: 0.5; background: #6c757d;';
+                            btnText = '<i class="bi bi-x-circle-fill"></i> Onboarding Failed';
+                        } else if (hasActiveKey) {
+                            btnDisabledAttr = 'disabled';
+                            btnStyle = 'pointer-events: none; opacity: 0.6;';
+                            btnText = '<i class="bi bi-check-circle-fill"></i> Key Active';
+                        }
+
+                        // Upload Button properties
+                        var uploadDisabledClass = hasActiveKey ? '' : 'disabled';
+                        var uploadStyle = hasActiveKey ? 'pointer-events: auto; opacity: 1;' : 'pointer-events: none; opacity: 0.5;';
+                        var uploadUrl = `/admin/kyc/upload_kyc?submerch_id=${merchantCode}&entity_type=${item.ENTITY_TYPE}`;
+                        if (hasActiveKey && item.EXISTING_ACCESS_KEY) {
+                            uploadUrl += `&acc_token=${item.EXISTING_ACCESS_KEY}`;
+                        }
+
+                        // Access Key & Expiry Display
+                        var keyBoxDisplay = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? 'block' : 'none';
+                        var accessKeyText = item.EXISTING_ACCESS_KEY || '';
+                        
+                        var expiryDisplay = (hasActiveKey && item.EXISTING_EXPIRED_AT) ? 'inline-flex' : 'none';
+                        var expiryText = '';
+                        if (hasActiveKey && item.EXISTING_EXPIRED_AT) {
+                            expiryText = 'Expires: ' + new Date(item.EXISTING_EXPIRED_AT).toLocaleString('en-IN', {
+                                day: '2-digit', month: 'short', year: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+                        }
 
                         var tr = `
                         <tr>
@@ -470,22 +568,23 @@ $(document).ready(function () {
                                         <button class="btn-gen-key generate-key-btn"
                                             id="gen-btn-${merchantCode}"
                                             data-id="${merchantCode}"
-                                            data-entity="${item.ENTITY_TYPE}">
-                                            <i class="bi bi-key-fill"></i> Generate Key
+                                            data-entity="${item.ENTITY_TYPE}"
+                                            ${btnDisabledAttr} style="${btnStyle}">
+                                            ${btnText}
                                         </button>
-                                        <a href="/admin/kyc/upload_kyc?submerch_id=${merchantCode}&entity_type=${item.ENTITY_TYPE}"
-                                            class="btn-upload-file disabled"
+                                        <a href="${uploadUrl}"
+                                            class="btn-upload-file ${uploadDisabledClass}"
                                             id="upload-btn-${merchantCode}"
-                                            style="pointer-events: none; opacity: 0.5;">
+                                            style="${uploadStyle}">
                                             <i class="bi bi-cloud-arrow-up-fill"></i> Upload File
                                         </a>
                                     </div>
-                                    <div class="expiry-info-box" id="expiry-${merchantCode}" style="display:none; align-self: flex-start;">
+                                    <div class="expiry-info-box" id="expiry-${merchantCode}" style="display:${expiryDisplay}; align-self: flex-start;">
                                         <i class="bi bi-clock-fill"></i>
-                                        <span id="expiry-text-${merchantCode}"></span>
+                                        <span id="expiry-text-${merchantCode}">${expiryText}</span>
                                     </div>
-                                    <div id="access-key-box-${merchantCode}" style="display:none; font-family: monospace; font-size: 0.75rem; word-break: break-all; background: #f4f5f9; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px dashed var(--kyc-primary); color: var(--kyc-primary-dark); margin-top: 0.2rem;">
-                                        <strong style="color: #1a1a2e; font-family: sans-serif;">Key:</strong> <span id="access-key-text-${merchantCode}"></span>
+                                    <div id="access-key-box-${merchantCode}" style="display:${keyBoxDisplay}; font-family: monospace; font-size: 0.75rem; word-break: break-all; background: #f4f5f9; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px dashed var(--kyc-primary); color: var(--kyc-primary-dark); margin-top: 0.2rem;">
+                                        <strong style="color: #1a1a2e; font-family: sans-serif;">Key:</strong> <span id="access-key-text-${merchantCode}">${accessKeyText}</span>
                                     </div>
                                 </div>
                             </td>
@@ -500,7 +599,7 @@ $(document).ready(function () {
             },
             error: function () {
                 $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
-                alert('Error while searching. Please try again.');
+                showKycToast("Search failed. Please try again later.", true);
             }
         });
     });
@@ -511,7 +610,7 @@ $(document).ready(function () {
         var merchant_id = btn.data('id');
 
         if (!merchant_id || merchant_id === 'N/A') {
-            alert('This sub-merchant does not have a valid ID yet.');
+            showKycToast("This sub-merchant does not have a valid ID yet.", true);
             return;
         }
 
@@ -558,17 +657,18 @@ $(document).ready(function () {
                         $('#expiry-text-' + merchant_id).text('Expires: ' + expiryDate);
                         $('#expiry-' + merchant_id).show();
                     }
+                    showKycToast("Access key generated successfully!", false);
                 } else {
                     btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
                     var errorMsg = 'Failed to generate access key.';
                     if (typeof response.message === 'string') errorMsg = response.message;
                     else if (response.message && response.message.message) errorMsg = response.message.message;
-                    alert(errorMsg);
+                    showKycToast(errorMsg, true);
                 }
             },
             error: function () {
                 btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
-                alert('Error generating access key. Please try again.');
+                showKycToast("Error generating access key. Please try again.", true);
             }
         });
     });

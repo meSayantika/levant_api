@@ -21,5 +21,6 @@ const submerchantController = require("../../controllers/web/submerchantControll
 // ---- Sub Merchant Flow (Protected) ----
 router.get("/merchants", verifyWebAuth, submerchantController.renderSubMerchantList);
 router.get("/merchants/create", verifyWebAuth, submerchantController.renderCreateSubMerchant);
+router.get("/merchants/view/:custCd", verifyWebAuth, submerchantController.renderViewSubMerchant);
 
 module.exports = router;

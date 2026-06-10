@@ -23,7 +23,7 @@ async function renderSubMerchantList(req, res) {
     try {
         const query = `
             SELECT 
-                SUB_MERCHANT_CODE, LEGAL_NAME, EMAIL, PHONE, BUSINESS_ADDRESS, 
+                CUST_CD, SUB_MERCHANT_CODE, LEGAL_NAME, EMAIL, PHONE, BUSINESS_ADDRESS, 
                 CUST_STATUS, TO_CHAR(CREATED_AT, 'DD-Mon-YYYY') as CREATED_DATE 
             FROM SUB_MERCHANTS 
             ORDER BY CREATED_AT DESC
@@ -68,6 +68,14 @@ async function processCreateSubMerchant(req, res) {
     try {
         const payload = req.body;
         console.log(payload);
+
+        // Check uniqueness of Email and Phone
+        const checkQuery = `SELECT COUNT(*) AS CNT FROM SUB_MERCHANTS WHERE EMAIL = :email OR PHONE = :phone`;
+        const checkResult = await F_Select(0, checkQuery, { email: payload.email, phone: payload.phone });
+        
+        if (checkResult && checkResult.length > 0 && checkResult[0].CNT > 0) {
+            return res.json({ success: false, message: "Email ID or Mobile Number is already registered." });
+        }
 
         const bank_id = '4';
 
@@ -114,40 +122,9 @@ async function processCreateSubMerchant(req, res) {
         console.log(rawReqPayload);
         console.log("==========================================");
 
-        // 2. Call Levant API FIRST
-        const levantApiUrl = process.env.ONBOARD_SUBMERCHANT_API;
-
-        const apiResponse = await fetch(levantApiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': process.env.LEVANT_API_KEY,
-                'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
-                'X-Environment': process.env.LEVANT_ENV
-            },
-            body: rawReqPayload
-        });
-
-        const jsonResponse = await apiResponse.json();
-        const rawResponseStr = JSON.stringify(jsonResponse);
-
-        // If Levant API fails, abort immediately and DO NOT save to DB
-        if (!jsonResponse.success) {
-            logger.warn(`[SubMerchant Controller] Levant API rejected payload: ${jsonResponse.message}`);
-            return res.json({ 
-                success: false, 
-                message: "External API Failed: " + (jsonResponse.message || "Unknown error") 
-            });
-        }
-
-        // 3. If Levant succeeded, proceed to save to local database
+        // 2. Insert into local database FIRST
         const custCd = await generateCustCd();
         const merchantCode = bankDetails.MERCHANT_CODE || '01';
-        
-        let finalSubMerchantCode = '0';
-        if (jsonResponse.response?.data?.merchant?.id) {
-            finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
-        }
 
         const insertQuery = `
             INSERT INTO SUB_MERCHANTS (
@@ -170,7 +147,7 @@ async function processCreateSubMerchant(req, res) {
         const bindParams = {
             custCd: custCd,
             merchantCode: merchantCode,
-            subMerchantCode: finalSubMerchantCode,
+            subMerchantCode: '0',
             legalName: apiPayload.name,
             nameOnBank: apiPayload.name_on_bank,
             email: apiPayload.email,
@@ -190,7 +167,7 @@ async function processCreateSubMerchant(req, res) {
             createdBy: req.user ? req.user.username : 'ADMIN',
             primaryVpa: apiPayload.primary_vpa,
             rawReqPayload: rawReqPayload,
-            rawResponse: rawResponseStr,
+            rawResponse: null,
             bankName: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name || null,
             bankBranch: bankDetails.BANK_BRANCH || bankDetails.bank_branch || null,
             bankAccountNumber: bankDetails.ACC_NUM || bankDetails.acc_num || null,
@@ -199,11 +176,59 @@ async function processCreateSubMerchant(req, res) {
             gpsLong: parseFloat(apiPayload.longi)
         };
 
-        // Note: Clob is handled implicitly by node-oracledb for strings if size is within limits.
         await F_Insert(0, insertQuery, bindParams);
-        logger.info(`[SubMerchant Controller] Data successfully saved for CUST_CD: ${custCd}`);
-        
-        // 4. Return success to frontend
+        logger.info(`[SubMerchant Controller] Data initially saved for CUST_CD: ${custCd}`);
+
+        // 3. Call Levant API
+        const levantApiUrl = process.env.ONBOARD_SUBMERCHANT_API;
+
+        const apiResponse = await fetch(levantApiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': process.env.LEVANT_API_KEY,
+                'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
+                'X-Environment': process.env.LEVANT_ENV
+            },
+            body: rawReqPayload
+        });
+
+        const jsonResponse = await apiResponse.json();
+        const rawResponseStr = JSON.stringify(jsonResponse);
+
+        let finalSubMerchantCode = '0';
+        if (jsonResponse.response?.data?.merchant?.id) {
+            finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
+        }
+
+        // 4. Update the DB with the response
+        const updateQuery = `
+            UPDATE SUB_MERCHANTS 
+            SET RAW_RESPONSE = :rawResponse, 
+                SUB_MERCHANT_CODE = :subMerchantCode,
+                UPDATED_AT = SYSTIMESTAMP
+            WHERE CUST_CD = :custCd
+        `;
+
+        const updateParams = {
+            rawResponse: rawResponseStr,
+            subMerchantCode: finalSubMerchantCode,
+            custCd: custCd
+        };
+
+        await F_Insert(0, updateQuery, updateParams);
+        logger.info(`[SubMerchant Controller] Data successfully updated with response for CUST_CD: ${custCd}`);
+
+        // If Levant API fails, we still return an error, but it's already logged in DB
+        if (!jsonResponse.success) {
+            logger.warn(`[SubMerchant Controller] Levant API rejected payload: ${jsonResponse.message}`);
+            return res.json({ 
+                success: false, 
+                message: "External API Failed: " + (jsonResponse.message || "Unknown error") 
+            });
+        }
+
+        // 5. Return success to frontend
         return res.json({ 
             success: true, 
             message: "Sub-merchant onboarded successfully", 
@@ -216,8 +241,38 @@ async function processCreateSubMerchant(req, res) {
     }
 }
 
+/**
+ * GET /admin/merchants/view/:custCd
+ * Renders the form to view an existing sub-merchant in read-only mode
+ */
+async function renderViewSubMerchant(req, res) {
+    try {
+        const custCd = req.params.custCd;
+        const query = `
+            SELECT * FROM SUB_MERCHANTS WHERE CUST_CD = :custCd
+        `;
+        const result = await F_Select(0, query, { custCd });
+
+        if (!result || result.length === 0) {
+            return res.status(404).send("Sub-merchant not found");
+        }
+
+        res.render("pages/submerchant/submerchant_view", {
+            title: "View Sub Merchant | Synergic Pay",
+            user: req.user,
+            currentRoute: "/admin/merchants",
+            merchant: result[0],
+            googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+        });
+    } catch (error) {
+        logger.error(`[SubMerchant Controller] Error fetching details for view: ${error.message}`);
+        res.status(500).send("An error occurred while fetching sub-merchant details.");
+    }
+}
+
 module.exports = {
     renderSubMerchantList,
     renderCreateSubMerchant,
-    processCreateSubMerchant
+    processCreateSubMerchant,
+    renderViewSubMerchant
 };

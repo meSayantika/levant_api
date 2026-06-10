@@ -58,14 +58,51 @@ async function searchSubmerchant(req, res) {
         if (!query) return res.json({ success: false, message: "Query is required" });
 
         const sql = `
-            SELECT CUST_CD, SUB_MERCHANT_CODE, LEGAL_NAME, EMAIL, PHONE, ENTITY_TYPE
-            FROM SUB_MERCHANTS
-            WHERE LOWER(LEGAL_NAME) LIKE LOWER(:query)
-               OR SUB_MERCHANT_CODE = :exactQuery
+            SELECT 
+                s.CUST_CD, s.SUB_MERCHANT_CODE, s.LEGAL_NAME, s.EMAIL, s.PHONE, s.ENTITY_TYPE, s.RAW_RESPONSE,
+                k.ACCESS_KEY as EXISTING_ACCESS_KEY,
+                k.EXPIRED_AT as EXISTING_EXPIRED_AT
+            FROM SUB_MERCHANTS s
+            LEFT JOIN (
+                SELECT SUBMERCHANT_CODE, ACCESS_KEY, EXPIRED_AT,
+                       ROW_NUMBER() OVER (PARTITION BY SUBMERCHANT_CODE ORDER BY CREATED_AT DESC) as rn
+                FROM TD_KYC_ACCESS_KEY
+            ) k ON s.SUB_MERCHANT_CODE = k.SUBMERCHANT_CODE AND k.rn = 1
+            WHERE LOWER(s.LEGAL_NAME) LIKE LOWER(:query)
+               OR s.SUB_MERCHANT_CODE = :exactQuery
         `;
         const binds = { query: `%${query}%`, exactQuery: query };
         const results = await F_Select(0, sql, binds);
-        res.json({ success: true, data: results });
+
+        // Process results to check onboarding status
+        const processedResults = results.map(row => {
+            let canGenerateKey = true;
+            if (row.RAW_RESPONSE) {
+                try {
+                    const responseJson = JSON.parse(row.RAW_RESPONSE);
+                    if (responseJson.success === false) {
+                        canGenerateKey = false;
+                    }
+                } catch (e) {
+                    // Ignore parse error, default to true
+                }
+            }
+            let hasActiveKey = false;
+            if (row.EXISTING_EXPIRED_AT) {
+                const expiryDate = new Date(row.EXISTING_EXPIRED_AT);
+                if (expiryDate > new Date()) {
+                    hasActiveKey = true;
+                }
+            }
+
+            return {
+                ...row,
+                canGenerateKey,
+                hasActiveKey
+            };
+        });
+
+        res.json({ success: true, data: processedResults });
     } catch (error) {
         logger.error("Error searching submerchant: " + error.message);
         res.json({ success: false, message: error.message });
@@ -96,9 +133,52 @@ async function generateAccessKey(req, res) {
             httpRes.on('data', (chunk) => {
                 data += chunk;
             });
-            httpRes.on('end', () => {
+            httpRes.on('end', async () => {
                 try {
                     const json = JSON.parse(data);
+
+                    // If Levant succeeded and generated a key, log it in the database
+                    const actualData = json.data || (json.message && json.message.data) || null;
+                    const accessKey = actualData ? actualData.access_key : null;
+
+                    if (json.success && accessKey) {
+                        // Calculate expiry fallback if Levant didn't provide one
+                        let expiredAt = actualData ? (actualData.expired_at || actualData.expiry_at) : null;
+                        if (!expiredAt) {
+                            const tomorrow = new Date();
+                            tomorrow.setHours(tomorrow.getHours() + 24);
+                            expiredAt = tomorrow.toISOString(); // Use ISO format for parsing easily
+                        }
+
+                        // Save to TD_KYC_ACCESS_KEY
+                        try {
+                            const insertSql = `
+                                INSERT INTO TD_KYC_ACCESS_KEY (
+                                    ID, SUBMERCHANT_CODE, ACCESS_KEY, EXPIRED_AT, 
+                                    CREATED_BY, CREATED_AT, REQ_PAYLOAD, RAW_RESPONSE
+                                ) VALUES (
+                                    (SELECT NVL(MAX(ID), 0) + 1 FROM TD_KYC_ACCESS_KEY),
+                                    :SUBMERCHANT_CODE, :ACCESS_KEY, TO_TIMESTAMP_TZ(:EXPIRED_AT, 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM'), 
+                                    :CREATED_BY, SYSTIMESTAMP, :REQ_PAYLOAD, :RAW_RESPONSE
+                                )
+                            `;
+                            
+                            const bindParams = {
+                                SUBMERCHANT_CODE: merchant_id,
+                                ACCESS_KEY: accessKey,
+                                EXPIRED_AT: new Date(expiredAt).toISOString(), // Normalizing ISO string
+                                CREATED_BY: req.user ? req.user.username : 'SYSTEM',
+                                REQ_PAYLOAD: payload,
+                                RAW_RESPONSE: data
+                            };
+
+                            await F_Insert(0, insertSql, bindParams);
+                        } catch (dbErr) {
+                            logger.error("Failed to insert into TD_KYC_ACCESS_KEY: " + dbErr.message);
+                            // We still return success to frontend since key was generated
+                        }
+                    }
+
                     res.json(json);
                 } catch (e) {
                     res.json({ success: false, message: "Invalid JSON response from Levant" });

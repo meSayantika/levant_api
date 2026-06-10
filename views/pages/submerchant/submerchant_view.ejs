@@ -1,0 +1,552 @@
+<%#=============================================%>
+<%# SYNERGIC PAY - Sub Merchant View Page %>
+<%#=============================================%>
+
+<style>
+    /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
+    :root {
+        --sm-primary: #667eea;
+        --sm-primary-dark: #5a67d8;
+        --sm-secondary: #764ba2;
+        --sm-primary-soft: rgba(102, 126, 234, 0.08);
+        --sm-primary-mid: rgba(102, 126, 234, 0.15);
+        --sm-border: #e8e8f0;
+        --sm-text: #1a1a2e;
+        --sm-muted: #6c757d;
+        --sm-surface: #ffffff;
+        --sm-bg: #f8f9fc;
+    }
+
+    .sm-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.6rem;
+    }
+
+    .sm-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .sm-page-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+    }
+
+    .sm-page-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--sm-text);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .sm-page-subtitle {
+        font-size: 0.78rem;
+        color: var(--sm-muted);
+        margin: 0;
+        margin-top: 2px;
+    }
+
+    /* ===== MAIN FORM CARD (thick left border) ===== */
+    .sm-form-card {
+        background: var(--sm-surface);
+        border: 1px solid var(--sm-border);
+        border-left: 5px solid var(--sm-primary);
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    /* ===== TAB NAV ===== */
+    .sm-tab-header {
+        background: var(--sm-surface);
+        border-bottom: 1px solid var(--sm-border);
+        padding: 0 1.5rem;
+    }
+
+    .sm-nav-tabs {
+        display: flex;
+        gap: 0;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+
+    .sm-nav-tabs .sm-tab-btn {
+        background: transparent;
+        border: none;
+        padding: 1rem 1.4rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sm-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        position: relative;
+        transition: color 0.2s;
+        white-space: nowrap;
+        outline: none;
+    }
+
+    .sm-nav-tabs .sm-tab-btn i {
+        font-size: 1rem;
+        transition: color 0.2s;
+    }
+
+    .sm-nav-tabs .sm-tab-btn:hover {
+        color: var(--sm-primary);
+    }
+
+    .sm-nav-tabs .sm-tab-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+        border-radius: 3px 3px 0 0;
+        transform: scaleX(0);
+        transition: transform 0.2s;
+    }
+
+    .sm-nav-tabs .sm-tab-btn.active {
+        color: var(--sm-text);
+        font-weight: 600;
+    }
+
+    .sm-nav-tabs .sm-tab-btn.active i {
+        color: var(--sm-primary);
+    }
+
+    .sm-nav-tabs .sm-tab-btn.active::after {
+        transform: scaleX(1);
+    }
+
+    .sm-nav-tabs .sm-tab-btn:disabled,
+    .sm-nav-tabs .sm-tab-btn[disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ===== TAB CONTENT ===== */
+    .sm-tab-body {
+        padding: 1.75rem 1.75rem 1.5rem;
+    }
+
+    .sm-tab-pane {
+        display: none;
+    }
+
+    .sm-tab-pane.active {
+        display: block;
+    }
+
+    /* ===== SECTION LABEL ===== */
+    .sm-section-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--sm-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-sm-primary {
+        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.55rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+        cursor: pointer;
+    }
+
+    .btn-sm-primary:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+        color: #fff;
+    }
+
+    .btn-sm-secondary {
+        background: transparent;
+        border: 1.5px solid var(--sm-primary);
+        color: var(--sm-primary);
+        border-radius: 8px;
+        padding: 0.52rem 1.4rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+    }
+
+    .btn-sm-secondary:hover {
+        background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+    }
+
+    /* ===== STEP FOOTER AREA ===== */
+    .sm-step-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid var(--sm-border);
+    }
+
+    .sm-step-footer.end {
+        justify-content: flex-end;
+    }
+
+    /* ===== STEP PROGRESS DOTS ===== */
+    .sm-step-dots {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sm-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--sm-border);
+        transition: all 0.25s;
+    }
+
+    .sm-dot.active {
+        background: var(--sm-primary);
+        width: 22px;
+        border-radius: 4px;
+    }
+
+    .sm-dot.done {
+        background: var(--sm-primary);
+        opacity: 0.4;
+    }
+
+    @media (max-width: 767px) {
+        .sm-tab-btn {
+            padding: 0.75rem 0.85rem;
+            font-size: 0.8rem;
+        }
+
+        .sm-tab-body {
+            padding: 1.25rem 1rem;
+        }
+
+        .sm-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+    }
+</style>
+
+<!-- ============================
+     PAGE HEADER
+     ============================ -->
+<div class="sm-page-header">
+    <div class="sm-header-left">
+        <div class="sm-page-icon">
+            <i class="bi bi-person-lines-fill"></i>
+        </div>
+        <div>
+            <h1 class="sm-page-title">View Sub Merchant</h1>
+            <p class="sm-page-subtitle">Sub-merchant details in view-only mode</p>
+        </div>
+    </div>
+    <div class="sm-header-right">
+        <a href="/admin/merchants" class="btn" style="background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary)); color: white; border: none; border-radius: 8px; font-weight: 600; padding: 0.6rem 1.2rem; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<!-- ============================
+     MAIN FORM CARD
+     ============================ -->
+<div class="sm-form-card">
+
+    <!-- Tab Navigation -->
+    <div class="sm-tab-header">
+        <div class="sm-nav-tabs" role="tablist">
+            <button class="sm-tab-btn active" id="tab-personal" role="tab" onclick="switchTab('personal')">
+                <i class="bi bi-person-badge-fill"></i> Personal Details
+            </button>
+            <button class="sm-tab-btn" id="tab-business" role="tab" onclick="switchTab('business')">
+                <i class="bi bi-briefcase-fill"></i> Business Details
+            </button>
+            <button class="sm-tab-btn" id="tab-location" role="tab" onclick="switchTab('location')">
+                <i class="bi bi-geo-alt-fill"></i> Address Details
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Body -->
+    <div class="sm-tab-body">
+        <form id="subMerchantForm">
+
+            <!-- ========================
+                 TAB 1: PERSONAL DETAILS
+                 ======================== -->
+            <div class="sm-tab-pane active" id="pane-personal">
+                <div class="sm-section-label">
+                    <i class="bi bi-person-lines-fill"></i> Personal Information
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="name" name="name"
+                                value="<%= merchant.LEGAL_NAME %>" readonly>
+                            <label for="name">Merchant Name (KYC)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="name_on_bank" name="name_on_bank"
+                                value="<%= merchant.NAME_ON_BANK %>" readonly>
+                            <label for="name_on_bank">Bank Account Holder Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="email" class="form-control" id="email" name="email"
+                                value="<%= merchant.EMAIL %>" readonly>
+                            <label for="email">Merchant Email ID</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                value="<%= merchant.PHONE %>" readonly>
+                            <label for="phone">Merchant Mobile Number</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="city" name="city" 
+                                value="<%= merchant.SUB_CITY %>" readonly>
+                            <label for="city">Merchant City</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="tel" class="form-control" id="pincode" name="pincode"
+                                value="<%= merchant.SUB_PIN_CODE %>" readonly>
+                            <label for="pincode">Merchant Pincode</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="sm-step-footer end" style="margin-top: 0.5rem; padding-top: 0.75rem;">
+                    <div class="sm-step-dots">
+                        <div class="sm-dot active" id="dot-1"></div>
+                        <div class="sm-dot" id="dot-2"></div>
+                        <div class="sm-dot" id="dot-3"></div>
+                    </div>
+                    <button type="button" class="btn-sm-primary ms-auto" id="next-to-business">
+                        Next Step <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================
+                 TAB 2: BUSINESS DETAILS
+                 ======================== -->
+            <div class="sm-tab-pane" id="pane-business">
+                <div class="sm-section-label">
+                    <i class="bi bi-building-fill"></i> Business Information
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="business_name" name="business_name"
+                                value="<%= merchant.BUSINESS_NAME %>" readonly>
+                            <label for="business_name">Business / Shop Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="state" name="state"
+                                value="<%= merchant.CUST_STATE %>" readonly>
+                            <label for="state">State</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="nature_of_business" name="nature_of_business"
+                                value="<%= merchant.NATURE_OF_BUSINESS %>" readonly>
+                            <label for="nature_of_business">Business Category Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control bg-light" id="category_code"
+                                name="category_code" value="<%= merchant.CATEGORY_CODE %>" readonly>
+                            <label for="category_code">Category Code</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="business_type_code" name="business_type_code"
+                                value="<%= merchant.BUSINESS_TYPE_CODE %>" readonly>
+                            <label for="business_type_code">Business Type Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="pan_no" name="pan_no"
+                                value="<%= merchant.PAN_NUMBER %>" readonly>
+                            <label for="pan_no">PAN Number</label>
+                        </div>
+                    </div>
+                    <div class="col-12 position-relative">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="business_address"
+                                name="business_address" value="<%= merchant.BUSINESS_ADDRESS %>" readonly>
+                            <label for="business_address">Business Address</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="sm-step-footer">
+                    <button type="button" class="btn-sm-secondary" id="prev-to-personal">
+                        <i class="bi bi-arrow-left"></i> Previous
+                    </button>
+                    <div class="sm-step-dots">
+                        <div class="sm-dot done" id="dot-1b"></div>
+                        <div class="sm-dot active" id="dot-2b"></div>
+                        <div class="sm-dot" id="dot-3b"></div>
+                    </div>
+                    <button type="button" class="btn-sm-primary" id="next-to-location">
+                        Next Step <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================
+                 TAB 3: ADDRESS DETAILS
+                 ======================== -->
+            <div class="sm-tab-pane" id="pane-location">
+                <div class="sm-section-label">
+                    <i class="bi bi-pin-map-fill"></i> Address & Entity Details
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="address" name="address"
+                                value="<%= merchant.SUB_ADDRESS %>" readonly>
+                            <label for="address">Aadhaar Address</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="entity_type" name="entity_type"
+                                value="<%= merchant.ENTITY_TYPE %>" readonly>
+                            <label for="entity_type">Entity Type Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="gstin" name="gstin"
+                                value="<%= merchant.GSTIN || 'N/A' %>" readonly>
+                            <label for="gstin">GSTIN</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="material-outline">
+                            <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
+                                value="<%= merchant.PRIMARY_VPA %>" readonly>
+                            <label for="primary_vpa">Primary VPA</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="sm-step-footer">
+                    <button type="button" class="btn-sm-secondary" id="prev-to-business">
+                        <i class="bi bi-arrow-left"></i> Previous
+                    </button>
+                    <div class="sm-step-dots">
+                        <div class="sm-dot done" id="dot-1c"></div>
+                        <div class="sm-dot done" id="dot-2c"></div>
+                        <div class="sm-dot active" id="dot-3c"></div>
+                    </div>
+                    <!-- Submit button removed for View Mode -->
+                </div>
+            </div>
+
+        </form>
+    </div><!-- /.sm-tab-body -->
+</div><!-- /.sm-form-card -->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    /* ============================
+       TAB SWITCHING
+       ============================ */
+    function switchTab(tab) {
+        // Hide all panes
+        document.querySelectorAll('.sm-tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sm-tab-btn').forEach(b => b.classList.remove('active'));
+
+        // Show target
+        document.getElementById('pane-' + tab).classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    $(document).ready(function () {
+
+        /* ---- NEXT: Personal → Business ---- */
+        $('#next-to-business').on('click', function () {
+            switchTab('business');
+        });
+
+        /* ---- BACK: Business → Personal ---- */
+        $('#prev-to-personal').on('click', function () {
+            switchTab('personal');
+        });
+
+        /* ---- NEXT: Business → Location ---- */
+        $('#next-to-location').on('click', function () {
+            switchTab('location');
+        });
+
+        /* ---- BACK: Location → Business ---- */
+        $('#prev-to-business').on('click', function () {
+            switchTab('business');
+        });
+
+    });
+</script>

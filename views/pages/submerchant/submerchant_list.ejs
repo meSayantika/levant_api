@@ -18,12 +18,15 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1.6rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
     .sm-header-left {
         display: flex;
         align-items: center;
         gap: 0.85rem;
+        flex-wrap: wrap;
     }
 
     .sm-page-icon {
@@ -58,8 +61,9 @@
         border-left: 5px solid #667eea;    /* THICK LEFT BORDER */
         border-radius: 12px;
         box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
-        padding: 1.5rem;
+        padding: 1.5rem 1.5rem 2.5rem 1.5rem;
         margin-bottom: 2rem;
+        max-width: 100%;
     }
 
     /* ===== TABLE STYLING MATCHING GENERATE KYC ===== */
@@ -96,10 +100,11 @@
         background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
         border: none;
-        padding: 0.6rem 1.2rem;
+        padding: 0.6rem 1.3rem;
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
+        /* margin-right: 1vw; */
     }
 
     .btn-onboard:hover {
@@ -136,6 +141,9 @@
     }
 
     /* DataTable Overrides */
+    .dataTables_wrapper {
+        padding-bottom: 1rem;
+    }
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
         background: #667eea !important;
         color: white !important;
@@ -153,7 +161,7 @@
     }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 px-3 px-md-4">
     <!-- Header -->
     <div class="sm-page-header">
         <div class="sm-header-left">
@@ -183,31 +191,39 @@
             <table id="submerchantTable" class="table sm-table align-middle w-100">
                 <thead>
                     <tr>
+                        <th>Submerchant Code</th>
                         <th>Submerchant Name</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>Business Address</th>
+                        <!-- <th>Business Address</th> -->
                         <th>Created At</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% if (merchants && merchants.length > 0) { %>
                         <% merchants.forEach(merchant => { %>
                             <tr>
+                                <td class="fw-semibold"><%= merchant.SUB_MERCHANT_CODE || 'N/A' %></td>
                                 <td class="fw-semibold"><%= merchant.LEGAL_NAME || 'N/A' %></td>
-                                <td><%= merchant.EMAIL || 'N/A' %></td>
-                                <td><%= merchant.PHONE || 'N/A' %></td>
-                                <td>
+                                <td class="fw-semibold"><%= merchant.EMAIL || 'N/A' %></td>
+                                <td class="fw-semibold"><%= merchant.PHONE || 'N/A' %></td>
+                                <!-- <td class="fw-semibold">
                                     <span class="d-inline-block text-truncate" style="max-width: 200px;" title="<%= merchant.BUSINESS_ADDRESS || 'N/A' %>">
                                         <%= merchant.BUSINESS_ADDRESS || 'N/A' %>
                                     </span>
+                                </td> -->
+                                <td class="fw-semibold"><%= merchant.CREATED_DATE || 'N/A' %></td>
+                                <td>
+                                    <a href="/admin/merchants/view/<%= merchant.CUST_CD %>" class="btn btn-sm sp-btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="View Submerchant">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </td>
-                                <td><%= merchant.CREATED_DATE || 'N/A' %></td>
                             </tr>
                         <% }) %>
                     <% } else { %>
                         <tr>
-                            <td colspan="5" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                     <i class="bi bi-inbox fs-1 text-muted mb-3 opacity-50"></i>
                                     <h6 class="text-muted fw-semibold mb-0">No data on onboard submerchant</h6>
