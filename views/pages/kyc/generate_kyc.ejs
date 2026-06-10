@@ -453,6 +453,16 @@
 <script>
 $(document).ready(function () {
 
+    // Auto-search if ?search= is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const prefillSearch = urlParams.get('search');
+    if (prefillSearch) {
+        $('#searchQuery').val(prefillSearch);
+        setTimeout(() => {
+            $('#searchForm').submit();
+        }, 100);
+    }
+
     function showKycToast(msg, isError = true) {
         Toastify({
             text: msg,

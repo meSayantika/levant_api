@@ -43,7 +43,7 @@
     }
 
     .sm-section-label {
-        font-size: 0.72rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: var(--sm-primary);
         text-transform: uppercase;
@@ -80,6 +80,7 @@
         transform-origin: 0 0;
         transition: opacity .1s ease-in-out,transform .1s ease-in-out;
         color: var(--sm-muted);
+        font-weight: 600;
     }
     .material-outline input.form-control:focus~label,
     .material-outline input.form-control:not(:placeholder-shown)~label,
@@ -137,7 +138,10 @@
 </style>
 
 <div class="container-fluid py-4">
-    <div class="sm-page-header">
+    <div class="sm-page-header d-flex align-items-center gap-3">
+        <a href="/admin/kyc/generate_kyc?search=<%= submerch_id %>" class="btn btn-outline-secondary d-flex align-items-center justify-content-center border-0 shadow-sm bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.2s;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Back" onmouseover="this.style.background='#f1f3f5'" onmouseout="this.style.background='#ffffff'">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
         <div class="sm-page-icon">
             <i class="bi bi-cloud-arrow-up"></i>
         </div>
@@ -197,19 +201,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="business_name" value="<%= merchantData.BUSINESS_NAME || '' %>" readonly>
-                        <label>Business Name</label>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="pan_number" value="<%= merchantData.PAN_NUMBER || '' %>" readonly>
-                        <label>PAN Number</label>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="websiteurl" value="<%= merchantData.WEBSITE_URL || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="websiteurl" value="https://www.synergicsoftek.in" readonly>
                         <label>Website URL</label>
                     </div>
                 </div>
@@ -221,41 +213,45 @@
 
             <div class="row g-3">
                 <div class="col-md-4">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="account_holder_name" value="<%= merchantData.NAME_ON_BANK || '' %>" readonly>
-                        <label>Bank Account Holder</label>
+                        <label>Account Holder Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="bank_name" value="<%= merchantData.BANK_NAME || '' %>" readonly>
                         <label>Bank Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="branch_name" value="<%= merchantData.BANK_BRANCH || '' %>" readonly>
                         <label>Branch Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="ifsc_code" value="<%= merchantData.BANK_ACCOUNT_IFSC || '' %>" readonly>
-                        <label>IFSC Code</label>
+                        <label>IFS Code</label>
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="account_number" value="<%= merchantData.BANK_ACCOUNT_NUMBER || '' %>" readonly>
                         <label>Account Number</label>
                     </div>
                 </div>
-                
                 <!-- BANK PROOF WITH PREVIEW -->
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-primary">Bank Proof Upload <span class="text-danger">*</span></label>
-                        <input class="form-control file-input-preview" type="file" name="bank_proof" accept=".png, .jpg, .jpeg, .pdf" required>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Bank Proof Upload <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger">*</span></label>
+                        <input class="form-control file-input-preview" type="file" name="bank_proof" accept=".png, .jpg, .jpeg, .pdf" required style="padding: 0.55rem 0.75rem;">
                         <div class="file-preview-wrapper">
                             <!-- Preview injected via JS -->
                         </div>
@@ -267,33 +263,57 @@
                 <i class="bi bi-file-earmark-text"></i> Business & GST Details
             </div>
 
-            <div class="row g-3">
+            <div class="row g-3 mb-3">
                 <div class="col-md-4">
                     <div class="material-outline">
+                        <input type="text" class="form-control bg-light" name="business_name" value="<%= merchantData.BUSINESS_NAME || merchantData.LEGAL_NAME || '' %>" readonly>
+                        <label>Business Name</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control bg-light" name="pan_no" value="<%= merchantData.PAN || merchantData.PAN_NO || merchantData.PAN_NUMBER || '' %>" readonly>
+                        <label>PAN Number</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
+                        <input type="text" class="form-control bg-light" name="entity_type_display" value="<%= entity_type || '' %>" readonly>
+                        <label>Entity Type</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
+                    <div class="material-outline">
                         <select class="form-select" id="gstin_status" name="gstin_status" required>
-                            <option value="1">1 = No GST</option>
-                            <option value="2">2 = GST Available</option>
+                            <option value="1">No GST</option>
+                            <option value="2">GST Available</option>
                         </select>
                         <label>GSTIN Status <span class="text-danger">*</span></label>
                     </div>
                 </div>
                 <div class="col-md-4 gstin-field" style="display:none;">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="gstin" value="<%= merchantData.GSTIN || '' %>" readonly>
+                        <input type="text" class="form-control" name="gstin" value="<%= merchantData.GSTIN || '' %>" placeholder=" ">
                         <label>GSTIN</label>
                     </div>
                 </div>
                 <div class="col-md-4 gstin-agreement-field">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-primary">GSTIN Agreement (No GST) <span class="text-danger">*</span></label>
-                        <input class="form-control file-input-preview" type="file" name="gstin_agreement" accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">GSTIN Agreement <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger">*</span></label>
+                        <input class="form-control file-input-preview" type="file" name="gstin_agreement" accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required style="padding: 0.55rem 0.75rem;">
                         <div class="file-preview-wrapper"></div>
                     </div>
                 </div>
-                <div class="col-md-4 auth-signatory-field" style="display:none;">
+                <div class="col-md-4 auth-signatory-field">
+                    <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
                         <input type="text" class="form-control" name="authorized_signatory_name" id="authSignatoryInput" placeholder=" ">
-                        <label>Authorized Signatory Name <span class="text-danger">*</span></label>
+                        <label>Authorized Signatory Name <span class="text-danger auth-signatory-star" style="display:none;">*</span></label>
                     </div>
                 </div>
             </div>
@@ -311,6 +331,22 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <img src="" id="modalPreviewImage" class="img-fluid rounded shadow-sm" style="max-height: 80vh; display: none;" alt="Preview">
+                <div id="modalPreviewPdfContainer" style="width: 100%; height: 80vh; display: none;"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -336,10 +372,10 @@
         // Dynamic Documents Based on Entity Type
         const docsConfig = {
             pan_card: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'PAN Card' },
-            address_proof_front_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Front' },
-            address_proof_back_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Back' },
-            aus_aadhar_card_front_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Front' },
-            aus_aadhar_card_back_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Back' },
+            address_proof_front_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Front Page' },
+            address_proof_back_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Back Page' },
+            aus_aadhar_card_front_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Card Front Page' },
+            aus_aadhar_card_back_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Card Back Page' },
             aus_pan_card: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS PAN Card' },
             business_registration_proof: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Business Registration Proof' },
             aus_board_resolution_authorizing: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS Board Resolution' },
@@ -353,18 +389,21 @@
         };
 
         const requiredDocsByEntity = {
-            0: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3', 'shop_board_image', 'stock_image', 'shop_full_image'], // Individual
+            0: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Individual
             4: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2'], // Society/Trust
             7: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_board_resolution_authorizing', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // LLP
             9: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Partnership
-            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page'], // Sole Proprietor
+            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page','aus_aadhar_card_back_page','aus_pan_card','additional_document_1', 'additional_document_2','additional_document_3','shop_board_image', 'stock_image', 'shop_full_image'], // Sole Proprietor
             11: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_board_resolution_authorizing', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Pvt/Pub Ltd
             13: ['pan_card', 'work_order', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'] // Gov Entity
         };
 
         if(entityType === 9) { // Partnership
-            $('.auth-signatory-field').show();
             $('#authSignatoryInput').prop('required', true);
+            $('.auth-signatory-star').show();
+        } else {
+            $('#authSignatoryInput').prop('required', false);
+            $('.auth-signatory-star').hide();
         }
 
         const docsToRender = requiredDocsByEntity[entityType] || requiredDocsByEntity[0];
@@ -378,9 +417,9 @@
                 const reqAttr = docInfo.required ? 'required' : '';
                 const html = `
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-primary">${docInfo.label} ${reqStar}</label>
-                        <input class="form-control file-input-preview" type="file" name="${docKey}" accept="${docInfo.accept}" ${reqAttr}>
+                    <div style="margin-bottom: 1.5rem; margin-top: -4px;">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">${docInfo.label} <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> ${reqStar}</label>
+                        <input class="form-control file-input-preview" type="file" name="${docKey}" accept="${docInfo.accept}" ${reqAttr} style="padding: 0.55rem 0.75rem;">
                         <div class="file-preview-wrapper"></div>
                     </div>
                 </div>
@@ -404,12 +443,12 @@
                 if (fileType.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        wrapper.append('<img src="'+e.target.result+'" class="file-preview-img" alt="Preview">');
+                        wrapper.append('<img src="'+e.target.result+'" class="file-preview-img preview-clickable" alt="Preview" style="cursor: pointer;" title="Click to view full image">');
                         wrapper.append('<div class="file-preview-name">'+fileName+'</div>');
                     };
                     reader.readAsDataURL(file);
                 } else if (fileType === 'application/pdf') {
-                    wrapper.append('<div class="file-preview-pdf"><i class="bi bi-file-earmark-pdf-fill fs-2"></i><div class="fw-bold">PDF Document</div></div>');
+                    wrapper.append('<div class="file-preview-pdf preview-pdf-clickable" style="cursor: pointer;" title="Click to view full PDF"><i class="bi bi-file-earmark-pdf-fill fs-2"></i><div class="fw-bold">PDF Document</div></div>');
                     wrapper.append('<div class="file-preview-name">'+fileName+'</div>');
                 } else {
                     wrapper.append('<div class="file-preview-pdf"><i class="bi bi-file-earmark-check fs-2 text-success"></i><div class="fw-bold">File Selected</div></div>');
@@ -417,6 +456,28 @@
                 }
             } else {
                 wrapper.hide().empty();
+            }
+        });
+
+        function showPreviewModal() {
+            $('#imagePreviewModal').modal('show');
+        }
+
+        // Handle Image Preview Click
+        $(document).on('click', '.preview-clickable', function() {
+            var src = $(this).attr('src');
+            $('#modalPreviewImage').attr('src', src).show();
+            $('#modalPreviewPdfContainer').hide().empty();
+            showPreviewModal();
+        });
+
+        // Handle PDF Preview Click
+        $(document).on('click', '.preview-pdf-clickable', function() {
+            var fileInput = $(this).closest('.file-preview-wrapper').siblings('.file-input-preview')[0];
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                var file = fileInput.files[0];
+                var objectUrl = URL.createObjectURL(file);
+                window.open(objectUrl, '_blank');
             }
         });
 

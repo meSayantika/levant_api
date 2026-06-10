@@ -64,5 +64,48 @@
     <!-- Custom JS -->
     <script src="/js/main.js?v=6"></script>
     <%- typeof script !== 'undefined' ? script : '' %>
+    <!-- Scroll Buttons -->
+    <div class="scroll-buttons" style="position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 9999;">
+        <button id="scrollToTopBtn" class="btn rounded-circle shadow" style="width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; display: none; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="bi bi-arrow-up fs-5"></i>
+        </button>
+        <button id="scrollToBottomBtn" class="btn rounded-circle shadow" style="width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="bi bi-arrow-down fs-5"></i>
+        </button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Determine scroll container (either window or #mainContentArea depending on CSS)
+            var $scrollContainer = $('body').css('overflow') === 'hidden' ? $('#mainContentArea') : $(window);
+            
+            $scrollContainer.on('scroll', function() {
+                var scrollTop = $(this).scrollTop();
+                var innerHeight = $(this).innerHeight() || $(window).height();
+                var scrollHeight = $(this)[0].scrollHeight || $(document).height();
+
+                if (scrollTop > 100) {
+                    $('#scrollToTopBtn').fadeIn();
+                } else {
+                    $('#scrollToTopBtn').fadeOut();
+                }
+
+                if (scrollTop + innerHeight >= scrollHeight - 50) {
+                    $('#scrollToBottomBtn').fadeOut();
+                } else {
+                    $('#scrollToBottomBtn').fadeIn();
+                }
+            });
+
+            $('#scrollToTopBtn').click(function() {
+                $('html, body, #mainContentArea').animate({ scrollTop: 0 }, 300);
+            });
+
+            $('#scrollToBottomBtn').click(function() {
+                var scrollHeight = $('#mainContentArea')[0].scrollHeight || $(document).height();
+                $('html, body, #mainContentArea').animate({ scrollTop: scrollHeight }, 300);
+            });
+        });
+    </script>
 </body>
 </html>
