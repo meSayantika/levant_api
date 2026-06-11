@@ -36,7 +36,8 @@ function decryptId(text) {
 // Multer Setup
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const submerch_id = req.body.submerch_id || 'default';
+        const encrypted_submerch_id = req.body.submerch_id;
+        const submerch_id = decryptId(encrypted_submerch_id) || encrypted_submerch_id || 'default';
         const dir = 'public/uploads/kyc/' + submerch_id + '/';
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
