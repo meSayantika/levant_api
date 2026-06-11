@@ -407,7 +407,7 @@ async function processUploadKyc(req, res) {
             }
         }
 
-        const levantApiUrl = process.env.GENERATE_KYC_KEY_API;
+        const levantApiUrl = process.env.UPDATE_KYC_API || 'https://app.levanttech.in/api/v1/updatekyc';
 
         const apiResponse = await fetch(levantApiUrl, {
             method: 'POST',
