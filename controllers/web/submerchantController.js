@@ -6,6 +6,33 @@
 
 const { F_Select, F_Insert } = require("../../models/oracleModel");
 const logger = require("../../utils/logger");
+const crypto = require("crypto");
+
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '12345678901234567890123456789012'; // Must be 256 bits (32 characters)
+const IV_LENGTH = 16;
+
+function encryptId(text) {
+    let iv = crypto.randomBytes(IV_LENGTH);
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+    let encrypted = cipher.update(String(text));
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    // Use URL safe encoding by replacing + and / if base64, but we use hex here which is already safe
+    return iv.toString('hex') + '-' + encrypted.toString('hex');
+}
+
+function decryptId(text) {
+    try {
+        let textParts = text.split('-');
+        let iv = Buffer.from(textParts.shift(), 'hex');
+        let encryptedText = Buffer.from(textParts.join('-'), 'hex');
+        let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+        let decrypted = decipher.update(encryptedText);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+        return decrypted.toString();
+    } catch(e) {
+        return null;
+    }
+}
 
 /**
  * Helper to generate CUST_CD (Assuming it's generated via MAX(CUST_CD) + 1 for now)
@@ -30,11 +57,17 @@ async function renderSubMerchantList(req, res) {
         `;
         const merchants = await F_Select(0, query);
 
+        // Pre-encrypt the CUST_CD for the view links
+        const processedMerchants = (merchants || []).map(m => {
+            m.ENCRYPTED_CUST_CD = encryptId(m.CUST_CD);
+            return m;
+        });
+
         res.render("pages/submerchant/submerchant_list", {
             title: "Sub Merchants | Synergic Pay",
             user: req.user,
             currentRoute: "/admin/merchants",
-            merchants: merchants || []
+            merchants: processedMerchants
         });
     } catch (error) {
         logger.error(`[SubMerchant Controller] Error fetching list: ${error.message}`);
@@ -247,7 +280,13 @@ async function processCreateSubMerchant(req, res) {
  */
 async function renderViewSubMerchant(req, res) {
     try {
-        const custCd = req.params.custCd;
+        const encryptedCustCd = req.params.custCd;
+        const custCd = decryptId(encryptedCustCd);
+
+        if (!custCd) {
+            return res.status(400).send("Invalid or corrupted sub-merchant ID");
+        }
+
         const query = `
             SELECT * FROM SUB_MERCHANTS WHERE CUST_CD = :custCd
         `;

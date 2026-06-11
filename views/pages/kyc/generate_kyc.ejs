@@ -353,7 +353,9 @@
         font-size: 0.8rem;
         font-weight: 600;
         margin-top: 0.4rem;
+        top: 100%;
         display: none;
+        position: absolute;
     }
 
     @media (max-width: 767px) {
@@ -386,7 +388,7 @@
         <i class="bi bi-search"></i> Search Sub-Merchant
     </div>
     <form id="searchForm">
-        <div class="row g-3 align-items-end">
+        <div class="row g-3 align-items-end mb-4">
             <div class="col-md-7 col-lg-8" style="position: relative;">
                 <input
                     type="text"
@@ -547,7 +549,7 @@ $(document).ready(function () {
                         // Upload Button properties
                         var uploadDisabledClass = hasActiveKey ? '' : 'disabled';
                         var uploadStyle = hasActiveKey ? 'pointer-events: auto; opacity: 1;' : 'pointer-events: none; opacity: 0.5;';
-                        var uploadUrl = `/admin/kyc/upload_kyc?submerch_id=${merchantCode}&entity_type=${item.ENTITY_TYPE}`;
+                        var uploadUrl = `/admin/kyc/upload_kyc?submerch_id=${item.ENCRYPTED_SUB_MERCHANT_CODE || merchantCode}&entity_type=${item.ENTITY_TYPE}`;
                         if (hasActiveKey && item.EXISTING_ACCESS_KEY) {
                             uploadUrl += `&acc_token=${item.EXISTING_ACCESS_KEY}`;
                         }
@@ -562,7 +564,7 @@ $(document).ready(function () {
                             expiryText = 'Expires: ' + new Date(item.EXISTING_EXPIRED_AT).toLocaleString('en-IN', {
                                 day: '2-digit', month: 'short', year: 'numeric',
                                 hour: '2-digit', minute: '2-digit'
-                            });
+                            }) + ' (IST)';
                         }
 
                         var tr = `
@@ -663,7 +665,7 @@ $(document).ready(function () {
                         var expiryDate = new Date(expiredAt).toLocaleString('en-IN', {
                             day: '2-digit', month: 'short', year: 'numeric',
                             hour: '2-digit', minute: '2-digit'
-                        });
+                        }) + ' (IST)';
                         $('#expiry-text-' + merchant_id).text('Expires: ' + expiryDate);
                         $('#expiry-' + merchant_id).show();
                     }

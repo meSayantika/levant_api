@@ -137,9 +137,13 @@
     }
 </style>
 
+<!-- SweetAlert2 -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid py-4">
     <div class="sm-page-header d-flex align-items-center gap-3">
-        <a href="/admin/kyc/generate_kyc?search=<%= submerch_id %>" class="btn btn-outline-secondary d-flex align-items-center justify-content-center border-0 shadow-sm bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.2s;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Back" onmouseover="this.style.background='#f1f3f5'" onmouseout="this.style.background='#ffffff'">
+        <a href="/admin/kyc/generate_kyc?search=<%= decrypted_submerch_id %>" class="btn btn-outline-secondary d-flex align-items-center justify-content-center border-0 shadow-sm bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.2s;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Back" onmouseover="this.style.background='#f1f3f5'" onmouseout="this.style.background='#ffffff'">
             <i class="bi bi-arrow-left fs-5"></i>
         </a>
         <div class="sm-page-icon">
@@ -148,6 +152,9 @@
         <div class="sm-page-title">
             <h4>Upload KYC Details</h4>
             <p>Complete the KYC submission for Sub Merchant</p>
+        </div>
+        <div class="ms-auto" id="timerContainer" style="display: none; background: linear-gradient(45deg, #82a5d9, #e4eaf3); border: 1px solid #0e0d0d; color: #0c0c0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">
+            <i class="bi bi-stopwatch me-1"></i> Expires in: <span id="countdownTimer">--:--:--</span>
         </div>
     </div>
 
@@ -250,9 +257,9 @@
                 <!-- BANK PROOF WITH PREVIEW -->
                 <div class="col-md-4">
                     <div style="margin-bottom: 1.5rem;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Bank Proof Upload <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger">*</span></label>
-                        <input class="form-control file-input-preview" type="file" name="bank_proof" accept=".png, .jpg, .jpeg, .pdf" required style="padding: 0.55rem 0.75rem;">
-                        <div class="file-preview-wrapper">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Bank Proof Upload <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger req-star">*</span></label>
+                        <input class="form-control file-input-preview" type="file" name="bank_proof" accept=".png, .jpg, .jpeg, .pdf" id="bankProofInput" required style="padding: 0.55rem 0.75rem;">
+                        <div class="file-preview-wrapper" id="preview-bank_proof">
                             <!-- Preview injected via JS -->
                         </div>
                     </div>
@@ -304,9 +311,9 @@
                 </div>
                 <div class="col-md-4 gstin-agreement-field">
                     <div style="margin-bottom: 1.5rem;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">GSTIN Agreement <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">GSTIN Agreement <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger req-star">*</span></label>
                         <input class="form-control file-input-preview" type="file" name="gstin_agreement" accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required style="padding: 0.55rem 0.75rem;">
-                        <div class="file-preview-wrapper"></div>
+                        <div class="file-preview-wrapper" id="preview-gstin_agreement"></div>
                     </div>
                 </div>
                 <div class="col-md-4 auth-signatory-field">
@@ -351,9 +358,23 @@
 </div>
 
 <script>
+    const kycData = <%- JSON.stringify(kycData || {}) %>;
+    const expiryTimeStr = "<%= expiryTime || '' %>";
+
     $(document).ready(function() {
         const entityType = parseInt($('#entityTypeInput').val()) || 0;
         $('#entityTypeDisplay').text(entityType);
+
+        // Pre-fill Static Data
+        if (kycData.GSTIN_STATUS) {
+            $('#gstin_status').val(kycData.GSTIN_STATUS);
+        }
+        if (kycData.GSTIN) {
+            $('input[name="gstin"]').val(kycData.GSTIN);
+        }
+        if (kycData.AUTHORIZED_SIGNATORY_NAME) {
+            $('input[name="authorized_signatory_name"]').val(kycData.AUTHORIZED_SIGNATORY_NAME);
+        }
 
         // Handle GSTIN Toggle
         $('#gstin_status').on('change', function() {
@@ -365,7 +386,10 @@
             } else {
                 $('.gstin-field').hide();
                 $('.gstin-agreement-field').show();
-                $('#gstinAgreementInput').prop('required', true);
+                if (!kycData.GSTIN_AGREEMENT) {
+                    $('#gstinAgreementInput').prop('required', true);
+                    $('#gstinAgreementInput').siblings('label').find('.req-star').show();
+                }
             }
         }).trigger('change');
 
@@ -410,23 +434,59 @@
         const $container = $('#dynamicDocsContainer');
         $container.empty();
 
+        const dbColumnMap = {
+            pan_card: 'PAN_CARD', address_proof_front_page: 'ADDRESS_PROOF_FRONT_PAGE', address_proof_back_page: 'ADDRESS_PROOF_BACK_PAGE',
+            aus_aadhar_card_front_page: 'AUS_AADHAR_CARD_FRONT_PAGE', aus_aadhar_card_back_page: 'AUS_AADHAR_CARD_BACK_PAGE',
+            aus_pan_card: 'AUS_PAN_CARD', business_registration_proof: 'BUSINESS_REGISTRATION_PROOF',
+            aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER',
+            additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2', additional_document_3: 'ADDITIONAL_DOCUMENT_3',
+            shop_board_image: 'SHOP_BOARD_IMAGE', stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE',
+            bank_proof: 'ADDITIONAL_DOCUMENT_3', gstin_agreement: 'GSTIN_AGREEMENT'
+        };
+
+        function populatePreview(key, wrapperId, inputSelector, isRequired) {
+            const dbVal = kycData[dbColumnMap[key]];
+            if (dbVal) {
+                $(inputSelector).prop('required', false);
+                $(inputSelector).siblings('label').find('.req-star').hide();
+                const wrapper = $(wrapperId);
+                wrapper.empty().show();
+                
+                const isPdf = dbVal.toLowerCase().endsWith('.pdf');
+                if (isPdf) {
+                    wrapper.append('<div class="file-preview-pdf preview-pdf-clickable-existing" data-url="'+dbVal+'" style="cursor: pointer;" title="Click to view existing PDF"><i class="bi bi-file-earmark-pdf-fill fs-2"></i><div class="fw-bold text-success">Existing PDF</div></div>');
+                } else {
+                    wrapper.append('<img src="'+dbVal+'" class="file-preview-img preview-clickable" alt="Existing Preview" style="cursor: pointer;" title="Click to view full image">');
+                }
+                wrapper.append('<div class="file-preview-name text-success">Previously Uploaded</div>');
+            } else if (isRequired) {
+                $(inputSelector).prop('required', true);
+            }
+        }
+
         docsToRender.forEach(docKey => {
             const docInfo = docsConfig[docKey];
             if(docInfo) {
-                const reqStar = docInfo.required ? '<span class="text-danger">*</span>' : '';
-                const reqAttr = docInfo.required ? 'required' : '';
+                const reqStar = docInfo.required ? '<span class="text-danger req-star">*</span>' : '';
                 const html = `
                 <div class="col-md-4">
                     <div style="margin-bottom: 1.5rem; margin-top: -4px;">
                         <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">${docInfo.label} <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> ${reqStar}</label>
-                        <input class="form-control file-input-preview" type="file" name="${docKey}" accept="${docInfo.accept}" ${reqAttr} style="padding: 0.55rem 0.75rem;">
-                        <div class="file-preview-wrapper"></div>
+                        <input class="form-control file-input-preview" type="file" name="${docKey}" id="input-${docKey}" accept="${docInfo.accept}" style="padding: 0.55rem 0.75rem;">
+                        <div class="file-preview-wrapper" id="preview-${docKey}"></div>
                     </div>
                 </div>
                 `;
                 $container.append(html);
+                populatePreview(docKey, '#preview-'+docKey, '#input-'+docKey, docInfo.required);
             }
         });
+
+        // Pre-populate static file fields
+        populatePreview('bank_proof', '#preview-bank_proof', '#bankProofInput', true);
+        if ($('#gstin_status').val() === '1') {
+            populatePreview('gstin_agreement', '#preview-gstin_agreement', '#gstinAgreementInput', true);
+        }
 
         // ==========================================
         // FILE PREVIEW LOGIC
@@ -481,6 +541,14 @@
             }
         });
 
+        // Handle Existing PDF Preview Click
+        $(document).on('click', '.preview-pdf-clickable-existing', function() {
+            var url = $(this).data('url');
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
+
         // Handle form submission
         $('#kycUploadForm').on('submit', function(e) {
             e.preventDefault();
@@ -501,17 +569,66 @@
                 success: function(response) {
                     $submitBtn.prop('disabled', false).html(originalBtnText);
                     if(response.success) {
-                        alert("KYC Submitted Successfully!");
-                        window.location.href = '/admin/merchants';
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message || 'Processed successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            window.location.href = '/admin/kyc/generate_kyc?search=<%= decrypted_submerch_id %>';
+                        });
                     } else {
-                        alert("Error: " + (response.message || "Failed to submit KYC"));
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.message || "Failed to process KYC",
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 },
                 error: function(err) {
                     $submitBtn.prop('disabled', false).html(originalBtnText);
-                    alert("An error occurred during submission.");
+                    Swal.fire({
+                        title: 'Error!',
+                        text: "An error occurred during submission.",
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         });
+
+        // Timer Logic
+        if (expiryTimeStr) {
+            const expDate = new Date(expiryTimeStr).getTime();
+            if (!isNaN(expDate)) {
+                $('#timerContainer').show();
+                const timerInterval = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = expDate - now;
+
+                    if (distance < 0) {
+                        clearInterval(timerInterval);
+                        $('#countdownTimer').text("EXPIRED");
+                        $('#timerContainer').css({'background': '#f8d7da', 'border-color': '#f5c2c7', 'color': '#842029'});
+                        $('#submitKycBtn').prop('disabled', true).text("Token Expired");
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    let timeText = "";
+                    if (days > 0) timeText += days + "d ";
+                    timeText += (hours < 10 ? "0" : "") + hours + "h ";
+                    timeText += (minutes < 10 ? "0" : "") + minutes + "m ";
+                    timeText += (seconds < 10 ? "0" : "") + seconds + "s";
+                    
+                    $('#countdownTimer').text(timeText);
+                }, 1000);
+            }
+        }
     });
 </script>
