@@ -272,9 +272,30 @@ async function processCreateSubMerchant(req, res) {
                 body: rawReqPayload
             });
 
-            jsonResponse = await apiResponse.json();
-            rawResponseStr = JSON.stringify(jsonResponse);
-            apiSuccess = jsonResponse.success === true;
+            const textResponse = await apiResponse.text();
+            rawResponseStr = textResponse;
+
+            try {
+                jsonResponse = JSON.parse(textResponse);
+                apiSuccess = jsonResponse.success === true;
+            } catch (parseErr) {
+                // Not JSON - Levant crashed and returned HTML
+                logger.error(`[SubMerchant Controller] Levant API returned HTML during creation`);
+                let extractedError = "Unknown HTML Crash";
+                const sqlMatch = textResponse.match(/SQLSTATE\[\d+\]:\s*(.*?)(?:\(Connection:|$)/i);
+                if (sqlMatch && sqlMatch[1]) {
+                    extractedError = sqlMatch[1].trim();
+                } else {
+                    const titleMatch = textResponse.match(/<title>(.*?)<\/title>/);
+                    if (titleMatch && titleMatch[1]) extractedError = titleMatch[1].trim();
+                }
+                
+                jsonResponse = { 
+                    success: false, 
+                    message: extractedError
+                };
+                apiSuccess = false;
+            }
         } catch (apiErr) {
             logger.error(`[SubMerchant Controller] Levant API call failed: ${apiErr.message}`);
             jsonResponse = { success: false, message: "Network/API Error: " + apiErr.message };
@@ -517,8 +538,22 @@ async function regenerateSubmerchantCode(req, res) {
                 jsonResponse = JSON.parse(textResponse);
                 apiSuccess = jsonResponse.success === true;
             } catch (parseError) {
-                // If parsing fails, jsonResponse is mocked to false
-                jsonResponse = { success: false, message: "Levant API backend crashed (Non-JSON Error). Check database RAW_RESPONSE for full details." };
+                // Not JSON - Levant crashed and returned HTML
+                logger.error(`[SubMerchant Controller] Levant API returned HTML during regeneration`);
+                let extractedError = "Unknown HTML Crash";
+                const sqlMatch = textResponse.match(/SQLSTATE\[\d+\]:\s*(.*?)(?:\(Connection:|$)/i);
+                if (sqlMatch && sqlMatch[1]) {
+                    extractedError = sqlMatch[1].trim();
+                } else {
+                    const titleMatch = textResponse.match(/<title>(.*?)<\/title>/);
+                    if (titleMatch && titleMatch[1]) extractedError = titleMatch[1].trim();
+                }
+
+                // Save the crash HTML directly to RAW_RESPONSE so we can debug it
+                jsonResponse = {
+                    success: false,
+                    message: extractedError
+                };
                 apiSuccess = false;
             }
 

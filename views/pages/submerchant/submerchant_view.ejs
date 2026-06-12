@@ -554,9 +554,9 @@
                                                 data-id="<%= merchant.ENCRYPTED_CUST_CD %>">
                                                 <i class="bi bi-arrow-repeat"></i> Generate Submerchant Code
                                             </button>
-                                            <small class="text-danger d-block mt-1 fw-bold"
+                                            <!-- <small class="text-danger d-block mt-1 fw-bold"
                                                 style="font-size: 0.75rem;">* Note: You must change the Email and Phone
-                                                number before regenerating to bypass duplicate errors.</small>
+                                                number before regenerating to bypass duplicate errors.</small> -->
                                         </div>
                                         <% } %>
                                 </div>
@@ -575,6 +575,8 @@
                    ============================ */
                 const originalEmail = "<%= merchant.EMAIL %>";
                 const originalPhone = "<%= merchant.PHONE %>";
+                const originalPan = ("<%= merchant.PAN_NUMBER %>" || "").toUpperCase();
+                const originalVpa = "<%= merchant.PRIMARY_VPA %>" || "";
                 const isInvalidCodeJs = <%= (merchant.SUB_MERCHANT_CODE === '0' || (merchant.SUB_MERCHANT_CODE && merchant.SUB_MERCHANT_CODE.toUpperCase().startsWith('F'))) ? 'true' : 'false' %>;
 
                 function switchTab(tab) {
@@ -588,6 +590,20 @@
                                 icon: 'warning',
                                 title: 'Action Required',
                                 text: 'You must change both the Email and Phone number to regenarate submerchant code.',
+                                confirmButtonColor: '#008080'
+                            });
+                            return;
+                        }
+                    }
+
+                    // Validation: Force PAN change before leaving business tab
+                    if (isInvalidCodeJs && tab === 'location') {
+                        const currentPan = document.getElementById('pan_no').value.trim().toUpperCase();
+                        if (currentPan === originalPan) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Action Required',
+                                text: 'You must change the PAN Number to regenarate submerchant code.',
                                 confirmButtonColor: '#008080'
                             });
                             return;
@@ -634,12 +650,32 @@
                         var pan_no = $('#pan_no').val().toUpperCase();
                         var primary_vpa = $('#primary_vpa').val();
 
-                        // Validate that email and phone were actually changed
+                        // Validate that email, phone, pan, and vpa were actually changed
                         if (email === originalEmail || phone === originalPhone) {
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Action Required',
                                 text: 'You must change both the Email and Phone number to bypass Levant duplicate errors before generating.',
+                                confirmButtonColor: '#008080'
+                            });
+                            return;
+                        }
+
+                        if (pan_no === originalPan) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Action Required',
+                                text: 'You must change the PAN Number to regenarate submerchant code.',
+                                confirmButtonColor: '#008080'
+                            });
+                            return;
+                        }
+
+                        if (primary_vpa === originalVpa) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Action Required',
+                                text: 'You must change the Primary VPA to regenarate submerchant code.',
                                 confirmButtonColor: '#008080'
                             });
                             return;
