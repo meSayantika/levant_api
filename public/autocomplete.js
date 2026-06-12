@@ -41,6 +41,14 @@ function initAutocomplete() {
         document.getElementById('lati').value = lat;
         document.getElementById('longi').value = lng;
         
+        // 6. If map is loaded, update it!
+        if (typeof map !== 'undefined' && typeof marker !== 'undefined') {
+            google.maps.event.trigger(map, 'resize');
+            map.setCenter(place.geometry.location);
+            map.setZoom(15);
+            marker.setPosition(place.geometry.location);
+        }
+        
         console.log("SUCCESS! Coordinates captured -> Lat: " + lat + ", Lng: " + lng);
     });
     

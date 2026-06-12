@@ -584,6 +584,9 @@
                                         <textarea class="form-control border" id="business_address"
                                             name="business_address" placeholder="Business Address" required
                                             autocomplete="off" rows="3" style="border-radius: 8px;"></textarea>
+                                        <div id="business_map" style="height: 250px; width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid var(--sm-border);"></div>
+                                        <input type="hidden" id="lati" name="lati" value="">
+                                        <input type="hidden" id="longi" name="longi" value="">
                                     </div>
                                     <ul id="address-suggestions" class="list-group position-absolute w-100"
                                         style="display:none; z-index: 1050; max-height: 200px; overflow-y: auto; top: 100%;">
@@ -678,10 +681,42 @@
             <!-- ============================
      Google Maps API
      ============================ -->
-            <script type="text/javascript"
-                src="https://maps.googleapis.com/maps/api/js?libraries=places&key=<%= googleMapsApiKey %>">
-                </script>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            
+            <% if (typeof googleMapsApiKey !== 'undefined' && googleMapsApiKey) { %>
+            <script>
+                let map;
+                let marker;
+                let geocoder;
+
+                function initBusinessMap() {
+                    geocoder = new google.maps.Geocoder();
+                    const defaultLoc = { lat: 20.5937, lng: 78.9629 }; // India center
+
+                    map = new google.maps.Map(document.getElementById('business_map'), {
+                        zoom: 4,
+                        center: defaultLoc,
+                        streetViewControl: false,
+                        mapTypeControl: false,
+                        fullscreenControl: false
+                    });
+
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: defaultLoc,
+                        draggable: true
+                    });
+
+                    marker.addListener('dragend', function() {
+                        const position = marker.getPosition();
+                        document.getElementById('lati').value = position.lat().toFixed(6);
+                        document.getElementById('longi').value = position.lng().toFixed(6);
+                    });
+                }
+            </script>
+            <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&libraries=places&callback=initBusinessMap"></script>
+            <% } %>
             <script type="text/javascript" src="/autocomplete.js"></script>
 
             <script>
