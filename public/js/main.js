@@ -137,13 +137,13 @@ $(function () {
     });
 
     $(document).on("input", "#address", function(e) {
-        e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, '');
+        e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s,./-]/g, '');
     });
 
     $(document).on("input", "#business_address", function(e) {
         var val = e.target.value;
-        if (/[^a-zA-Z0-9\s]/.test(val)) {
-            e.target.value = val.replace(/[^a-zA-Z0-9\s]/g, '');
+        if (/[^a-zA-Z0-9\s,./-]/.test(val)) {
+            e.target.value = val.replace(/[^a-zA-Z0-9\s,./-]/g, '');
         }
     });
 

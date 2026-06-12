@@ -1,7 +1,7 @@
 <style>
     :root {
-        --sm-primary: #667eea;
-        --sm-secondary: #764ba2;
+        --sm-primary: #008080;
+        --sm-secondary: #32a995;
         --sm-surface: #ffffff;
         --sm-bg: #f8f9fc;
         --sm-text: #1a1a2e;
@@ -38,8 +38,7 @@
         align-items: center;
         justify-content: center;
         color: #fff;
-        font-size: 1.25rem;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 14px rgba(0, 128, 128, 0.3);
     }
 
     .sm-page-title h4 {
@@ -58,10 +57,11 @@
     .sm-card {
         background: #ffffff;
         border: 1px solid #e8e8f0;
-        border-left: 5px solid #667eea;    /* THICK LEFT BORDER */
+        border-left: 5px solid #008080;
+        /* THICK LEFT BORDER */
         border-radius: 12px;
         box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
-        padding: 1.5rem 1.5rem 2.5rem 1.5rem;
+        padding: 1.2rem;
         margin-bottom: 2rem;
         max-width: 100%;
     }
@@ -72,8 +72,10 @@
         border-collapse: collapse;
         font-size: 0.875rem;
     }
-    .sm-table thead tr, .sm-table thead th {
-        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+
+    .sm-table thead tr,
+    .sm-table thead th {
+        background: #008080 !important;
         color: #ffffff !important;
         font-weight: 600;
         font-size: 0.75rem;
@@ -83,13 +85,16 @@
         border: none;
         white-space: nowrap;
     }
+
     .sm-table tbody tr {
         border-bottom: 1px solid #f1f2f8;
         transition: background 0.15s;
     }
-    .sm-table tbody tr:hover { 
-        background: rgba(102, 126, 234, 0.05); 
+
+    .sm-table tbody tr:hover {
+        background: rgba(0, 128, 128, 0.05);
     }
+
     .sm-table tbody td {
         padding: 0.88rem 1.15rem;
         color: #2d3748;
@@ -97,7 +102,7 @@
     }
 
     .btn-onboard {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #008080, #32a995);
         color: white;
         border: none;
         padding: 0.6rem 1.3rem;
@@ -109,20 +114,22 @@
 
     .btn-onboard:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(0, 128, 128, 0.4);
         color: white;
     }
 
     .sm-results-header {
-        padding: 0.9rem 1.4rem;
-        background: rgba(102, 126, 234, 0.08);
+        padding: 0.8rem 1.2rem;
+        background: rgba(0, 128, 128, 0.08);
         border-bottom: 1px solid #e8e8f0;
         display: flex;
         align-items: center;
         gap: 0.55rem;
-        margin: -1.5rem -1.5rem 1.5rem -1.5rem; /* pull to edges of padding */
+        margin: -1.2rem -1.2rem 1.2rem -1.2rem;
+        /* pull to edges of padding */
         border-top-right-radius: 12px;
     }
+
     .sm-results-header .results-title {
         font-size: 0.88rem;
         font-weight: 700;
@@ -130,8 +137,9 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
+
     .sm-count-badge {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #008080, #32a995);
         color: #fff;
         font-size: 0.7rem;
         font-weight: 700;
@@ -140,28 +148,24 @@
         line-height: 1.4;
     }
 
-    /* DataTable Overrides */
-    .dataTables_wrapper {
-        padding-bottom: 1rem;
+    .sm-pagination {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
     }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: #667eea !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 6px !important;
+
+    .sm-pagination .page-item.active .page-link {
+        background-color: var(--sm-primary);
+        border-color: var(--sm-primary);
+        color: white;
     }
-    .dataTables_wrapper .dataTables_length select {
-        padding: 0.3rem 1.5rem 0.3rem 0.75rem;
-        border-radius: 6px;
-    }
-    .dataTables_wrapper .dataTables_filter input {
-        padding: 0.3rem 0.75rem;
-        border-radius: 6px;
-        border: 1px solid #ced4da;
+
+    .sm-pagination .page-link {
+        color: var(--sm-primary);
     }
 </style>
 
-<div class="container-fluid py-4 px-3 px-md-4">
+<div class="container py-4">
     <!-- Header -->
     <div class="sm-page-header">
         <div class="sm-header-left">
@@ -183,9 +187,11 @@
     <!-- Table Card -->
     <div class="sm-card">
         <div class="sm-results-header">
-            <i class="bi bi-card-list text-primary fs-5"></i>
+            <i class="bi bi-card-list fs-5" style="color: var(--sm-primary);"></i>
             <span class="results-title">Onboarded Merchants List</span>
-            <span class="sm-count-badge ms-auto"><%= merchants ? merchants.length : 0 %> Records</span>
+            <span class="sm-count-badge ms-auto">
+                <%= typeof totalRecords !== 'undefined' ? totalRecords : (merchants ? merchants.length : 0) %> Records
+            </span>
         </div>
         <div class="table-responsive">
             <table id="submerchantTable" class="table sm-table align-middle w-100">
@@ -201,59 +207,86 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% if (merchants && merchants.length > 0) { %>
-                        <% merchants.forEach(merchant => { %>
+                    <% if (merchants && merchants.length> 0) { %>
+                        <% merchants.forEach(merchant=> { %>
                             <tr>
-                                <td class="fw-semibold"><%= merchant.SUB_MERCHANT_CODE || 'N/A' %></td>
-                                <td class="fw-semibold"><%= merchant.LEGAL_NAME || 'N/A' %></td>
-                                <td class="fw-semibold"><%= merchant.EMAIL || 'N/A' %></td>
-                                <td class="fw-semibold"><%= merchant.PHONE || 'N/A' %></td>
+                                <td class="fw-semibold">
+                                    <%= merchant.SUB_MERCHANT_CODE || 'N/A' %>
+                                        <% if (merchant.SUB_MERCHANT_CODE==='0' || (merchant.SUB_MERCHANT_CODE &&
+                                            merchant.SUB_MERCHANT_CODE.toUpperCase().startsWith('F')) ||
+                                            (merchant.SUB_MERCHANT_CODE &&
+                                            merchant.SUB_MERCHANT_CODE.toLowerCase().startsWith('f')) ) { %>
+                                            <br><small class="text-danger fw-bold" style="font-size: 0.75rem;">(Need to
+                                                generate Submerchant Code)</small>
+                                            <% } %>
+                                </td>
+                                <td class="fw-semibold">
+                                    <%= merchant.LEGAL_NAME || 'N/A' %>
+                                </td>
+                                <td class="fw-semibold">
+                                    <%= merchant.EMAIL || 'N/A' %>
+                                </td>
+                                <td class="fw-semibold">
+                                    <%= merchant.PHONE || 'N/A' %>
+                                </td>
                                 <!-- <td class="fw-semibold">
                                     <span class="d-inline-block text-truncate" style="max-width: 200px;" title="<%= merchant.BUSINESS_ADDRESS || 'N/A' %>">
                                         <%= merchant.BUSINESS_ADDRESS || 'N/A' %>
                                     </span>
                                 </td> -->
-                                <td class="fw-semibold"><%= merchant.CREATED_DATE || 'N/A' %></td>
+                                <td class="fw-semibold">
+                                    <%= merchant.CREATED_DATE || 'N/A' %>
+                                </td>
                                 <td>
-                                    <a href="/admin/merchants/view/<%= merchant.ENCRYPTED_CUST_CD %>" class="btn btn-sm sp-btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="View Submerchant">
+                                    <a href="/admin/merchants/view/<%= merchant.ENCRYPTED_CUST_CD %>"
+                                        class="btn btn-sm sp-btn-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="View Submerchant">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </td>
                             </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <div class="d-flex flex-column align-items-center justify-content-center">
-                                    <i class="bi bi-inbox fs-1 text-muted mb-3 opacity-50"></i>
-                                    <h6 class="text-muted fw-semibold mb-0">No data on onboard submerchant</h6>
-                                </div>
-                            </td>
-                        </tr>
-                    <% } %>
+                            <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="d-flex flex-column align-items-center justify-content-center">
+                                                <i class="bi bi-inbox fs-1 text-muted mb-3 opacity-50"></i>
+                                                <h6 class="text-muted fw-semibold mb-0">No data on onboard submerchant
+                                                </h6>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% } %>
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Server-Side Pagination Component (Outside Card & Right Aligned) -->
+    <% if (typeof totalPages !== 'undefined' && totalPages > 0) { %>
+        <nav aria-label="Page navigation" class="sm-pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <!-- Previous Button -->
+                <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">Previous</a>
+                </li>
+                
+                <!-- Page Numbers -->
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    <% } %>
+                <% } %>
+                
+                <!-- Next Button -->
+                <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                </li>
+            </ul>
+        </nav>
+    <% } %>
 </div>
-
-<!-- DataTables Integration -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $('#submerchantTable').DataTable({
-            "order": [],
-            "pageLength": 10,
-            "language": {
-                "search": "Search:",
-                "searchPlaceholder": "Search merchants...",
-                "emptyTable": "<div class='py-5 text-center'><i class='bi bi-inbox fs-1 text-muted opacity-50 d-block mb-3'></i><h6 class='text-muted fw-semibold mb-0'>No data on onboard submerchant</h6></div>",
-                "zeroRecords": "<div class='py-5 text-center'><i class='bi bi-search fs-1 text-muted opacity-50 d-block mb-3'></i><h6 class='text-muted fw-semibold mb-0'>No data on onboard submerchant</h6></div>"
-            }
-        });
-    });
-</script>

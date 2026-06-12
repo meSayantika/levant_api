@@ -29,7 +29,7 @@ function decryptId(text) {
         let decrypted = decipher.update(encryptedText);
         decrypted = Buffer.concat([decrypted, decipher.final()]);
         return decrypted.toString();
-    } catch(e) {
+    } catch (e) {
         return null;
     }
 }
@@ -48,14 +48,30 @@ async function generateCustCd() {
  */
 async function renderSubMerchantList(req, res) {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const minRow = (page - 1) * limit + 1;
+        const maxRow = page * limit;
+
+        // Get total count for pagination math
+        const countQuery = `SELECT COUNT(*) AS TOTAL FROM SUB_MERCHANTS`;
+        const countResult = await F_Select(0, countQuery);
+        const totalRecords = countResult && countResult.length > 0 ? countResult[0].TOTAL : 0;
+        const totalPages = Math.ceil(totalRecords / limit) || 1;
+
+        // Paginated query using Oracle ROWNUM approach
         const query = `
-            SELECT 
-                CUST_CD, SUB_MERCHANT_CODE, LEGAL_NAME, EMAIL, PHONE, BUSINESS_ADDRESS, 
-                CUST_STATUS, TO_CHAR(CREATED_AT, 'DD-Mon-YYYY') as CREATED_DATE 
-            FROM SUB_MERCHANTS 
-            ORDER BY CREATED_AT DESC
+            SELECT * FROM (
+                SELECT a.*, ROWNUM rnum FROM (
+                    SELECT 
+                        CUST_CD, SUB_MERCHANT_CODE, LEGAL_NAME, EMAIL, PHONE, BUSINESS_ADDRESS, 
+                        CUST_STATUS, TO_CHAR(CREATED_AT, 'DD-Mon-YYYY') as CREATED_DATE 
+                    FROM SUB_MERCHANTS 
+                    ORDER BY CREATED_AT DESC
+                ) a WHERE ROWNUM <= :maxRow
+            ) WHERE rnum >= :minRow
         `;
-        const merchants = await F_Select(0, query);
+        const merchants = await F_Select(0, query, { maxRow, minRow });
 
         // Pre-encrypt the CUST_CD for the view links
         const processedMerchants = (merchants || []).map(m => {
@@ -67,7 +83,10 @@ async function renderSubMerchantList(req, res) {
             title: "Sub Merchants | Synergic Pay",
             user: req.user,
             currentRoute: "/admin/merchants",
-            merchants: processedMerchants
+            merchants: processedMerchants,
+            currentPage: page,
+            totalPages: totalPages,
+            totalRecords: totalRecords
         });
     } catch (error) {
         logger.error(`[SubMerchant Controller] Error fetching list: ${error.message}`);
@@ -75,7 +94,10 @@ async function renderSubMerchantList(req, res) {
             title: "Sub Merchants | Synergic Pay",
             user: req.user,
             currentRoute: "/admin/merchants",
-            merchants: []
+            merchants: [],
+            currentPage: 1,
+            totalPages: 1,
+            totalRecords: 0
         });
     }
 }
@@ -105,7 +127,7 @@ async function processCreateSubMerchant(req, res) {
         // Check uniqueness of Email and Phone
         const checkQuery = `SELECT COUNT(*) AS CNT FROM SUB_MERCHANTS WHERE EMAIL = :email OR PHONE = :phone`;
         const checkResult = await F_Select(0, checkQuery, { email: payload.email, phone: payload.phone });
-        
+
         if (checkResult && checkResult.length > 0 && checkResult[0].CNT > 0) {
             return res.json({ success: false, message: "Email ID or Mobile Number is already registered." });
         }
@@ -155,6 +177,26 @@ async function processCreateSubMerchant(req, res) {
         console.log(rawReqPayload);
         console.log("==========================================");
 
+        // Generate sequential F code for initial insert (F0, F1...)
+        let generatedFCode = 'F0';
+        try {
+            const query = `SELECT SUB_MERCHANT_CODE FROM SUB_MERCHANTS WHERE SUB_MERCHANT_CODE LIKE 'F%'`;
+            const result = await F_Select(0, query);
+            let maxNum = -1;
+            if (result && result.length > 0) {
+                for (let row of result) {
+                    let numStr = row.SUB_MERCHANT_CODE.substring(1);
+                    let num = parseInt(numStr, 10);
+                    if (!isNaN(num) && num > maxNum) {
+                        maxNum = num;
+                    }
+                }
+            }
+            generatedFCode = 'F' + (maxNum + 1);
+        } catch (err) {
+            generatedFCode = 'F' + Date.now().toString().substring(7); // Fallback
+        }
+
         // 2. Insert into local database FIRST
         const custCd = await generateCustCd();
         const merchantCode = bankDetails.MERCHANT_CODE || '01';
@@ -180,7 +222,7 @@ async function processCreateSubMerchant(req, res) {
         const bindParams = {
             custCd: custCd,
             merchantCode: merchantCode,
-            subMerchantCode: '0',
+            subMerchantCode: generatedFCode,
             legalName: apiPayload.name,
             nameOnBank: apiPayload.name_on_bank,
             email: apiPayload.email,
@@ -214,24 +256,40 @@ async function processCreateSubMerchant(req, res) {
 
         // 3. Call Levant API
         const levantApiUrl = process.env.ONBOARD_SUBMERCHANT_API;
+        let jsonResponse = null;
+        let rawResponseStr = null;
+        let apiSuccess = false;
 
-        const apiResponse = await fetch(levantApiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': process.env.LEVANT_API_KEY,
-                'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
-                'X-Environment': process.env.LEVANT_ENV
-            },
-            body: rawReqPayload
-        });
+        try {
+            const apiResponse = await fetch(levantApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': process.env.LEVANT_API_KEY,
+                    'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
+                    'X-Environment': process.env.LEVANT_ENV
+                },
+                body: rawReqPayload
+            });
 
-        const jsonResponse = await apiResponse.json();
-        const rawResponseStr = JSON.stringify(jsonResponse);
+            jsonResponse = await apiResponse.json();
+            rawResponseStr = JSON.stringify(jsonResponse);
+            apiSuccess = jsonResponse.success === true;
+        } catch (apiErr) {
+            logger.error(`[SubMerchant Controller] Levant API call failed: ${apiErr.message}`);
+            jsonResponse = { success: false, message: "Network/API Error: " + apiErr.message };
+            rawResponseStr = JSON.stringify(jsonResponse);
+            apiSuccess = false;
+        }
 
-        let finalSubMerchantCode = '0';
-        if (jsonResponse.response?.data?.merchant?.id) {
-            finalSubMerchantCode = jsonResponse.response.data.merchant.id.toString();
+        // Extract nested objects for easier access
+        const m = jsonResponse?.response?.data?.merchant || {};
+        const va = m.virtual_account || {};
+        const cc = m.commission_charges || {};
+
+        let finalSubMerchantCode = generatedFCode; // Default to keeping the 'F' code
+        if (apiSuccess && m.id) {
+            finalSubMerchantCode = m.id.toString(); // Update to actual ID on success
         }
 
         // 4. Update the DB with the response
@@ -239,6 +297,28 @@ async function processCreateSubMerchant(req, res) {
             UPDATE SUB_MERCHANTS 
             SET RAW_RESPONSE = :rawResponse, 
                 SUB_MERCHANT_CODE = :subMerchantCode,
+                VIRTUAL_ACC_ID = :virtualAccId,
+                VIRTUAL_ACC_NO = :virtualAccNo,
+                BALANCE = :balance,
+                IS_ACTIVE = :isActive,
+                VIRTUAL_BANK_NAME = :virtualBankName,
+                VIRTUAL_STATUS = :virtualStatus,
+                VIRTUAL_IFSC = :virtualIfsc,
+                VIRTUAL_IS_CONN_BANK = :virtualIsConnBank,
+                KYC = :kycData,
+                UPI = :upiData,
+                IMPS = :impsData,
+                NEFT = :neftData,
+                RTGS = :rtgsData,
+                INSTA_PRIMARY_VPA = :instaPrimaryVpa,
+                KYC_STATUS = :kycStatus,
+                BANK_STATUS = :bankStatus,
+                SALT = :salt,
+                KYC_PROFILE_STATUS = :kycProfileStatus,
+                KYC_EXPIRY_DATE = :kycExpiryDate,
+                NAME = :merchantName,
+                KEY = :merchantKey,
+                REFERENCE_ID = :referenceId,
                 UPDATED_AT = SYSTIMESTAMP
             WHERE CUST_CD = :custCd
         `;
@@ -246,6 +326,28 @@ async function processCreateSubMerchant(req, res) {
         const updateParams = {
             rawResponse: rawResponseStr,
             subMerchantCode: finalSubMerchantCode,
+            virtualAccId: va.id || null,
+            virtualAccNo: va.account_number || null,
+            balance: va.balance || 0,
+            isActive: va.is_active !== undefined ? String(va.is_active) : null,
+            virtualBankName: va.bank_name || null,
+            virtualStatus: va.status || null,
+            virtualIfsc: va.ifsc || null,
+            virtualIsConnBank: va.is_connected_banking !== undefined ? String(va.is_connected_banking) : null,
+            kycData: m.kyc ? JSON.stringify(m.kyc) : null,
+            upiData: cc.UPI ? JSON.stringify(cc.UPI) : null,
+            impsData: cc.IMPS ? JSON.stringify(cc.IMPS) : null,
+            neftData: cc.NEFT ? JSON.stringify(cc.NEFT) : null,
+            rtgsData: cc.RTGS ? JSON.stringify(cc.RTGS) : null,
+            instaPrimaryVpa: m.insta_primary_vpa || null,
+            kycStatus: m.kyc_status !== undefined ? String(m.kyc_status) : null,
+            bankStatus: m.bank_status !== undefined ? String(m.bank_status) : null,
+            salt: m.salt || null,
+            kycProfileStatus: m.kyc_profile_status || null,
+            kycExpiryDate: m.kyc_expiry_date || null,
+            merchantName: m.name || null,
+            merchantKey: m.key || null,
+            referenceId: jsonResponse.reference_id || null,
             custCd: custCd
         };
 
@@ -255,17 +357,17 @@ async function processCreateSubMerchant(req, res) {
         // If Levant API fails, we still return an error, but it's already logged in DB
         if (!jsonResponse.success) {
             logger.warn(`[SubMerchant Controller] Levant API rejected payload: ${jsonResponse.message}`);
-            return res.json({ 
-                success: false, 
-                message: "External API Failed: " + (jsonResponse.message || "Unknown error") 
+            return res.json({
+                success: false,
+                message: "Data inserted but " + (jsonResponse.message || "API failed")
             });
         }
 
         // 5. Return success to frontend
-        return res.json({ 
-            success: true, 
-            message: "Sub-merchant onboarded successfully", 
-            data: jsonResponse 
+        return res.json({
+            success: true,
+            message: "Sub-merchant onboarded successfully",
+            data: jsonResponse
         });
 
     } catch (err) {
@@ -296,11 +398,14 @@ async function renderViewSubMerchant(req, res) {
             return res.status(404).send("Sub-merchant not found");
         }
 
+        const merchantData = result[0];
+        merchantData.ENCRYPTED_CUST_CD = encryptedCustCd;
+
         res.render("pages/submerchant/submerchant_view", {
             title: "View Sub Merchant | Synergic Pay",
             user: req.user,
             currentRoute: "/admin/merchants",
-            merchant: result[0],
+            merchant: merchantData,
             googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
         });
     } catch (error) {
@@ -309,9 +414,215 @@ async function renderViewSubMerchant(req, res) {
     }
 }
 
+/**
+ * POST /admin/submerchant/api/regenerate_code
+ * Regenerates the submerchant code for a failed record by hitting Levant API again.
+ */
+async function regenerateSubmerchantCode(req, res) {
+    try {
+        const { custCd, email, phone, pan_no, primary_vpa } = req.body;
+        if (!custCd) {
+            return res.json({ success: false, message: "Missing Submerchant ID." });
+        }
+
+        const decryptedCustCd = decryptId(custCd);
+        if (!decryptedCustCd) {
+            return res.json({ success: false, message: "Invalid Submerchant ID." });
+        }
+
+        // Fetch merchant details from DB
+        const query = `SELECT * FROM SUB_MERCHANTS WHERE CUST_CD = :id`;
+        const result = await F_Select(0, query, { id: decryptedCustCd });
+
+        if (!result || result.length === 0) {
+            return res.json({ success: false, message: "Submerchant not found." });
+        }
+
+        const merchant = result[0];
+
+        // Ensure it actually needs regeneration
+        if (merchant.SUB_MERCHANT_CODE && merchant.SUB_MERCHANT_CODE !== '0' && !merchant.SUB_MERCHANT_CODE.toUpperCase().startsWith('F')) {
+            return res.json({ success: false, message: "This merchant already has a valid submerchant code." });
+        }
+
+        // Use the exact payload that was sent previously
+        let rawReqPayloadStr = merchant.RAW_REQ_PAYLOAD;
+
+        if (!rawReqPayloadStr) {
+            return res.json({ success: false, message: "Original Request Payload is missing from the database." });
+        }
+
+        // Update the payload with new user inputs to bypass duplicate errors
+        let apiPayload;
+        try {
+            apiPayload = JSON.parse(rawReqPayloadStr);
+            if (email) apiPayload.email = email;
+            if (phone) apiPayload.phone = phone;
+            if (pan_no) apiPayload.pan_number = pan_no;
+            if (primary_vpa) apiPayload.primary_vpa = primary_vpa;
+
+            rawReqPayloadStr = JSON.stringify(apiPayload);
+        } catch (e) {
+            logger.warn("Failed to parse original payload. Sending as is.");
+        }
+
+        // Update database with these new values BEFORE hitting Levant, just in case
+        const preUpdateQuery = `
+            UPDATE SUB_MERCHANTS 
+            SET EMAIL = :email, 
+                PHONE = :phone, 
+                PAN_NUMBER = :pan_no,
+                PRIMARY_VPA = :primary_vpa,
+                RAW_REQ_PAYLOAD = :rawReqPayloadStr
+            WHERE CUST_CD = :id
+        `;
+        await F_Insert(0, preUpdateQuery, {
+            email: email || merchant.EMAIL,
+            phone: phone || merchant.PHONE,
+            pan_no: pan_no || merchant.PAN_NUMBER,
+            primary_vpa: primary_vpa || merchant.PRIMARY_VPA,
+            rawReqPayloadStr: rawReqPayloadStr,
+            id: decryptedCustCd
+        });
+
+        console.log("==========================================");
+        console.log("REGENERATING PAYLOAD TO LEVANT API:");
+        console.log(rawReqPayloadStr);
+        console.log("==========================================");
+
+        // Make HTTP Request
+        const levantApiUrl = (process.env.ONBOARD_SUBMERCHANT_API || '').trim();
+        let jsonResponse = null;
+        let rawResponseStr = null;
+        let apiSuccess = false;
+        let textResponse = '';
+
+        try {
+            const apiResponse = await fetch(levantApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-API-Key': (process.env.LEVANT_API_KEY || '').trim(),
+                    'X-Merchant-Key': (process.env.LEVANT_MERCHANT_KEY || '').trim(),
+                    'X-Environment': (process.env.LEVANT_ENV || '').trim()
+                },
+                body: rawReqPayloadStr
+            });
+
+            textResponse = await apiResponse.text();
+            rawResponseStr = textResponse; // Save full text response first
+
+            try {
+                jsonResponse = JSON.parse(textResponse);
+                apiSuccess = jsonResponse.success === true;
+            } catch (parseError) {
+                // If parsing fails, jsonResponse is mocked to false
+                jsonResponse = { success: false, message: "Levant API backend crashed (Non-JSON Error). Check database RAW_RESPONSE for full details." };
+                apiSuccess = false;
+            }
+
+        } catch (apiErr) {
+            logger.error(`[SubMerchant Controller] Levant API call failed during regeneration: ${apiErr.message}`);
+            jsonResponse = { success: false, message: "Network/API Error: " + apiErr.message };
+            rawResponseStr = JSON.stringify(jsonResponse);
+            apiSuccess = false;
+        }
+
+        // Extract nested objects for easier access
+        const m = jsonResponse?.response?.data?.merchant || {};
+        const va = m.virtual_account || {};
+        const cc = m.commission_charges || {};
+
+        let finalSubMerchantCode = merchant.SUB_MERCHANT_CODE; // Default to keeping the old 'F' code
+        if (apiSuccess && m.id) {
+            finalSubMerchantCode = m.id.toString(); // Update to actual ID on success
+        }
+
+        // Update the DB with the response
+        const updateQuery = `
+            UPDATE SUB_MERCHANTS 
+            SET RAW_RESPONSE = :rawResponse, 
+                SUB_MERCHANT_CODE = :subMerchantCode,
+                VIRTUAL_ACC_ID = :virtualAccId,
+                VIRTUAL_ACC_NO = :virtualAccNo,
+                BALANCE = :balance,
+                IS_ACTIVE = :isActive,
+                VIRTUAL_BANK_NAME = :virtualBankName,
+                VIRTUAL_STATUS = :virtualStatus,
+                VIRTUAL_IFSC = :virtualIfsc,
+                VIRTUAL_IS_CONN_BANK = :virtualIsConnBank,
+                KYC = :kycData,
+                UPI = :upiData,
+                IMPS = :impsData,
+                NEFT = :neftData,
+                RTGS = :rtgsData,
+                INSTA_PRIMARY_VPA = :instaPrimaryVpa,
+                KYC_STATUS = :kycStatus,
+                BANK_STATUS = :bankStatus,
+                SALT = :salt,
+                KYC_PROFILE_STATUS = :kycProfileStatus,
+                KYC_EXPIRY_DATE = :kycExpiryDate,
+                NAME = :merchantName,
+                KEY = :merchantKey,
+                REFERENCE_ID = :referenceId,
+                UPDATED_AT = SYSTIMESTAMP
+            WHERE CUST_CD = :custCd
+        `;
+
+        const updateParams = {
+            rawResponse: rawResponseStr,
+            subMerchantCode: finalSubMerchantCode,
+            virtualAccId: va.id || null,
+            virtualAccNo: va.account_number || null,
+            balance: va.balance || 0,
+            isActive: va.is_active !== undefined ? String(va.is_active) : null,
+            virtualBankName: va.bank_name || null,
+            virtualStatus: va.status || null,
+            virtualIfsc: va.ifsc || null,
+            virtualIsConnBank: va.is_connected_banking !== undefined ? String(va.is_connected_banking) : null,
+            kycData: m.kyc ? JSON.stringify(m.kyc) : null,
+            upiData: cc.UPI ? JSON.stringify(cc.UPI) : null,
+            impsData: cc.IMPS ? JSON.stringify(cc.IMPS) : null,
+            neftData: cc.NEFT ? JSON.stringify(cc.NEFT) : null,
+            rtgsData: cc.RTGS ? JSON.stringify(cc.RTGS) : null,
+            instaPrimaryVpa: m.insta_primary_vpa || null,
+            kycStatus: m.kyc_status !== undefined ? String(m.kyc_status) : null,
+            bankStatus: m.bank_status !== undefined ? String(m.bank_status) : null,
+            salt: m.salt || null,
+            kycProfileStatus: m.kyc_profile_status || null,
+            kycExpiryDate: m.kyc_expiry_date || null,
+            merchantName: m.name || null,
+            merchantKey: m.key || null,
+            referenceId: jsonResponse.reference_id || null,
+            custCd: decryptedCustCd
+        };
+
+        await F_Insert(0, updateQuery, updateParams);
+
+        if (!jsonResponse.success) {
+            return res.json({
+                success: false,
+                message: jsonResponse.message || "Levant API rejected payload"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Sub-merchant code regenerated successfully",
+            data: jsonResponse
+        });
+
+    } catch (error) {
+        logger.error(`[SubMerchant Controller] Regenerate Error: ${error.message}`);
+        return res.json({ success: false, message: "An internal server error occurred." });
+    }
+}
+
 module.exports = {
     renderSubMerchantList,
     renderCreateSubMerchant,
     processCreateSubMerchant,
-    renderViewSubMerchant
+    renderViewSubMerchant,
+    regenerateSubmerchantCode
 };

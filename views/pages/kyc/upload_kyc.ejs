@@ -1,22 +1,26 @@
 <style>
     :root {
-        --sm-primary: #667eea;
-        --sm-primary-dark: #5a67d8;
-        --sm-secondary: #764ba2;
+        --sm-primary: #008080;
+        --sm-primary-dark: #004d40;
+        --sm-secondary: #32a995;
         --sm-border: #e8e8f0;
         --sm-text: #1a1a2e;
         --sm-muted: #6c757d;
         --sm-surface: #ffffff;
         --sm-bg: #f8f9fc;
     }
-    body { background-color: var(--sm-bg); }
-    
+
+    body {
+        background-color: var(--sm-bg);
+    }
+
     .sm-page-header {
         display: flex;
         align-items: center;
         margin-bottom: 1.6rem;
         gap: 0.85rem;
     }
+
     .sm-page-icon {
         width: 44px;
         height: 44px;
@@ -27,17 +31,27 @@
         justify-content: center;
         color: #fff;
         font-size: 1.25rem;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 14px rgba(0, 128, 128, 0.3);
     }
-    .sm-page-title h4 { margin: 0; font-weight: 700; color: var(--sm-text); }
-    .sm-page-title p { margin: 0; font-size: 0.85rem; color: var(--sm-muted); }
+
+    .sm-page-title h4 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--sm-text);
+    }
+
+    .sm-page-title p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--sm-muted);
+    }
 
     .sm-form-card {
         background: var(--sm-surface);
         border: 1px solid var(--sm-border);
         border-left: 5px solid var(--sm-primary);
         border-radius: 12px;
-        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+        box-shadow: 0 2px 16px rgba(0, 128, 128, 0.07);
         padding: 2rem;
         margin-bottom: 2rem;
     }
@@ -57,31 +71,41 @@
         padding-bottom: 0.5rem;
     }
 
-    .material-outline { position: relative; margin-bottom: 1.5rem; }
-    .material-outline input.form-control, .material-outline select.form-select {
+    .material-outline {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .material-outline input.form-control,
+    .material-outline select.form-select {
         height: 3.2rem;
         padding: 1rem 0.75rem 0.25rem;
         border: 1.5px solid var(--sm-border);
         border-radius: 8px;
         background-color: transparent;
     }
+
     .material-outline input.form-control.bg-light {
         background-color: #f8f9fa !important;
         border-color: #e9ecef;
         color: #6c757d;
         cursor: not-allowed;
     }
+
     .material-outline label {
         position: absolute;
-        top: 0; left: 0; height: 100%;
+        top: 0;
+        left: 0;
+        height: 100%;
         padding: 0.85rem 0.75rem;
         pointer-events: none;
         border: 1px solid transparent;
         transform-origin: 0 0;
-        transition: opacity .1s ease-in-out,transform .1s ease-in-out;
+        transition: opacity .1s ease-in-out, transform .1s ease-in-out;
         color: var(--sm-muted);
         font-weight: 600;
     }
+
     .material-outline input.form-control:focus~label,
     .material-outline input.form-control:not(:placeholder-shown)~label,
     .material-outline select.form-select~label,
@@ -96,12 +120,17 @@
 
     .btn-submit-kyc {
         background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
-        color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px;
-        font-weight: 600; transition: all 0.3s ease;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
+
     .btn-submit-kyc:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(0, 128, 128, 0.4);
         color: white;
     }
 
@@ -116,12 +145,14 @@
         display: none;
         position: relative;
     }
+
     .file-preview-img {
         max-width: 100%;
         max-height: 140px;
         border-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
+
     .file-preview-pdf {
         display: flex;
         flex-direction: column;
@@ -129,6 +160,7 @@
         gap: 5px;
         color: #ef4444;
     }
+
     .file-preview-name {
         font-size: 0.75rem;
         color: var(--sm-muted);
@@ -143,7 +175,11 @@
 
 <div class="container-fluid py-4">
     <div class="sm-page-header d-flex align-items-center gap-3">
-        <a href="/admin/kyc/generate_kyc?search=<%= decrypted_submerch_id %>" class="btn btn-outline-secondary d-flex align-items-center justify-content-center border-0 shadow-sm bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.2s;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Back" onmouseover="this.style.background='#f1f3f5'" onmouseout="this.style.background='#ffffff'">
+        <a href="/admin/kyc/generate_kyc?search=<%= decrypted_submerch_id %>"
+            class="btn btn-outline-secondary d-flex align-items-center justify-content-center border-0 shadow-sm bg-white text-dark"
+            style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.2s;" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" title="Back" onmouseover="this.style.background='#f1f3f5'"
+            onmouseout="this.style.background='#ffffff'">
             <i class="bi bi-arrow-left fs-5"></i>
         </a>
         <div class="sm-page-icon">
@@ -153,62 +189,70 @@
             <h4>Upload KYC Details</h4>
             <p>Complete the KYC submission for Sub Merchant</p>
         </div>
-        <div class="ms-auto" id="timerContainer" style="display: none; background: linear-gradient(45deg, #82a5d9, #e4eaf3); border: 1px solid #0e0d0d; color: #0c0c0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">
+        <div class="ms-auto" id="timerContainer"
+            style="display: none; background: linear-gradient(45deg, rgb(64 187 164), #e4eaf3); border: 1px solid #0e0d0d; color: #0c0c0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">
             <i class="bi bi-stopwatch me-1"></i> Expires in: <span id="countdownTimer">--:--:--</span>
         </div>
     </div>
 
     <div class="sm-form-card">
         <form id="kycUploadForm" action="/admin/kyc/api/upload_kyc" method="POST" enctype="multipart/form-data">
-            
+
             <input type="hidden" name="acc_token" value="<%= acc_token %>">
             <input type="hidden" name="submerch_id" value="<%= submerch_id %>">
             <input type="hidden" id="entityTypeInput" name="entity_type" value="<%= entity_type %>">
-            
+
             <div class="sm-section-label">
                 <i class="bi bi-person-lines-fill"></i> Basic Information (Locked)
             </div>
-            
+
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="name" value="<%= merchantData.LEGAL_NAME || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="name"
+                            value="<%= merchantData.LEGAL_NAME || '' %>" readonly>
                         <label>Merchant Full Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="phone" value="<%= merchantData.PHONE || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="phone"
+                            value="<%= merchantData.PHONE || '' %>" readonly>
                         <label>Mobile Number</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="address" value="<%= merchantData.SUB_ADDRESS || merchantData.BUSINESS_ADDRESS || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="address"
+                            value="<%= merchantData.SUB_ADDRESS || merchantData.BUSINESS_ADDRESS || '' %>" readonly>
                         <label>Personal Address</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="city" value="<%= merchantData.SUB_CITY || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="city"
+                            value="<%= merchantData.SUB_CITY || '' %>" readonly>
                         <label>City</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="state" value="<%= merchantData.CUST_STATE || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="state"
+                            value="<%= merchantData.CUST_STATE || '' %>" readonly>
                         <label>State</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="pincode" value="<%= merchantData.SUB_PIN_CODE || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="pincode"
+                            value="<%= merchantData.SUB_PIN_CODE || '' %>" readonly>
                         <label>Pincode</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="websiteurl" value="https://www.synergicsoftek.in" readonly>
+                        <input type="text" class="form-control bg-light" name="websiteurl"
+                            value="https://www.synergicsoftek.in" readonly>
                         <label>Website URL</label>
                     </div>
                 </div>
@@ -222,43 +266,52 @@
                 <div class="col-md-4">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="account_holder_name" value="<%= merchantData.NAME_ON_BANK || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="account_holder_name"
+                            value="<%= merchantData.NAME_ON_BANK || '' %>" readonly>
                         <label>Account Holder Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="bank_name" value="<%= merchantData.BANK_NAME || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="bank_name"
+                            value="<%= merchantData.BANK_NAME || '' %>" readonly>
                         <label>Bank Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="branch_name" value="<%= merchantData.BANK_BRANCH || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="branch_name"
+                            value="<%= merchantData.BANK_BRANCH || '' %>" readonly>
                         <label>Branch Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="ifsc_code" value="<%= merchantData.BANK_ACCOUNT_IFSC || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="ifsc_code"
+                            value="<%= merchantData.BANK_ACCOUNT_IFSC || '' %>" readonly>
                         <label>IFS Code</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="account_number" value="<%= merchantData.BANK_ACCOUNT_NUMBER || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="account_number"
+                            value="<%= merchantData.BANK_ACCOUNT_NUMBER || '' %>" readonly>
                         <label>Account Number</label>
                     </div>
                 </div>
                 <!-- BANK PROOF WITH PREVIEW -->
                 <div class="col-md-4">
                     <div style="margin-bottom: 1.5rem;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Bank Proof Upload <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger req-star">*</span></label>
-                        <input class="form-control file-input-preview" type="file" name="bank_proof" accept=".png, .jpg, .jpeg, .pdf" id="bankProofInput" required style="padding: 0.55rem 0.75rem;">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Bank Proof
+                            Upload <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png,
+                                .pdf)</span> <span class="text-danger req-star">*</span></label>
+                        <input class="form-control file-input-preview" type="file" name="bank_proof"
+                            accept=".png, .jpg, .jpeg, .pdf" id="bankProofInput" required
+                            style="padding: 0.55rem 0.75rem;">
                         <div class="file-preview-wrapper" id="preview-bank_proof">
                             <!-- Preview injected via JS -->
                         </div>
@@ -273,19 +326,23 @@
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="business_name" value="<%= merchantData.BUSINESS_NAME || merchantData.LEGAL_NAME || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="business_name"
+                            value="<%= merchantData.BUSINESS_NAME || merchantData.LEGAL_NAME || '' %>" readonly>
                         <label>Business Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="pan_no" value="<%= merchantData.PAN || merchantData.PAN_NO || merchantData.PAN_NUMBER || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="pan_no"
+                            value="<%= merchantData.PAN || merchantData.PAN_NO || merchantData.PAN_NUMBER || '' %>"
+                            readonly>
                         <label>PAN Number</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="entity_type_display" value="<%= entity_type || '' %>" readonly>
+                        <input type="text" class="form-control bg-light" name="entity_type_display"
+                            value="<%= entity_type || '' %>" readonly>
                         <label>Entity Type</label>
                     </div>
                 </div>
@@ -305,28 +362,36 @@
                 <div class="col-md-4 gstin-field" style="display:none;">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control" name="gstin" value="<%= merchantData.GSTIN || '' %>" placeholder=" ">
+                        <input type="text" class="form-control" name="gstin" value="<%= merchantData.GSTIN || '' %>"
+                            placeholder=" ">
                         <label>GSTIN</label>
                     </div>
                 </div>
                 <div class="col-md-4 gstin-agreement-field">
                     <div style="margin-bottom: 1.5rem;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">GSTIN Agreement <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> <span class="text-danger req-star">*</span></label>
-                        <input class="form-control file-input-preview" type="file" name="gstin_agreement" accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required style="padding: 0.55rem 0.75rem;">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">GSTIN Agreement
+                            <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png,
+                                .pdf)</span> <span class="text-danger req-star">*</span></label>
+                        <input class="form-control file-input-preview" type="file" name="gstin_agreement"
+                            accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required
+                            style="padding: 0.55rem 0.75rem;">
                         <div class="file-preview-wrapper" id="preview-gstin_agreement"></div>
                     </div>
                 </div>
                 <div class="col-md-4 auth-signatory-field">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control" name="authorized_signatory_name" id="authSignatoryInput" placeholder=" ">
-                        <label>Authorized Signatory Name <span class="text-danger auth-signatory-star" style="display:none;">*</span></label>
+                        <input type="text" class="form-control" name="authorized_signatory_name" id="authSignatoryInput"
+                            placeholder=" ">
+                        <label>Authorized Signatory Name <span class="text-danger auth-signatory-star"
+                                style="display:none;">*</span></label>
                     </div>
                 </div>
             </div>
 
             <div class="sm-section-label">
-                <i class="bi bi-files"></i> KYC Documents <span class="badge bg-secondary ms-2" style="font-size: 0.65rem;">Entity: <span id="entityTypeDisplay"></span></span>
+                <i class="bi bi-files"></i> KYC Documents <span class="badge bg-secondary ms-2"
+                    style="font-size: 0.65rem;">Entity: <span id="entityTypeDisplay"></span></span>
             </div>
             <div class="row g-3" id="dynamicDocsContainer">
                 <!-- Dynamically populated file inputs -->
@@ -350,7 +415,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center p-4">
-                <img src="" id="modalPreviewImage" class="img-fluid rounded shadow-sm" style="max-height: 80vh; display: none;" alt="Preview">
+                <img src="" id="modalPreviewImage" class="img-fluid rounded shadow-sm"
+                    style="max-height: 80vh; display: none;" alt="Preview">
                 <div id="modalPreviewPdfContainer" style="width: 100%; height: 80vh; display: none;"></div>
             </div>
         </div>
@@ -361,7 +427,7 @@
     const kycData = <%- JSON.stringify(kycData || {}) %>;
     const expiryTimeStr = "<%= expiryTime || '' %>";
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         const entityType = parseInt($('#entityTypeInput').val()) || 0;
         $('#entityTypeDisplay').text(entityType);
 
@@ -377,9 +443,9 @@
         }
 
         // Handle GSTIN Toggle
-        $('#gstin_status').on('change', function() {
+        $('#gstin_status').on('change', function () {
             var status = $(this).val();
-            if(status === '2') {
+            if (status === '2') {
                 $('.gstin-field').show();
                 $('.gstin-agreement-field').hide();
                 $('#gstinAgreementInput').prop('required', false);
@@ -417,12 +483,12 @@
             4: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2'], // Society/Trust
             7: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_board_resolution_authorizing', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // LLP
             9: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Partnership
-            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page','aus_aadhar_card_back_page','aus_pan_card','additional_document_1', 'additional_document_2','additional_document_3','shop_board_image', 'stock_image', 'shop_full_image'], // Sole Proprietor
+            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'aus_pan_card', 'additional_document_1', 'additional_document_2', 'additional_document_3', 'shop_board_image', 'stock_image', 'shop_full_image'], // Sole Proprietor
             11: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_board_resolution_authorizing', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Pvt/Pub Ltd
             13: ['pan_card', 'work_order', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'] // Gov Entity
         };
 
-        if(entityType === 9) { // Partnership
+        if (entityType === 9) { // Partnership
             $('#authSignatoryInput').prop('required', true);
             $('.auth-signatory-star').show();
         } else {
@@ -451,12 +517,12 @@
                 $(inputSelector).siblings('label').find('.req-star').hide();
                 const wrapper = $(wrapperId);
                 wrapper.empty().show();
-                
+
                 const isPdf = dbVal.toLowerCase().endsWith('.pdf');
                 if (isPdf) {
-                    wrapper.append('<div class="file-preview-pdf preview-pdf-clickable-existing" data-url="'+dbVal+'" style="cursor: pointer;" title="Click to view existing PDF"><i class="bi bi-file-earmark-pdf-fill fs-2"></i><div class="fw-bold text-success">Existing PDF</div></div>');
+                    wrapper.append('<div class="file-preview-pdf preview-pdf-clickable-existing" data-url="' + dbVal + '" style="cursor: pointer;" title="Click to view existing PDF"><i class="bi bi-file-earmark-pdf-fill fs-2"></i><div class="fw-bold text-success">Existing PDF</div></div>');
                 } else {
-                    wrapper.append('<img src="'+dbVal+'" class="file-preview-img preview-clickable" alt="Existing Preview" style="cursor: pointer;" title="Click to view full image">');
+                    wrapper.append('<img src="' + dbVal + '" class="file-preview-img preview-clickable" alt="Existing Preview" style="cursor: pointer;" title="Click to view full image">');
                 }
                 wrapper.append('<div class="file-preview-name text-success">Previously Uploaded</div>');
             } else if (isRequired) {
@@ -466,7 +532,7 @@
 
         docsToRender.forEach(docKey => {
             const docInfo = docsConfig[docKey];
-            if(docInfo) {
+            if (docInfo) {
                 const reqStar = docInfo.required ? '<span class="text-danger req-star">*</span>' : '';
                 const html = `
                 <div class="col-md-4">
@@ -478,7 +544,7 @@
                 </div>
                 `;
                 $container.append(html);
-                populatePreview(docKey, '#preview-'+docKey, '#input-'+docKey, docInfo.required);
+                populatePreview(docKey, '#preview-' + docKey, '#input-' + docKey, docInfo.required);
             }
         });
 
@@ -491,28 +557,28 @@
         // ==========================================
         // FILE PREVIEW LOGIC
         // ==========================================
-        $(document).on('change', '.file-input-preview', function() {
+        $(document).on('change', '.file-input-preview', function () {
             const file = this.files[0];
             const wrapper = $(this).siblings('.file-preview-wrapper');
-            
+
             if (file) {
                 wrapper.empty().show();
                 const fileType = file.type;
                 const fileName = file.name;
-                
+
                 if (fileType.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
-                        wrapper.append('<img src="'+e.target.result+'" class="file-preview-img preview-clickable" alt="Preview" style="cursor: pointer;" title="Click to view full image">');
-                        wrapper.append('<div class="file-preview-name">'+fileName+'</div>');
+                    reader.onload = function (e) {
+                        wrapper.append('<img src="' + e.target.result + '" class="file-preview-img preview-clickable" alt="Preview" style="cursor: pointer;" title="Click to view full image">');
+                        wrapper.append('<div class="file-preview-name">' + fileName + '</div>');
                     };
                     reader.readAsDataURL(file);
                 } else if (fileType === 'application/pdf') {
                     wrapper.append('<div class="file-preview-pdf preview-pdf-clickable" style="cursor: pointer;" title="Click to view full PDF"><i class="bi bi-file-earmark-pdf-fill fs-2"></i><div class="fw-bold">PDF Document</div></div>');
-                    wrapper.append('<div class="file-preview-name">'+fileName+'</div>');
+                    wrapper.append('<div class="file-preview-name">' + fileName + '</div>');
                 } else {
                     wrapper.append('<div class="file-preview-pdf"><i class="bi bi-file-earmark-check fs-2 text-success"></i><div class="fw-bold">File Selected</div></div>');
-                    wrapper.append('<div class="file-preview-name">'+fileName+'</div>');
+                    wrapper.append('<div class="file-preview-name">' + fileName + '</div>');
                 }
             } else {
                 wrapper.hide().empty();
@@ -524,7 +590,7 @@
         }
 
         // Handle Image Preview Click
-        $(document).on('click', '.preview-clickable', function() {
+        $(document).on('click', '.preview-clickable', function () {
             var src = $(this).attr('src');
             $('#modalPreviewImage').attr('src', src).show();
             $('#modalPreviewPdfContainer').hide().empty();
@@ -532,7 +598,7 @@
         });
 
         // Handle PDF Preview Click
-        $(document).on('click', '.preview-pdf-clickable', function() {
+        $(document).on('click', '.preview-pdf-clickable', function () {
             var fileInput = $(this).closest('.file-preview-wrapper').siblings('.file-input-preview')[0];
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 var file = fileInput.files[0];
@@ -542,7 +608,7 @@
         });
 
         // Handle Existing PDF Preview Click
-        $(document).on('click', '.preview-pdf-clickable-existing', function() {
+        $(document).on('click', '.preview-pdf-clickable-existing', function () {
             var url = $(this).data('url');
             if (url) {
                 window.open(url, '_blank');
@@ -550,14 +616,14 @@
         });
 
         // Handle form submission
-        $('#kycUploadForm').on('submit', function(e) {
+        $('#kycUploadForm').on('submit', function (e) {
             e.preventDefault();
             var $form = $(this);
             var $submitBtn = $('#submitKycBtn');
             var originalBtnText = $submitBtn.html();
-            
+
             $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading & Submitting...');
-            
+
             var formData = new FormData(this);
 
             $.ajax({
@@ -566,9 +632,9 @@
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function(response) {
+                success: function (response) {
                     $submitBtn.prop('disabled', false).html(originalBtnText);
-                    if(response.success) {
+                    if (response.success) {
                         Swal.fire({
                             title: 'Success!',
                             text: response.message || 'Processed successfully.',
@@ -586,7 +652,7 @@
                         });
                     }
                 },
-                error: function(err) {
+                error: function (err) {
                     $submitBtn.prop('disabled', false).html(originalBtnText);
                     Swal.fire({
                         title: 'Error!',
@@ -610,7 +676,7 @@
                     if (distance < 0) {
                         clearInterval(timerInterval);
                         $('#countdownTimer').text("EXPIRED");
-                        $('#timerContainer').css({'background': '#f8d7da', 'border-color': '#f5c2c7', 'color': '#842029'});
+                        $('#timerContainer').css({ 'background': '#f8d7da', 'border-color': '#f5c2c7', 'color': '#842029' });
                         $('#submitKycBtn').prop('disabled', true).text("Token Expired");
                         return;
                     }
@@ -625,7 +691,7 @@
                     timeText += (hours < 10 ? "0" : "") + hours + "h ";
                     timeText += (minutes < 10 ? "0" : "") + minutes + "m ";
                     timeText += (seconds < 10 ? "0" : "") + seconds + "s";
-                    
+
                     $('#countdownTimer').text(timeText);
                 }, 1000);
             }

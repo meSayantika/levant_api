@@ -5,11 +5,11 @@
             <style>
                 /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
                 :root {
-                    --sm-primary: #667eea;
-                    --sm-primary-dark: #5a67d8;
-                    --sm-secondary: #764ba2;
-                    --sm-primary-soft: rgba(102, 126, 234, 0.08);
-                    --sm-primary-mid: rgba(102, 126, 234, 0.15);
+                    --sm-primary: #008080;
+                    --sm-primary-dark: #004d40;
+                    --sm-secondary: #32a995;
+                    --sm-primary-soft: rgba(0, 128, 128, 0.08);
+                    --sm-primary-mid: rgba(0, 128, 128, 0.15);
                     --sm-border: #e8e8f0;
                     --sm-text: #1a1a2e;
                     --sm-muted: #6c757d;
@@ -94,7 +94,7 @@
                     color: #fff;
                     font-size: 1.25rem;
                     flex-shrink: 0;
-                    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.3);
                 }
 
                 .sm-page-title {
@@ -118,7 +118,7 @@
                     border: 1px solid var(--sm-border);
                     border-left: 5px solid var(--sm-primary);
                     border-radius: 12px;
-                    box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
+                    box-shadow: 0 2px 16px rgba(0, 128, 128, 0.07);
                     overflow: hidden;
                     margin-bottom: 2rem;
                 }
@@ -254,14 +254,14 @@
                     display: inline-flex;
                     align-items: center;
                     gap: 0.4rem;
-                    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.25);
                     cursor: pointer;
                 }
 
                 .btn-sm-primary:hover {
                     opacity: 0.92;
                     transform: translateY(-1px);
-                    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+                    box-shadow: 0 6px 20px rgba(0, 128, 128, 0.35);
                     color: #fff;
                 }
 
@@ -289,7 +289,7 @@
                     background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
                     color: #fff;
                     border-color: transparent;
-                    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.25);
                 }
 
                 /* ===== STEP FOOTER AREA ===== */
@@ -337,7 +337,7 @@
                     border: 1px solid var(--sm-border);
                     border-radius: 8px;
                     overflow: hidden;
-                    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+                    box-shadow: 0 4px 16px rgba(0, 128, 128, 0.1);
                 }
 
                 #address-suggestions .list-group-item {
@@ -358,7 +358,7 @@
                     min-width: 300px !important;
                     border-radius: 8px;
                     border: 1px solid var(--sm-border);
-                    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+                    box-shadow: 0 4px 16px rgba(0, 128, 128, 0.12);
                 }
 
                 @media (max-width: 767px) {
@@ -377,6 +377,28 @@
                         gap: 0.75rem;
                     }
                 }
+
+                /* ===== TEXTAREA LABEL FIX ===== */
+                .material-outline textarea.form-control {
+                    padding-top: 1rem;
+                }
+                .material-outline textarea.form-control ~ label {
+                    top: 1rem;
+                    height: auto;
+                    transform: translateY(-50%);
+                }
+
+                .material-outline textarea.form-control:focus ~ label,
+                .material-outline textarea.form-control:not(:placeholder-shown) ~ label,
+                .material-outline.has-value textarea.form-control ~ label,
+                .material-outline textarea.form-control[readonly] ~ label {
+                    top: 0;
+                    transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+                    background-color: white;
+                    padding: 0 0.25rem;
+                    z-index: 2;
+                    color: var(--sm-text, #1a1a2e);
+                }
             </style>
 
             <!-- ============================
@@ -393,7 +415,7 @@
                     </div>
                 </div>
                 <div class="sm-header-right">
-                    <a href="/admin/merchants" class="btn" style="background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary)); color: white; border: none; border-radius: 8px; font-weight: 600; padding: 0.6rem 1.2rem; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);">
+                    <a href="/admin/merchants" class="btn" style="background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary)); color: white; border: none; border-radius: 8px; font-weight: 600; padding: 0.6rem 1.2rem; box-shadow: 0 4px 12px rgba(0, 128, 128, 0.25);">
                         <i class="bi bi-arrow-left me-1"></i> Back to List
                     </a>
                 </div>
@@ -449,20 +471,22 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="material-outline">
+                                    <div class="material-outline mb-1">
                                         <input type="email" class="form-control" id="email" name="email"
                                             placeholder="Email Address" required>
                                         <label for="email">Merchant Email ID <span class="text-danger">*</span></label>
                                     </div>
+                                    <div class="text-danger small ms-1" id="email_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid Email ID</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="material-outline">
+                                    <div class="material-outline mb-1">
                                         <input type="tel" class="form-control" id="phone" name="phone"
                                             placeholder="Phone Number" required pattern="^[6-9]\d{9}$" maxlength="10"
                                             title="Please enter a valid 10-digit phone number">
                                         <label for="phone">Merchant Mobile Number <span
                                                 class="text-danger">*</span></label>
                                     </div>
+                                    <div class="text-danger small ms-1" id="phone_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid 10-digit Mobile Number</div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="material-outline">
@@ -472,12 +496,13 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="material-outline">
+                                    <div class="material-outline mb-1">
                                         <input type="tel" class="form-control" id="pincode" name="pincode"
                                             placeholder="Pincode" required pattern="^\d{6}$" maxlength="6" minlength="6"
                                             title="Please enter a valid 6-digit Pincode">
                                         <label for="pincode">Merchant Pincode <span class="text-danger">*</span></label>
                                     </div>
+                                    <div class="text-danger small ms-1" id="pincode_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid 6-digit Pincode</div>
                                 </div>
                             </div>
                             <div class="sm-step-footer end" style="margin-top: 0.5rem; padding-top: 0.75rem;">
@@ -554,12 +579,11 @@
                                     </div>
                                 </div>
                                 <div class="col-12 position-relative">
-                                    <div class="material-outline">
-                                        <input type="text" class="form-control" id="business_address"
+                                    <div class="mb-3">
+                                        <label for="business_address" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Business Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control border" id="business_address"
                                             name="business_address" placeholder="Business Address" required
-                                            autocomplete="off">
-                                        <label for="business_address">Business Address <span
-                                                class="text-danger">*</span></label>
+                                            autocomplete="off" rows="3" style="border-radius: 8px;"></textarea>
                                     </div>
                                     <ul id="address-suggestions" class="list-group position-absolute w-100"
                                         style="display:none; z-index: 1050; max-height: 200px; overflow-y: auto; top: 100%;">
@@ -592,10 +616,10 @@
                             </div>
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <div class="material-outline">
-                                        <input type="text" class="form-control" id="address" name="address"
-                                            placeholder="Aadhaar Address" required>
-                                        <label for="address">Aadhaar Address <span class="text-danger">*</span></label>
+                                    <div class="mb-3">
+                                        <label for="address" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Aadhaar Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control border" id="address" name="address"
+                                            placeholder="Aadhaar Address" required rows="3" style="border-radius: 8px;"></textarea>
                                     </div>
                                     <p class="sm-hint" id="business_address_error">
                                         <i class="bi bi-info-circle me-1"></i>No special characters allowed (e.g. @, #,
@@ -612,11 +636,14 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="material-outline">
+                                    <div class="material-outline mb-1">
                                         <input type="text" class="form-control" id="gstin" name="gstin"
-                                            placeholder="GSTIN (Optional)">
-                                        <label for="gstin">GSTIN (Optional)</label>
+                                            placeholder="GSTIN (Optional)" maxlength="15" 
+                                            pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+                                            oninput="this.value = this.value.toUpperCase()">
+                                        <label for="gstin">GSTIN (Optional) <span class="text-danger text-capitalize fw-bold" style="font-size: 0.70rem;">(e.g., 10AWAAA0000A1Z0)</span></label>
                                     </div>
+                                    <div class="text-danger small ms-1" id="gstin_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid GSTIN format</div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="material-outline">
@@ -675,8 +702,40 @@
 
                     /* ---- NEXT: Personal → Business ---- */
                     $('#next-to-business').on('click', function () {
-                        // Basic validation for tab 1
+                        // Clear inline errors
+                        $('#email_error, #phone_error, #pincode_error').hide();
                         var valid = true;
+
+                        // Check Email
+                        var email = $('#email').val().trim();
+                        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!email || !emailRegex.test(email)) {
+                            $('#email_error').show();
+                            $('#email').focus();
+                            valid = false;
+                        }
+
+                        // Check Phone
+                        var phone = $('#phone').val().trim();
+                        var phoneRegex = /^[0-9]{10}$/;
+                        if (!phone || !phoneRegex.test(phone)) {
+                            $('#phone_error').show();
+                            if(valid) $('#phone').focus();
+                            valid = false;
+                        }
+
+                        // Check Pincode
+                        var pincode = $('#pincode').val().trim();
+                        var pinRegex = /^[0-9]{6}$/;
+                        if (!pincode || !pinRegex.test(pincode)) {
+                            $('#pincode_error').show();
+                            if(valid) $('#pincode').focus();
+                            valid = false;
+                        }
+
+                        if (!valid) return;
+
+                        // Basic validation for other required fields
                         $('#pane-personal input[required]').each(function () {
                             if (!$(this).val().trim()) { $(this).focus(); valid = false; return false; }
                         });
@@ -719,6 +778,19 @@
                     $(document).off('submit', '#subMerchantForm');
                     $(document).on('submit', '#subMerchantForm', function (e) {
                         e.preventDefault();
+                        
+                        // Validate GSTIN if provided
+                        $('#gstin_error').hide();
+                        var gstin = $('#gstin').val().trim();
+                        if (gstin !== '') {
+                            var gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                            if (!gstinRegex.test(gstin)) {
+                                $('#gstin_error').show();
+                                $('#gstin').focus();
+                                return;
+                            }
+                        }
+
                         var $form = $(this);
                         var $submitBtn = $('#submitBtn');
                         var originalText = $submitBtn.html();

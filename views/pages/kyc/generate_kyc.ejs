@@ -1,573 +1,640 @@
-<%# ============================================= %>
-<%# SYNERGIC PAY - Generate KYC Access Key Page   %>
-<%# ============================================= %>
+<%#=============================================%>
+    <%# SYNERGIC PAY - Generate KYC Access Key Page %>
+        <%#=============================================%>
 
-<style>
-    /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
-    :root {
-        --kyc-primary:      #667eea;
-        --kyc-primary-dark: #5a67d8;
-        --kyc-secondary:    #764ba2;
-        --kyc-primary-soft: rgba(102, 126, 234, 0.08);
-        --kyc-primary-mid:  rgba(102, 126, 234, 0.15);
-        --kyc-border:       #e8e8f0;
-        --kyc-text:         #1a1a2e;
-        --kyc-muted:        #6c757d;
-        --kyc-surface:      #ffffff;
-        --kyc-bg:           #f8f9fc;
-    }
+            <style>
+                /* ===== DESIGN TOKENS (matching sidebar blue) ===== */
+                :root {
+                    --kyc-primary: #008080;
+                    --kyc-primary-dark: #004d40;
+                    --kyc-secondary: #32a995;
+                    --kyc-primary-soft: rgba(0, 128, 128, 0.08);
+                    --kyc-primary-mid: rgba(0, 128, 128, 0.15);
+                    --kyc-border: #e8e8f0;
+                    --kyc-text: #1a1a2e;
+                    --kyc-muted: #6c757d;
+                    --kyc-surface: #ffffff;
+                    --kyc-bg: #f8f9fc;
+                }
 
-    /* ===== BOLD FORM LABELS ===== */
-    .kyc-search-card label,
-    .kyc-search-card .form-label {
-        font-weight: 700 !important;
-        color: #1a1a2e !important;
-        font-size: 0.92rem !important;
-    }
-    .kyc-section-label {
-        font-weight: 700 !important;
-    }
+                /* ===== BOLD FORM LABELS ===== */
+                .kyc-search-card label,
+                .kyc-search-card .form-label {
+                    font-weight: 700 !important;
+                    color: #1a1a2e !important;
+                    font-size: 0.92rem !important;
+                }
 
-    .kyc-page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-    .kyc-header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-    }
-    .kyc-page-icon {
-        width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
-    }
-    .kyc-page-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--kyc-text);
-        margin: 0;
-        line-height: 1.2;
-    }
-    .kyc-page-subtitle {
-        font-size: 0.78rem;
-        color: var(--kyc-muted);
-        margin: 0;
-        margin-top: 2px;
-    }
+                .kyc-section-label {
+                    font-weight: 700 !important;
+                }
 
-    /* ===== SEARCH CARD (thick left border) ===== */
-    .kyc-search-card {
-        background: var(--kyc-surface);
-        border: 1px solid var(--kyc-border);
-        border-left: 5px solid var(--kyc-primary);    /* THICK LEFT BORDER */
-        border-radius: 12px;
-        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .kyc-section-label {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--kyc-primary);
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        margin-bottom: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-    }
-    .kyc-search-card .form-control {
-        border: 1.5px solid var(--kyc-border);
-        border-radius: 8px;
-        padding: 0.58rem 0.95rem;
-        font-size: 0.875rem;
-        color: var(--kyc-text);
-        background: var(--kyc-bg);
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .kyc-search-card .form-control:focus {
-        border-color: var(--kyc-primary);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.13);
-        background: #fff;
-        outline: none;
-    }
-    .kyc-search-card .form-control::placeholder {
-        color: #b5b5c8;
-        font-size: 0.83rem;
-    }
+                .kyc-page-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 1rem;
+                }
 
-    /* ===== SEARCH BUTTON ===== */
-    .btn-kyc-search {
-        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
-        border: none;
-        color: #fff;
-        border-radius: 8px;
-        padding: 0.58rem 1.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        transition: all 0.2s;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
-    }
-    .btn-kyc-search:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
-        color: #fff;
-    }
-    .btn-kyc-search:disabled {
-        opacity: 0.65;
-        transform: none;
-    }
+                .kyc-header-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.85rem;
+                }
 
-    /* ===== RESULTS CARD (thick left border) ===== */
-    .kyc-results-card {
-        background: var(--kyc-surface);
-        border: 1px solid var(--kyc-border);
-        border-left: 5px solid var(--kyc-primary);    /* THICK LEFT BORDER */
-        border-radius: 12px;
-        box-shadow: 0 2px 16px rgba(102, 126, 234, 0.07);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-    .kyc-results-header {
-        padding: 0.9rem 1.4rem;
-        background: var(--kyc-primary-soft);
-        border-bottom: 1px solid var(--kyc-border);
-        display: flex;
-        align-items: center;
-        gap: 0.55rem;
-    }
-    .kyc-results-header .results-title {
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--kyc-text);
-    }
-    .kyc-count-badge {
-        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 700;
-        border-radius: 20px;
-        padding: 0.15rem 0.65rem;
-        line-height: 1.4;
-    }
+                .kyc-page-icon {
+                    width: 44px;
+                    height: 44px;
+                    background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-size: 1.25rem;
+                    flex-shrink: 0;
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.3);
+                }
 
-    /* ===== TABLE ===== */
-    .kyc-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.875rem;
-    }
-    .kyc-table thead tr {
-        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
-    }
-    .kyc-table thead th {
-        color: #fff;
-        font-weight: 600;
-        font-size: 0.73rem;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        padding: 0.88rem 1.15rem;
-        border: none;
-        white-space: nowrap;
-    }
-    .kyc-table tbody tr {
-        border-bottom: 1px solid #f1f2f8;
-        transition: background 0.15s;
-    }
-    .kyc-table tbody tr:last-child { border-bottom: none; }
-    .kyc-table tbody tr:hover { background: var(--kyc-primary-soft); }
-    .kyc-table tbody td {
-        padding: 0.88rem 1.15rem;
-        color: #2d3748;
-        vertical-align: middle;
-    }
+                .kyc-page-title {
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: var(--kyc-text);
+                    margin: 0;
+                    line-height: 1.2;
+                }
 
-    /* ===== TABLE CELL STYLES ===== */
-    .merchant-id-pill {
-        display: inline-block;
-        font-size: 0.85rem;
-        color: var(--kyc-primary);
-        font-weight: 600;
-        font-family: 'Courier New', monospace;
-        background: var(--kyc-primary-soft);
-        padding: 0.18rem 0.55rem;
-        border-radius: 6px;
-        border: 1px solid rgba(102, 126, 234, 0.15);
-    }
-    .merchant-name-text {
-        font-weight: 600;
-        color: var(--kyc-text);
-        font-size: 0.875rem;
-    }
-    .merchant-email-text {
-        font-weight: 600;
-        font-size: 0.875rem;
-        color: var(--kyc-text);
-    }
-    .merchant-phone-text {
-        font-size: 0.82rem;
-        color: #0b0c0e;
-        font-weight: 600;
-    }
-    .entity-badge {
-        background: var(--kyc-primary-soft);
-        color: var(--kyc-primary-dark);
-        font-size: 0.71rem;
-        font-weight: 600;
-        border-radius: 20px;
-        padding: 0.22rem 0.7rem;
-        display: inline-block;
-        border: 1px solid rgba(102, 126, 234, 0.18);
-    }
+                .kyc-page-subtitle {
+                    font-size: 0.78rem;
+                    color: var(--kyc-muted);
+                    margin: 0;
+                    margin-top: 2px;
+                }
 
-    /* Sl. No. circle */
-    .kyc-table thead th:first-child,
-    .kyc-table tbody td:first-child {
-        text-align: center;
-        width: 62px;
-    }
-    .sl-circle {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: var(--kyc-primary-soft);
-        color: var(--kyc-primary-dark);
-        font-weight: 700;
-        font-size: 0.78rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        border: 1.5px solid rgba(102, 126, 234, 0.2);
-    }
+                /* ===== SEARCH CARD (thick left border) ===== */
+                .kyc-search-card {
+                    background: var(--kyc-surface);
+                    border: 1px solid var(--kyc-border);
+                    border-left: 5px solid var(--kyc-primary);
+                    /* THICK LEFT BORDER */
+                    border-radius: 12px;
+                    box-shadow: 0 2px 16px rgba(0, 128, 128, 0.07);
+                    padding: 1.25rem 1.5rem;
+                    margin-bottom: 1rem;
+                }
 
-    /* ===== ACTION BUTTONS ===== */
-    .btn-gen-key {
-        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
-        border: none;
-        color: #fff;
-        border-radius: 7px;
-        padding: 0.38rem 0.9rem;
-        font-size: 0.78rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
-    }
-    .btn-gen-key:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
-        color: #fff;
-    }
-    .btn-gen-key:disabled { opacity: 0.65; transform: none; }
+                .kyc-section-label {
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                    color: var(--kyc-primary);
+                    text-transform: uppercase;
+                    letter-spacing: 0.07em;
+                    margin-bottom: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                }
 
-    .btn-upload-file {
-        background: transparent;
-        border: 1.5px solid var(--kyc-primary);
-        color: var(--kyc-primary);
-        border-radius: 7px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.78rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        text-decoration: none;
-    }
-    .btn-upload-file:hover {
-        background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
-        color: #fff;
-        border-color: transparent;
-        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
-    }
+                .kyc-search-card .form-control {
+                    border: 1.5px solid var(--kyc-border);
+                    border-radius: 8px;
+                    padding: 0.58rem 0.95rem;
+                    font-size: 0.875rem;
+                    color: var(--kyc-text);
+                    background: var(--kyc-bg);
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                }
 
-    .expiry-info-box {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        font-size: 0.71rem;
-        color: var(--kyc-muted);
-        background: #f4f4fb;
-        padding: 0.2rem 0.55rem;
-        border-radius: 5px;
-        margin-top: 0.35rem;
-        border: 1px solid var(--kyc-border);
-    }
-    .expiry-info-box i { color: var(--kyc-primary); font-size: 0.68rem; }
+                .kyc-search-card .form-control:focus {
+                    border-color: var(--kyc-primary);
+                    box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.13);
+                    background: #fff;
+                    outline: none;
+                }
 
-    /* ===== NO RESULTS ===== */
-    .kyc-empty-state {
-        padding: 3rem 1rem;
-        text-align: center;
-        color: var(--kyc-text);
-    }
-    .kyc-empty-state i {
-        font-size: 2.8rem;
-        color: rgba(8, 12, 29, 0.18);
-        display: block;
-        margin-bottom: 0.65rem;
-    }
-    .kyc-empty-state p {
-        font-size: 0.88rem;
-        margin: 0;
-        font-weight: 600;
-    }
+                .kyc-search-card .form-control::placeholder {
+                    color: #b5b5c8;
+                    font-size: 0.83rem;
+                }
 
-    /* ===== CUSTOM SHAKE ANIMATION & ERROR TEXT ===== */
-    @keyframes kycShake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-6px); }
-        40% { transform: translateX(6px); }
-        60% { transform: translateX(-4px); }
-        80% { transform: translateX(4px); }
-    }
-    .input-shake-error {
-        animation: kycShake 0.4s ease-in-out;
-        border-color: #ef4444 !important;
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
-    }
-    .kyc-inline-error {
-        color: #ef4444;
-        font-size: 0.8rem;
-        font-weight: 600;
-        margin-top: 0.4rem;
-        top: 100%;
-        display: none;
-        position: absolute;
-    }
+                /* ===== SEARCH BUTTON ===== */
+                .btn-kyc-search {
+                    background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+                    border: none;
+                    color: #fff;
+                    border-radius: 8px;
+                    padding: 0.58rem 1.5rem;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    letter-spacing: 0.02em;
+                    transition: all 0.2s;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.4rem;
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.25);
+                }
 
-    @media (max-width: 767px) {
-        .kyc-page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-        .kyc-table { font-size: 0.8rem; }
-        .btn-kyc-search { padding: 0.55rem 1rem; }
-    }
-</style>
+                .btn-kyc-search:hover {
+                    opacity: 0.92;
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(0, 128, 128, 0.35);
+                    color: #fff;
+                }
 
-<!-- ============================
+                .btn-kyc-search:disabled {
+                    opacity: 0.65;
+                    transform: none;
+                }
+
+                /* ===== RESULTS CARD (thick left border) ===== */
+                .kyc-results-card {
+                    background: var(--kyc-surface);
+                    border: 1px solid var(--kyc-border);
+                    border-left: 5px solid var(--kyc-primary);
+                    /* THICK LEFT BORDER */
+                    border-radius: 12px;
+                    box-shadow: 0 2px 16px rgba(0, 128, 128, 0.07);
+                    overflow: hidden;
+                    margin-bottom: 2rem;
+                }
+
+                .kyc-results-header {
+                    padding: 0.9rem 1.4rem;
+                    background: var(--kyc-primary-soft);
+                    border-bottom: 1px solid var(--kyc-border);
+                    display: flex;
+                    align-items: center;
+                    gap: 0.55rem;
+                }
+
+                .kyc-results-header .results-title {
+                    font-size: 0.88rem;
+                    font-weight: 600;
+                    color: var(--kyc-text);
+                }
+
+                .kyc-count-badge {
+                    background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+                    color: #fff;
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    border-radius: 20px;
+                    padding: 0.15rem 0.65rem;
+                    line-height: 1.4;
+                }
+
+                /* ===== TABLE ===== */
+                .kyc-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 0.875rem;
+                }
+
+                .kyc-table thead tr {
+                    background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+                }
+
+                .kyc-table thead th {
+                    color: #fff;
+                    font-weight: 600;
+                    font-size: 0.73rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.07em;
+                    padding: 0.88rem 1.15rem;
+                    border: none;
+                    white-space: nowrap;
+                }
+
+                .kyc-table tbody tr {
+                    border-bottom: 1px solid #f1f2f8;
+                    transition: background 0.15s;
+                }
+
+                .kyc-table tbody tr:last-child {
+                    border-bottom: none;
+                }
+
+                .kyc-table tbody tr:hover {
+                    background: var(--kyc-primary-soft);
+                }
+
+                .kyc-table tbody td {
+                    padding: 0.88rem 1.15rem;
+                    color: #2d3748;
+                    vertical-align: middle;
+                }
+
+                /* ===== TABLE CELL STYLES ===== */
+                .merchant-id-pill {
+                    display: inline-block;
+                    font-size: 0.85rem;
+                    color: var(--kyc-primary);
+                    font-weight: 600;
+                    font-family: 'Courier New', monospace;
+                    background: var(--kyc-primary-soft);
+                    padding: 0.18rem 0.55rem;
+                    border-radius: 6px;
+                    border: 1px solid rgba(0, 128, 128, 0.15);
+                }
+
+                .merchant-name-text {
+                    font-weight: 600;
+                    color: var(--kyc-text);
+                    font-size: 0.875rem;
+                }
+
+                .merchant-email-text {
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                    color: var(--kyc-text);
+                }
+
+                .merchant-phone-text {
+                    font-size: 0.82rem;
+                    color: #0b0c0e;
+                    font-weight: 600;
+                }
+
+                .entity-badge {
+                    background: var(--kyc-primary-soft);
+                    color: var(--kyc-primary-dark);
+                    font-size: 0.71rem;
+                    font-weight: 600;
+                    border-radius: 20px;
+                    padding: 0.22rem 0.7rem;
+                    display: inline-block;
+                    border: 1px solid rgba(0, 128, 128, 0.18);
+                }
+
+                /* Sl. No. circle */
+                .kyc-table thead th:first-child,
+                .kyc-table tbody td:first-child {
+                    text-align: center;
+                    width: 62px;
+                }
+
+                .sl-circle {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    background: var(--kyc-primary-soft);
+                    color: var(--kyc-primary-dark);
+                    font-weight: 700;
+                    font-size: 0.78rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto;
+                    border: 1.5px solid rgba(0, 128, 128, 0.2);
+                }
+
+                /* ===== ACTION BUTTONS ===== */
+                .btn-gen-key {
+                    background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+                    border: none;
+                    color: #fff;
+                    border-radius: 7px;
+                    padding: 0.38rem 0.9rem;
+                    font-size: 0.78rem;
+                    font-weight: 600;
+                    transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    box-shadow: 0 2px 8px rgba(0, 128, 128, 0.25);
+                }
+
+                .btn-gen-key:hover {
+                    opacity: 0.9;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.35);
+                    color: #fff;
+                }
+
+                .btn-gen-key:disabled {
+                    opacity: 0.65;
+                    transform: none;
+                }
+
+                .btn-upload-file {
+                    background: transparent;
+                    border: 1.5px solid var(--kyc-primary);
+                    color: var(--kyc-primary);
+                    border-radius: 7px;
+                    padding: 0.35rem 0.9rem;
+                    font-size: 0.78rem;
+                    font-weight: 600;
+                    transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    text-decoration: none;
+                }
+
+                .btn-upload-file:hover {
+                    background: linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary));
+                    color: #fff;
+                    border-color: transparent;
+                    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.3);
+                }
+
+                .expiry-info-box {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.3rem;
+                    font-size: 0.71rem;
+                    color: var(--kyc-muted);
+                    background: #f4f4fb;
+                    padding: 0.2rem 0.55rem;
+                    border-radius: 5px;
+                    margin-top: 0.35rem;
+                    border: 1px solid var(--kyc-border);
+                }
+
+                .expiry-info-box i {
+                    color: var(--kyc-primary);
+                    font-size: 0.68rem;
+                }
+
+                /* ===== NO RESULTS ===== */
+                .kyc-empty-state {
+                    padding: 3rem 1rem;
+                    text-align: center;
+                    color: var(--kyc-text);
+                }
+
+                .kyc-empty-state i {
+                    font-size: 2.8rem;
+                    color: rgba(8, 12, 29, 0.18);
+                    display: block;
+                    margin-bottom: 0.65rem;
+                }
+
+                .kyc-empty-state p {
+                    font-size: 0.88rem;
+                    margin: 0;
+                    font-weight: 600;
+                }
+
+                /* ===== CUSTOM SHAKE ANIMATION & ERROR TEXT ===== */
+                @keyframes kycShake {
+
+                    0%,
+                    100% {
+                        transform: translateX(0);
+                    }
+
+                    20% {
+                        transform: translateX(-6px);
+                    }
+
+                    40% {
+                        transform: translateX(6px);
+                    }
+
+                    60% {
+                        transform: translateX(-4px);
+                    }
+
+                    80% {
+                        transform: translateX(4px);
+                    }
+                }
+
+                .input-shake-error {
+                    animation: kycShake 0.4s ease-in-out;
+                    border-color: #ef4444 !important;
+                    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+                }
+
+                .kyc-inline-error {
+                    color: #ef4444;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    margin-top: 0.4rem;
+                    top: 100%;
+                    display: none;
+                    position: absolute;
+                }
+
+                @media (max-width: 767px) {
+                    .kyc-page-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.75rem;
+                    }
+
+                    .kyc-table {
+                        font-size: 0.8rem;
+                    }
+
+                    .btn-kyc-search {
+                        padding: 0.55rem 1rem;
+                    }
+                }
+            </style>
+
+            <!-- ============================
      PAGE HEADER
      ============================ -->
-<div class="kyc-page-header">
-    <div class="kyc-header-left">
-        <div class="kyc-page-icon">
-            <i class="bi bi-person-vcard-fill"></i>
-        </div>
-        <div>
-            <h1 class="kyc-page-title">Generate KYC Access Key</h1>
-            <p class="kyc-page-subtitle">Search sub-merchant and generate a KYC access token</p>
-        </div>
-    </div>
-</div>
+            <div class="kyc-page-header">
+                <div class="kyc-header-left">
+                    <div class="kyc-page-icon">
+                        <i class="bi bi-person-vcard-fill"></i>
+                    </div>
+                    <div>
+                        <h1 class="kyc-page-title">Generate KYC Access Key</h1>
+                        <p class="kyc-page-subtitle">Search sub-merchant and generate a KYC access token</p>
+                    </div>
+                </div>
+            </div>
 
-<!-- ============================
+            <!-- ============================
      SEARCH CARD
      ============================ -->
-<div class="kyc-search-card">
-    <div class="kyc-section-label">
-        <i class="bi bi-search"></i> Search Sub-Merchant
-    </div>
-    <form id="searchForm">
-        <div class="row g-3 align-items-end mb-4">
-            <div class="col-md-7 col-lg-8" style="position: relative;">
-                <input
-                    type="text"
-                    class="form-control"
-                    id="searchQuery"
-                    name="searchQuery"
-                    placeholder="Enter Sub-Merchant Name or ID..."
-                    autocomplete="off"
-                    required
-                >
-                <div id="searchQueryError" class="kyc-inline-error"><i class="bi bi-exclamation-circle-fill"></i> Please provide a valid sub-merchant ID.</div>
-            </div>
-            <div class="col-md-3 col-lg-2">
-                <button type="submit" class="btn-kyc-search" id="searchBtn">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </div>
-        </div>
-    </form>
+            <div class="kyc-search-card">
+                <div class="kyc-section-label">
+                    <i class="bi bi-search"></i> Search Sub-Merchant
+                </div>
+                <form id="searchForm">
+                    <div class="row g-3 align-items-end mb-4">
+                        <div class="col-md-7 col-lg-8" style="position: relative;">
+                            <input type="text" class="form-control" id="searchQuery" name="searchQuery"
+                                placeholder="Enter Sub-Merchant Name or ID..." autocomplete="off" required>
+                            <div id="searchQueryError" class="kyc-inline-error"><i
+                                    class="bi bi-exclamation-circle-fill"></i> Please provide a valid sub-merchant ID.
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-lg-2">
+                            <button type="submit" class="btn-kyc-search" id="searchBtn">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
 
-    <!-- ============================
+                <!-- ============================
          RESULTS SECTION (Inside Card)
          ============================ -->
-    <div id="resultsContainer" style="display: none; margin-top: 2rem;">
-        <div class="kyc-results-header" style="background: transparent; border-bottom: 2px solid var(--kyc-border); padding: 0 0 0.6rem 0; margin-bottom: 1rem;">
-            <i class="bi bi-table" style="color: var(--kyc-primary); font-size: 1rem;"></i>
-            <span class="results-title" style="font-size: 0.95rem;">Search Results</span>
-            <span class="kyc-count-badge" id="resultsCount">0</span>
-        </div>
-        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-            <table class="kyc-table">
-                <thead style="position: sticky; top: 0; z-index: 10;">
-                    <tr>
-                        <th>Sl. No.</th>
-                        <th>Merchant ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsTableBody">
-                    <!-- Injected by JS -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+                <div id="resultsContainer" style="display: none; margin-top: 2rem;">
+                    <div class="kyc-results-header"
+                        style="background: transparent; border-bottom: 2px solid var(--kyc-border); padding: 0 0 0.6rem 0; margin-bottom: 1rem;">
+                        <i class="bi bi-table" style="color: var(--kyc-primary); font-size: 1rem;"></i>
+                        <span class="results-title" style="font-size: 0.95rem;">Search Results</span>
+                        <span class="kyc-count-badge" id="resultsCount">0</span>
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="kyc-table">
+                            <thead style="position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th>Sl. No.</th>
+                                    <th>Merchant ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    <!-- ============================
+                <!-- ============================
          NO RESULTS SECTION
          ============================ -->
-    <div id="noResults" style="display: none; margin-top: 1.5rem;">
-        <div class="kyc-empty-state" style="padding: 2rem 1rem;">
-            <i class="bi bi-person-x-fill"></i>
-            <p>No sub-merchants found matching your search.</p>
-        </div>
-    </div>
+                <div id="noResults" style="display: none; margin-top: 1.5rem;">
+                    <div class="kyc-empty-state" style="padding: 2rem 1rem;">
+                        <i class="bi bi-person-x-fill"></i>
+                        <p>No sub-merchants found matching your search.</p>
+                    </div>
+                </div>
 
-</div> <!-- END kyc-search-card -->
+            </div> <!-- END kyc-search-card -->
 
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script>
-$(document).ready(function () {
+            <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+            <script>
+                $(document).ready(function () {
 
-    // Auto-search if ?search= is in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const prefillSearch = urlParams.get('search');
-    if (prefillSearch) {
-        $('#searchQuery').val(prefillSearch);
-        setTimeout(() => {
-            $('#searchForm').submit();
-        }, 100);
-    }
+                    // Auto-search if ?search= is in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const prefillSearch = urlParams.get('search');
+                    if (prefillSearch) {
+                        $('#searchQuery').val(prefillSearch);
+                        setTimeout(() => {
+                            $('#searchForm').submit();
+                        }, 100);
+                    }
 
-    function showKycToast(msg, isError = true) {
-        Toastify({
-            text: msg,
-            duration: 3500,
-            close: true,
-            gravity: "top",
-            position: "right",
-            style: {
-                background: isError ? "linear-gradient(135deg, #ef4444, #f87171)" : "linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary))",
-                borderRadius: "8px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                fontSize: "0.85rem",
-                fontWeight: "600"
-            }
-        }).showToast();
-    }
+                    function showKycToast(msg, isError = true) {
+                        Toastify({
+                            text: msg,
+                            duration: 3500,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: {
+                                background: isError ? "linear-gradient(135deg, #ef4444, #f87171)" : "linear-gradient(135deg, var(--kyc-primary), var(--kyc-secondary))",
+                                borderRadius: "8px",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                fontSize: "0.85rem",
+                                fontWeight: "600"
+                            }
+                        }).showToast();
+                    }
 
-    /* ---- SEARCH FORM ---- */
-    $('#searchForm').on('submit', function (e) {
-        e.preventDefault();
-        var query = $('#searchQuery').val().trim();
-        if (!query) return;
+                    /* ---- SEARCH FORM ---- */
+                    $('#searchForm').on('submit', function (e) {
+                        e.preventDefault();
+                        var query = $('#searchQuery').val().trim();
+                        if (!query) return;
 
-        // Hide error if previously shown
-        $('#searchQueryError').fadeOut(150);
-        $('#searchQuery').removeClass('input-shake-error');
+                        // Hide error if previously shown
+                        $('#searchQueryError').fadeOut(150);
+                        $('#searchQuery').removeClass('input-shake-error');
 
-        // Validation for '0'
-        if (query === '0' || query === '00') {
-            $('#searchQuery').addClass('input-shake-error');
-            $('#searchQueryError').fadeIn(200);
-            $('#resultsContainer').hide();
-            $('#noResults').hide();
-            
-            setTimeout(() => {
-                $('#searchQuery').removeClass('input-shake-error');
-            }, 500);
-            return;
-        }
+                        // Validation for '0' or starting with 'F'
+                        if (query === '0' || query === '00' || query.toUpperCase().startsWith('F')) {
+                            $('#searchQuery').addClass('input-shake-error');
+                            $('#searchQueryError').html('<i class="bi bi-exclamation-circle-fill"></i> Sub-merchant code is not valid.').fadeIn(200);
+                            $('#resultsContainer').hide();
+                            $('#noResults').hide();
 
-        var $btn = $('#searchBtn');
-        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Searching...');
-
-        $.ajax({
-            url: '/admin/kyc/api/search_submerchant',
-            type: 'POST',
-            data: { query: query },
-            success: function (response) {
-                $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
-
-                if (response.success && response.data.length > 0) {
-                    $('#resultsCount').text(response.data.length);
-                    $('#resultsContainer').fadeIn(200);
-                    $('#noResults').hide();
-
-                    var tbody = $('#resultsTableBody');
-                    tbody.empty();
-
-                    response.data.forEach(function (item, index) {
-                        var merchantCode = item.SUB_MERCHANT_CODE || 'N/A';
-                        var entityLabel  = item.ENTITY_TYPE || 'N/A';
-                        
-                        // State variables
-                        var canGenerateKey = item.canGenerateKey !== false;
-                        var hasActiveKey = item.hasActiveKey === true;
-                        
-                        // Generate Button properties
-                        var btnDisabledAttr = '';
-                        var btnStyle = '';
-                        var btnText = '<i class="bi bi-key-fill"></i> Generate Key';
-
-                        if (!canGenerateKey) {
-                            btnDisabledAttr = 'disabled';
-                            btnStyle = 'pointer-events: none; opacity: 0.5; background: #6c757d;';
-                            btnText = '<i class="bi bi-x-circle-fill"></i> Onboarding Failed';
-                        } else if (hasActiveKey) {
-                            btnDisabledAttr = 'disabled';
-                            btnStyle = 'pointer-events: none; opacity: 0.6;';
-                            btnText = '<i class="bi bi-check-circle-fill"></i> Key Active';
+                            setTimeout(() => {
+                                $('#searchQuery').removeClass('input-shake-error');
+                            }, 500);
+                            return;
                         }
 
-                        // Upload Button properties
-                        var uploadDisabledClass = hasActiveKey ? '' : 'disabled';
-                        var uploadStyle = hasActiveKey ? 'pointer-events: auto; opacity: 1;' : 'pointer-events: none; opacity: 0.5;';
-                        var uploadUrl = `/admin/kyc/upload_kyc?submerch_id=${item.ENCRYPTED_SUB_MERCHANT_CODE || merchantCode}&entity_type=${item.ENTITY_TYPE}`;
-                        if (hasActiveKey && item.EXISTING_ACCESS_KEY) {
-                            uploadUrl += `&acc_token=${item.EXISTING_ACCESS_KEY}`;
-                        }
+                        var $btn = $('#searchBtn');
+                        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Searching...');
 
-                        // Access Key & Expiry Display
-                        var keyBoxDisplay = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? 'block' : 'none';
-                        var accessKeyText = item.EXISTING_ACCESS_KEY || '';
-                        
-                        var expiryDisplay = (hasActiveKey && item.EXISTING_EXPIRED_AT) ? 'inline-flex' : 'none';
-                        var expiryText = '';
-                        if (hasActiveKey && item.EXISTING_EXPIRED_AT) {
-                            expiryText = 'Expires: ' + new Date(item.EXISTING_EXPIRED_AT).toLocaleString('en-IN', {
-                                day: '2-digit', month: 'short', year: 'numeric',
-                                hour: '2-digit', minute: '2-digit'
-                            }) + ' (IST)';
-                        }
+                        $.ajax({
+                            url: '/admin/kyc/api/search_submerchant',
+                            type: 'POST',
+                            data: { query: query },
+                            success: function (response) {
+                                $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
 
-                        var tr = `
+                                if (response.success && response.data.length > 0) {
+                                    $('#resultsCount').text(response.data.length);
+                                    $('#resultsContainer').fadeIn(200);
+                                    $('#noResults').hide();
+
+                                    var tbody = $('#resultsTableBody');
+                                    tbody.empty();
+
+                                    response.data.forEach(function (item, index) {
+                                        var merchantCode = item.SUB_MERCHANT_CODE || 'N/A';
+                                        var entityLabel = item.ENTITY_TYPE || 'N/A';
+
+                                        // State variables
+                                        var canGenerateKey = item.canGenerateKey !== false;
+                                        var hasActiveKey = item.hasActiveKey === true;
+
+                                        // Generate Button properties
+                                        var btnDisabledAttr = '';
+                                        var btnStyle = '';
+                                        var btnText = '<i class="bi bi-key-fill"></i> Generate Key';
+
+                                        if (!canGenerateKey) {
+                                            btnDisabledAttr = 'disabled';
+                                            btnStyle = 'pointer-events: none; opacity: 0.5; background: #6c757d;';
+                                            btnText = '<i class="bi bi-x-circle-fill"></i> Onboarding Failed';
+                                        } else if (hasActiveKey) {
+                                            btnDisabledAttr = 'disabled';
+                                            btnStyle = 'pointer-events: none; opacity: 0.6;';
+                                            btnText = '<i class="bi bi-check-circle-fill"></i> Key Active';
+                                        }
+
+                                        // Upload Button properties
+                                        var uploadDisabledClass = hasActiveKey ? '' : 'disabled';
+                                        var uploadStyle = hasActiveKey ? 'pointer-events: auto; opacity: 1;' : 'pointer-events: none; opacity: 0.5;';
+                                        var uploadUrl = `/admin/kyc/upload_kyc?submerch_id=${item.ENCRYPTED_SUB_MERCHANT_CODE || merchantCode}&entity_type=${item.ENTITY_TYPE}`;
+                                        if (hasActiveKey && item.EXISTING_ACCESS_KEY) {
+                                            uploadUrl += `&acc_token=${item.EXISTING_ACCESS_KEY}`;
+                                        }
+
+                                        // Access Key & Expiry Display
+                                        var keyBoxDisplay = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? 'block' : 'none';
+                                        var accessKeyText = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? 'Generated' : '';
+
+                                        var expiryDisplay = (hasActiveKey && item.EXISTING_EXPIRED_AT) ? 'inline-flex' : 'none';
+                                        var expiryText = '';
+                                        if (hasActiveKey && item.EXISTING_EXPIRED_AT) {
+                                            expiryText = 'Expires: ' + new Date(item.EXISTING_EXPIRED_AT).toLocaleString('en-IN', {
+                                                day: '2-digit', month: 'short', year: 'numeric',
+                                                hour: '2-digit', minute: '2-digit'
+                                            }) + ' (IST)';
+                                        }
+
+                                        var tr = `
                         <tr>
                             <td><div class="sl-circle">${index + 1}</div></td>
                             <td><span class="merchant-id-pill">${merchantCode}</span></td>
@@ -596,94 +663,94 @@ $(document).ready(function () {
                                         <span id="expiry-text-${merchantCode}">${expiryText}</span>
                                     </div>
                                     <div id="access-key-box-${merchantCode}" style="display:${keyBoxDisplay}; font-family: monospace; font-size: 0.75rem; word-break: break-all; background: #f4f5f9; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px dashed var(--kyc-primary); color: var(--kyc-primary-dark); margin-top: 0.2rem;">
-                                        <strong style="color: #1a1a2e; font-family: sans-serif;">Key:</strong> <span id="access-key-text-${merchantCode}">${accessKeyText}</span>
+                                        <strong style="color: #1a1a2e; font-family: sans-serif;">Status:</strong> <span id="access-key-text-${merchantCode}">${accessKeyText}</span>
                                     </div>
                                 </div>
                             </td>
                         </tr>`;
-                        tbody.append(tr);
+                                        tbody.append(tr);
+                                    });
+
+                                } else {
+                                    $('#resultsContainer').hide();
+                                    $('#noResults').fadeIn(200);
+                                }
+                            },
+                            error: function () {
+                                $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
+                                showKycToast("Search failed. Please try again later.", true);
+                            }
+                        });
                     });
 
-                } else {
-                    $('#resultsContainer').hide();
-                    $('#noResults').fadeIn(200);
-                }
-            },
-            error: function () {
-                $btn.prop('disabled', false).html('<i class="bi bi-search"></i> Search');
-                showKycToast("Search failed. Please try again later.", true);
-            }
-        });
-    });
+                    /* ---- GENERATE KEY ---- */
+                    $(document).on('click', '.generate-key-btn', function () {
+                        var btn = $(this);
+                        var merchant_id = btn.data('id');
 
-    /* ---- GENERATE KEY ---- */
-    $(document).on('click', '.generate-key-btn', function () {
-        var btn = $(this);
-        var merchant_id = btn.data('id');
+                        if (!merchant_id || merchant_id === 'N/A') {
+                            showKycToast("This sub-merchant does not have a valid ID yet.", true);
+                            return;
+                        }
 
-        if (!merchant_id || merchant_id === 'N/A') {
-            showKycToast("This sub-merchant does not have a valid ID yet.", true);
-            return;
-        }
+                        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Generating...');
 
-        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Generating...');
+                        $.ajax({
+                            url: '/admin/kyc/api/generate_access_key',
+                            type: 'POST',
+                            data: { merchant_id: merchant_id },
+                            success: function (response) {
+                                // Levant API sometimes returns the data nested inside 'message'
+                                var actualData = response.data || (response.message && response.message.data) || null;
+                                var accessKey = actualData ? actualData.access_key : null;
 
-        $.ajax({
-            url: '/admin/kyc/api/generate_access_key',
-            type: 'POST',
-            data: { merchant_id: merchant_id },
-            success: function (response) {
-                // Levant API sometimes returns the data nested inside 'message'
-                var actualData = response.data || (response.message && response.message.data) || null;
-                var accessKey = actualData ? actualData.access_key : null;
-                
-                // If the API forgets to send expired_at, default to 24 hours from now
-                var expiredAt = actualData ? (actualData.expired_at || actualData.expiry_at) : null;
-                if (!expiredAt && accessKey) {
-                    var tomorrow = new Date();
-                    tomorrow.setHours(tomorrow.getHours() + 24);
-                    expiredAt = tomorrow.toISOString();
-                }
+                                // If the API forgets to send expired_at, default to 24 hours from now
+                                var expiredAt = actualData ? (actualData.expired_at || actualData.expiry_at) : null;
+                                if (!expiredAt && accessKey) {
+                                    var tomorrow = new Date();
+                                    tomorrow.setHours(tomorrow.getHours() + 24);
+                                    expiredAt = tomorrow.toISOString();
+                                }
 
-                if (response.success && accessKey) {
-                    // Keep Generate Key button visible, but disable it
-                    btn.prop('disabled', true).html('<i class="bi bi-key-fill"></i> Key Generated');
-                    btn.addClass('disabled');
-                    btn.css({ 'opacity': '0.6', 'pointer-events': 'none' });
+                                if (response.success && accessKey) {
+                                    // Keep Generate Key button visible, but disable it
+                                    btn.prop('disabled', true).html('<i class="bi bi-key-fill"></i> Key Generated');
+                                    btn.addClass('disabled');
+                                    btn.css({ 'opacity': '0.6', 'pointer-events': 'none' });
 
-                    // Enable the Upload File button
-                    var uploadBtn = $('#upload-btn-' + merchant_id);
-                    uploadBtn.attr('href', uploadBtn.attr('href') + '&acc_token=' + accessKey);
-                    uploadBtn.removeClass('disabled');
-                    uploadBtn.css({ 'pointer-events': 'auto', 'opacity': '1' });
+                                    // Enable the Upload File button
+                                    var uploadBtn = $('#upload-btn-' + merchant_id);
+                                    uploadBtn.attr('href', uploadBtn.attr('href') + '&acc_token=' + accessKey);
+                                    uploadBtn.removeClass('disabled');
+                                    uploadBtn.css({ 'pointer-events': 'auto', 'opacity': '1' });
 
-                    // Show Access Key
-                    $('#access-key-text-' + merchant_id).text(accessKey);
-                    $('#access-key-box-' + merchant_id).fadeIn(200);
+                                    // Show Access Key
+                                    $('#access-key-text-' + merchant_id).text('Generated');
+                                    $('#access-key-box-' + merchant_id).fadeIn(200);
 
-                    if (expiredAt) {
-                        var expiryDate = new Date(expiredAt).toLocaleString('en-IN', {
-                            day: '2-digit', month: 'short', year: 'numeric',
-                            hour: '2-digit', minute: '2-digit'
-                        }) + ' (IST)';
-                        $('#expiry-text-' + merchant_id).text('Expires: ' + expiryDate);
-                        $('#expiry-' + merchant_id).show();
-                    }
-                    showKycToast("Access key generated successfully!", false);
-                } else {
-                    btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
-                    var errorMsg = 'Failed to generate access key.';
-                    if (typeof response.message === 'string') errorMsg = response.message;
-                    else if (response.message && response.message.message) errorMsg = response.message.message;
-                    showKycToast(errorMsg, true);
-                }
-            },
-            error: function () {
-                btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
-                showKycToast("Error generating access key. Please try again.", true);
-            }
-        });
-    });
+                                    if (expiredAt) {
+                                        var expiryDate = new Date(expiredAt).toLocaleString('en-IN', {
+                                            day: '2-digit', month: 'short', year: 'numeric',
+                                            hour: '2-digit', minute: '2-digit'
+                                        }) + ' (IST)';
+                                        $('#expiry-text-' + merchant_id).text('Expires: ' + expiryDate);
+                                        $('#expiry-' + merchant_id).show();
+                                    }
+                                    showKycToast("Access key generated successfully!", false);
+                                } else {
+                                    btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
+                                    var errorMsg = 'Failed to generate access key.';
+                                    if (typeof response.message === 'string') errorMsg = response.message;
+                                    else if (response.message && response.message.message) errorMsg = response.message.message;
+                                    showKycToast(errorMsg, true);
+                                }
+                            },
+                            error: function () {
+                                btn.prop('disabled', false).html('<i class="bi bi-key-fill"></i> Generate Key');
+                                showKycToast("Error generating access key. Please try again.", true);
+                            }
+                        });
+                    });
 
-});
-</script>
+                });
+            </script>

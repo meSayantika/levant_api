@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Synergic Pay Admin Login - Secure Access to Payment Management">
-    <title><%= typeof title !== 'undefined' ? title : 'Login | Synergic Pay' %></title>
+    <title>
+        <%= typeof title !=='undefined' ? title : 'Login | Synergic Pay' %>
+    </title>
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossorigin="anonymous">
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -17,15 +19,18 @@
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         /* ---- Login Page Scoped Styles ---- */
-        * { font-family: 'Inter', sans-serif; }
+        * {
+            font-family: 'Inter', sans-serif;
+        }
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7ff 0%, #e8ecf8 30%, #f0e6f6 60%, #fce4ec 100%);
+            background: linear-gradient(135deg, #f0fdfa 0%, #e6fcf5 30%, #e0f2fe 60%, #f0fdfa 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -35,43 +40,68 @@
 
         /* Animated floating shapes */
         .sp-login-bg {
-            position: fixed; inset: 0; z-index: 0; overflow: hidden;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
         }
+
         .sp-login-bg .shape {
             position: absolute;
             border-radius: 50%;
             opacity: 0.12;
             animation: floatShape 18s ease-in-out infinite;
         }
+
         .sp-login-bg .shape-1 {
-            width: 400px; height: 400px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            top: -100px; right: -80px;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #008080, #004d40);
+            top: -100px;
+            right: -80px;
             animation-delay: 0s;
         }
+
         .sp-login-bg .shape-2 {
-            width: 300px; height: 300px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            bottom: -60px; left: -60px;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #20b2aa, #008080);
+            bottom: -60px;
+            left: -60px;
             animation-delay: -6s;
         }
+
         .sp-login-bg .shape-3 {
-            width: 200px; height: 200px;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            top: 50%; left: 50%;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #4fd1c5, #319795);
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
             animation-delay: -12s;
         }
 
         @keyframes floatShape {
-            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-            33% { transform: translateY(-30px) rotate(120deg) scale(1.05); }
-            66% { transform: translateY(20px) rotate(240deg) scale(0.95); }
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+
+            33% {
+                transform: translateY(-30px) rotate(120deg) scale(1.05);
+            }
+
+            66% {
+                transform: translateY(20px) rotate(240deg) scale(0.95);
+            }
         }
 
         .sp-login-container {
-            position: relative; z-index: 1;
-            width: 100%; max-width: 470px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 470px;
             padding: 0 1rem;
         }
 
@@ -83,31 +113,48 @@
             border-radius: 24px;
             padding: 1rem 2.5rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08),
-                        0 1px 3px rgba(0, 0, 0, 0.04);
+                0 1px 3px rgba(0, 0, 0, 0.04);
             animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .sp-brand-logo {
-            width: 56px; height: 56px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
+            width: 120px;
+            height: auto;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .sp-brand-logo img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
         .sp-login-title {
-            font-size: 1.5rem; font-weight: 700;
-            color: #1a1a2e; margin-bottom: 0.25rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
         }
 
         .sp-login-subtitle {
-            color: #7c7c8d; font-size: 0.9rem;
+            color: #7c7c8d;
+            font-size: 0.9rem;
             margin-bottom: 1.5rem;
         }
 
@@ -116,9 +163,12 @@
         }
 
         .sp-form-group label {
-            font-size: 0.92rem; font-weight: 700;
-            color: #1a1a2e; margin-bottom: 0.4rem;
-            display: block; letter-spacing: 0.3px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.4rem;
+            display: block;
+            letter-spacing: 0.3px;
         }
 
         .sp-form-group .input-group {
@@ -129,23 +179,28 @@
         }
 
         .sp-form-group .input-group:focus-within {
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            border-color: #008080;
+            box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.1);
         }
 
         .sp-form-group .input-group-text {
-            background: transparent; border: none;
-            color: #9e9eb8; padding: 0.75rem 0.9rem;
+            background: transparent;
+            border: none;
+            color: #9e9eb8;
+            padding: 0.75rem 0.9rem;
         }
 
         .sp-form-group .form-control {
-            border: none; background: transparent;
+            border: none;
+            background: transparent;
             padding: 0.75rem 0.9rem 0.75rem 0;
-            font-size: 0.95rem; color: #1a1a2e;
+            font-size: 0.95rem;
+            color: #1a1a2e;
         }
 
         .sp-form-group .form-control:focus {
-            box-shadow: none; outline: none;
+            box-shadow: none;
+            outline: none;
         }
 
         .sp-form-group .form-control::placeholder {
@@ -153,39 +208,57 @@
         }
 
         .sp-toggle-pw {
-            background: transparent; border: none;
-            color: #9e9eb8; cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #9e9eb8;
+            cursor: pointer;
             padding: 0.75rem 0.9rem;
             transition: color 0.2s;
         }
 
-        .sp-toggle-pw:hover { color: #667eea; }
+        .sp-toggle-pw:hover {
+            color: #008080;
+        }
 
         .sp-btn-login {
             width: 100%;
             padding: 0.85rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none; border-radius: 12px;
-            color: #fff; font-size: 1rem;
-            font-weight: 600; letter-spacing: 0.3px;
+            /* background: linear-gradient(135deg, #008080 0%, #004d40 100%); */
+            background: linear-gradient(135deg, #008080 0%, #32a995 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            position: relative; overflow: hidden;
+            position: relative;
+            overflow: hidden;
         }
 
         .sp-btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.35);
+            box-shadow: 0 8px 25px rgba(0, 128, 128, 0.35);
         }
 
-        .sp-btn-login:active { transform: translateY(0); }
+        .sp-btn-login:active {
+            transform: translateY(0);
+        }
 
         .sp-btn-login .spinner-border {
-            display: none; width: 1.2rem; height: 1.2rem;
+            display: none;
+            width: 1.2rem;
+            height: 1.2rem;
         }
 
-        .sp-btn-login.loading .spinner-border { display: inline-block; }
-        .sp-btn-login.loading .btn-text { display: none; }
+        .sp-btn-login.loading .spinner-border {
+            display: inline-block;
+        }
+
+        .sp-btn-login.loading .btn-text {
+            display: none;
+        }
 
         .sp-error-alert {
             background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
@@ -199,14 +272,42 @@
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-6px);
+            }
+
+            40% {
+                transform: translateX(6px);
+            }
+
+            60% {
+                transform: translateX(-4px);
+            }
+
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        /* Checkbox styling to match logo color */
+        .form-check-input:checked {
+            background-color: #008080;
+            border-color: #008080;
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.25);
+            border-color: #008080;
         }
     </style>
 </head>
+
 <body>
     <!-- Animated Background Shapes -->
     <div class="sp-login-bg">
@@ -220,7 +321,7 @@
         <div class="sp-login-card">
             <!-- Brand Logo -->
             <div class="sp-brand-logo">
-                <i class="bi bi-qr-code-scan text-white fs-3"></i>
+                <img src="/img/logo_sss.png" alt="Synergic Softek Solutions" />
             </div>
 
             <!-- Title -->
@@ -228,14 +329,18 @@
             <p class="sp-login-subtitle text-center" id="panelTitle">Sign in to Synergic Pay Admin Panel</p>
 
             <!-- Smoothly Expanding Error Space -->
-            <div id="errorWrapper" style="max-height: <%= (typeof error !== 'undefined' && error) ? '100px' : '0' %>; overflow: hidden; transition: max-height 0.4s ease-out;">
+            <div id="errorWrapper"
+                style="max-height: <%= (typeof error !== 'undefined' && error) ? '100px' : '0' %>; overflow: hidden; transition: max-height 0.4s ease-out;">
                 <div id="errorContainer" style="padding-bottom: 1rem;">
-                    <% if (typeof error !== 'undefined' && error) { %>
-                        <div class="sp-error-alert d-flex align-items-center gap-2 mb-0" id="loginErrorAlert" style="padding: 0.5rem 0.8rem; border-radius: 8px;">
+                    <% if (typeof error !=='undefined' && error) { %>
+                        <div class="sp-error-alert d-flex align-items-center gap-2 mb-0" id="loginErrorAlert"
+                            style="padding: 0.5rem 0.8rem; border-radius: 8px;">
                             <i class="bi bi-exclamation-circle-fill" style="font-size: 0.9rem;"></i>
-                            <span id="errorText" style="font-size: 0.8rem;"><%= error %></span>
+                            <span id="errorText" style="font-size: 0.8rem;">
+                                <%= error %>
+                            </span>
                         </div>
-                    <% } %>
+                        <% } %>
                 </div>
             </div>
 
@@ -249,8 +354,8 @@
                             <i class="bi bi-envelope-fill"></i>
                         </span>
                         <input type="email" class="form-control" id="username" name="username"
-                               placeholder="Enter your email address" required autocomplete="username" autofocus
-                               value="<%= typeof savedEmail !== 'undefined' ? savedEmail : '' %>">
+                            placeholder="Enter your email address" required autocomplete="username" autofocus
+                            value="<%= typeof savedEmail !== 'undefined' ? savedEmail : '' %>">
                     </div>
                 </div>
 
@@ -262,7 +367,7 @@
                             <i class="bi bi-lock-fill"></i>
                         </span>
                         <input type="password" class="form-control" id="password" name="password"
-                               placeholder="Enter your password" required autocomplete="current-password">
+                            placeholder="Enter your password" required autocomplete="current-password">
                         <button type="button" class="sp-toggle-pw" id="togglePassword">
                             <i class="bi bi-eye-fill"></i>
                         </button>
@@ -272,10 +377,12 @@
                 <!-- Remember Me & Forgot -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" <%= (typeof savedEmail !== 'undefined' && savedEmail) ? 'checked' : '' %>>
+                        <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" <%=(typeof
+                            savedEmail !=='undefined' && savedEmail) ? 'checked' : '' %>>
                         <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
                     </div>
-                    <a href="/admin/forgot-password" class="small text-decoration-none" style="color: #667eea;">Forgot Password?</a>
+                    <a href="/admin/forgot-password" class="small text-decoration-none" style="color: #008080;">Forgot
+                        Password?</a>
                 </div>
 
                 <!-- Submit Button -->
@@ -287,15 +394,14 @@
 
             <!-- Footer Text -->
             <p class="text-center text-muted small mt-4 mb-0">
-                Secured by <strong style="color: #667eea;">Synergic Pay</strong> &copy; <%= new Date().getFullYear() %>
+                Secured by <strong style="color: #008080;">Synergic Pay</strong> &copy; <%= new Date().getFullYear() %>
             </p>
         </div>
     </div>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-            crossorigin="anonymous"></script>
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -346,11 +452,11 @@
             });
 
             // ---- AJAX Check User Type on Email Blur ----
-            $("#username").on("blur", function() {
+            $("#username").on("blur", function () {
                 const email = $(this).val();
                 if (email && email.includes('@')) {
                     $.get('/admin/api/v1/auth/check-user-type', { email: email })
-                        .done(function(res) {
+                        .done(function (res) {
                             if (res.success && res.userType === 'S') {
                                 $("#panelTitle").text("Sign in to Synergic Pay Merchant Panel");
                             } else {
@@ -361,7 +467,7 @@
                     $("#panelTitle").text("Sign in to Synergic Pay Admin Panel");
                 }
             });
-            
+
             // Trigger blur on load in case email was remembered
             if ($("#username").val()) {
                 $("#username").trigger("blur");
@@ -383,15 +489,16 @@
                     $("#errorWrapper").css("max-height", "100px");
                     return;
                 }
-                
+
                 // Clear any inline errors and restore smooth height
                 $("#errorWrapper").css("max-height", "0");
                 setTimeout(() => $("#errorContainer").empty(), 400);
-                
+
                 var $btn = $("#loginBtn");
                 $btn.addClass("loading").prop("disabled", true);
             });
         });
     </script>
 </body>
+
 </html>

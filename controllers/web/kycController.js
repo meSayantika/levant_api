@@ -28,7 +28,7 @@ function decryptId(text) {
         let decrypted = decipher.update(encryptedText);
         decrypted = Buffer.concat([decrypted, decipher.final()]);
         return decrypted.toString();
-    } catch(e) {
+    } catch (e) {
         return null;
     }
 }
@@ -137,19 +137,22 @@ async function searchSubmerchant(req, res) {
         const binds = { query: `%${query}%`, exactQuery: query };
         const results = await F_Select(0, sql, binds);
 
-        // Process results to check onboarding status
-        const processedResults = results.map(row => {
-            let canGenerateKey = true;
-            if (row.RAW_RESPONSE) {
-                try {
-                    const responseJson = JSON.parse(row.RAW_RESPONSE);
-                    if (responseJson.success === false) {
-                        canGenerateKey = false;
-                    }
-                } catch (e) {
-                    // Ignore parse error, default to true
-                }
+        // Process results to strictly ensure only successful onboardings are returned
+        const processedResults = results.filter(row => {
+            // Block '0' or 'F' starting codes
+            if (row.SUB_MERCHANT_CODE === '0' || row.SUB_MERCHANT_CODE.toUpperCase().startsWith('F') || row.SUB_MERCHANT_CODE.toLowerCase().startsWith('f')) {
+                return false;
             }
+            // Must have a successful raw response to show up
+            if (!row.RAW_RESPONSE) return false;
+            try {
+                const responseJson = JSON.parse(row.RAW_RESPONSE);
+                if (responseJson.success !== true) return false;
+            } catch (e) {
+                return false;
+            }
+            return true;
+        }).map(row => {
             let hasActiveKey = false;
             if (row.EXISTING_EXPIRED_AT) {
                 const expiryDate = new Date(row.EXISTING_EXPIRED_AT);
@@ -161,7 +164,7 @@ async function searchSubmerchant(req, res) {
             return {
                 ...row,
                 ENCRYPTED_SUB_MERCHANT_CODE: encryptId(row.SUB_MERCHANT_CODE),
-                canGenerateKey,
+                canGenerateKey: true, // Inherently true since we filtered out failures
                 hasActiveKey
             };
         });
@@ -226,7 +229,7 @@ async function generateAccessKey(req, res) {
                                     :CREATED_BY, SYSTIMESTAMP, :REQ_PAYLOAD, :RAW_RESPONSE
                                 )
                             `;
-                            
+
                             const bindParams = {
                                 SUBMERCHANT_CODE: merchant_id,
                                 ACCESS_KEY: accessKey,
@@ -302,25 +305,25 @@ async function processUploadKyc(req, res) {
                 // Check if record exists
                 const checkSql = `SELECT * FROM TD_KYC_DTLS WHERE SUBMERCHANT_ID = :id`;
                 const existing = await F_Select(0, checkSql, { id: submerch_id });
-                
+
                 if (existing && existing.length > 0) {
                     const existingRow = existing[0];
-                    
+
                     // Merge existing DB data into payload if not provided in this request (crucial for files)
                     const reverseMap = {
-                        'ACCESS_TOKEN': 'acc_token', 'NAME': 'name', 'PHONE': 'phone', 'ADDRESS': 'address', 
-                        'CITY': 'city', 'STATE': 'state', 'PIN_CODE': 'pincode', 'WEBSITE_URL': 'websiteurl', 
-                        'ACC_HOLDER_NAME': 'account_holder_name', 'BANK_NAME': 'bank_name', 'BRANCH_NAME': 'branch_name', 
-                        'IFSC_CODE': 'ifsc_code', 'ACCOUNT_NO': 'account_number', 'BUSINESS_NAME': 'business_name', 
-                        'PAN_NO': 'pan_number', 'ENTITY_TYPE': 'entity_type', 'GSTIN_STATUS': 'gstin_status', 
-                        'GSTIN': 'gstin', 'GSTIN_AGREEMENT': 'gstin_agreement', 
-                        'AUTHORIZED_SIGNATORY_NAME': 'authorized_signatory_name', 'PAN_CARD': 'pan_card', 
-                        'ADDRESS_PROOF_FRONT_PAGE': 'address_proof_front_page', 'ADDRESS_PROOF_BACK_PAGE': 'address_proof_back_page', 
-                        'AUS_AADHAR_CARD_FRONT_PAGE': 'aus_aadhar_card_front_page', 'AUS_AADHAR_CARD_BACK_PAGE': 'aus_aadhar_card_back_page', 
-                        'AUS_PAN_CARD': 'aus_pan_card', 'BUSINESS_REGISTRATION_PROOF': 'business_registration_proof', 
-                        'ADDITIONAL_DOCUMENT_1': 'additional_document_1', 'ADDITIONAL_DOCUMENT_2': 'additional_document_2', 
-                        'SHOP_BOARD_IMAGE': 'shop_board_image', 'STOCK_IMAGE': 'stock_image', 'SHOP_FULL_IMAGE': 'shop_full_image', 
-                        'AUS_BOARD_RESO_AUTHO': 'aus_board_resolution_authorizing', 'WORK_ORDER': 'work_order', 
+                        'ACCESS_TOKEN': 'acc_token', 'NAME': 'name', 'PHONE': 'phone', 'ADDRESS': 'address',
+                        'CITY': 'city', 'STATE': 'state', 'PIN_CODE': 'pincode', 'WEBSITE_URL': 'websiteurl',
+                        'ACC_HOLDER_NAME': 'account_holder_name', 'BANK_NAME': 'bank_name', 'BRANCH_NAME': 'branch_name',
+                        'IFSC_CODE': 'ifsc_code', 'ACCOUNT_NO': 'account_number', 'BUSINESS_NAME': 'business_name',
+                        'PAN_NO': 'pan_number', 'ENTITY_TYPE': 'entity_type', 'GSTIN_STATUS': 'gstin_status',
+                        'GSTIN': 'gstin', 'GSTIN_AGREEMENT': 'gstin_agreement',
+                        'AUTHORIZED_SIGNATORY_NAME': 'authorized_signatory_name', 'PAN_CARD': 'pan_card',
+                        'ADDRESS_PROOF_FRONT_PAGE': 'address_proof_front_page', 'ADDRESS_PROOF_BACK_PAGE': 'address_proof_back_page',
+                        'AUS_AADHAR_CARD_FRONT_PAGE': 'aus_aadhar_card_front_page', 'AUS_AADHAR_CARD_BACK_PAGE': 'aus_aadhar_card_back_page',
+                        'AUS_PAN_CARD': 'aus_pan_card', 'BUSINESS_REGISTRATION_PROOF': 'business_registration_proof',
+                        'ADDITIONAL_DOCUMENT_1': 'additional_document_1', 'ADDITIONAL_DOCUMENT_2': 'additional_document_2',
+                        'SHOP_BOARD_IMAGE': 'shop_board_image', 'STOCK_IMAGE': 'stock_image', 'SHOP_FULL_IMAGE': 'shop_full_image',
+                        'AUS_BOARD_RESO_AUTHO': 'aus_board_resolution_authorizing', 'WORK_ORDER': 'work_order',
                         'ADDITIONAL_DOCUMENT_3': 'bank_proof' // Assuming ADDITIONAL_DOCUMENT_3 stores bank_proof
                     };
 
@@ -334,21 +337,21 @@ async function processUploadKyc(req, res) {
                     // Update existing
                     let updateParts = [];
                     let binds = { id: submerch_id };
-                    
+
                     const columnsMap = {
-                        acc_token: 'ACCESS_TOKEN', name: 'NAME', phone: 'PHONE', address: 'ADDRESS', 
-                        city: 'CITY', state: 'STATE', pincode: 'PIN_CODE', websiteurl: 'WEBSITE_URL', 
-                        account_holder_name: 'ACC_HOLDER_NAME', bank_name: 'BANK_NAME', branch_name: 'BRANCH_NAME', 
-                        ifsc_code: 'IFSC_CODE', account_number: 'ACCOUNT_NO', business_name: 'BUSINESS_NAME', 
-                        pan_no: 'PAN_NO', pan_number: 'PAN_NO', entity_type: 'ENTITY_TYPE', gstin_status: 'GSTIN_STATUS', 
-                        gstin: 'GSTIN', gstin_agreement: 'GSTIN_AGREEMENT', 
-                        authorized_signatory_name: 'AUTHORIZED_SIGNATORY_NAME', pan_card: 'PAN_CARD', 
-                        address_proof_front_page: 'ADDRESS_PROOF_FRONT_PAGE', address_proof_back_page: 'ADDRESS_PROOF_BACK_PAGE', 
-                        aus_aadhar_card_front_page: 'AUS_AADHAR_CARD_FRONT_PAGE', aus_aadhar_card_back_page: 'AUS_AADHAR_CARD_BACK_PAGE', 
-                        aus_pan_card: 'AUS_PAN_CARD', business_registration_proof: 'BUSINESS_REGISTRATION_PROOF', 
-                        additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2', 
-                        additional_document_3: 'ADDITIONAL_DOCUMENT_3', shop_board_image: 'SHOP_BOARD_IMAGE', 
-                        stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE', 
+                        acc_token: 'ACCESS_TOKEN', name: 'NAME', phone: 'PHONE', address: 'ADDRESS',
+                        city: 'CITY', state: 'STATE', pincode: 'PIN_CODE', websiteurl: 'WEBSITE_URL',
+                        account_holder_name: 'ACC_HOLDER_NAME', bank_name: 'BANK_NAME', branch_name: 'BRANCH_NAME',
+                        ifsc_code: 'IFSC_CODE', account_number: 'ACCOUNT_NO', business_name: 'BUSINESS_NAME',
+                        pan_no: 'PAN_NO', pan_number: 'PAN_NO', entity_type: 'ENTITY_TYPE', gstin_status: 'GSTIN_STATUS',
+                        gstin: 'GSTIN', gstin_agreement: 'GSTIN_AGREEMENT',
+                        authorized_signatory_name: 'AUTHORIZED_SIGNATORY_NAME', pan_card: 'PAN_CARD',
+                        address_proof_front_page: 'ADDRESS_PROOF_FRONT_PAGE', address_proof_back_page: 'ADDRESS_PROOF_BACK_PAGE',
+                        aus_aadhar_card_front_page: 'AUS_AADHAR_CARD_FRONT_PAGE', aus_aadhar_card_back_page: 'AUS_AADHAR_CARD_BACK_PAGE',
+                        aus_pan_card: 'AUS_PAN_CARD', business_registration_proof: 'BUSINESS_REGISTRATION_PROOF',
+                        additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2',
+                        additional_document_3: 'ADDITIONAL_DOCUMENT_3', shop_board_image: 'SHOP_BOARD_IMAGE',
+                        stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE',
                         aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER', bank_proof: 'ADDITIONAL_DOCUMENT_3' // map bank proof safely if needed
                     };
 
@@ -369,25 +372,25 @@ async function processUploadKyc(req, res) {
                     // Insert new
                     let insertColumns = ['ID', 'SUBMERCHANT_ID', 'CREATED_AT', 'CREATED_BY'];
                     let insertValues = ['(SELECT NVL(MAX(ID), 0) + 1 FROM TD_KYC_DTLS)', ':id', 'SYSTIMESTAMP', ':created_by'];
-                    let binds = { 
+                    let binds = {
                         id: submerch_id,
                         created_by: req.user ? req.user.username : 'SYSTEM'
                     };
 
                     const columnsMap = {
-                        acc_token: 'ACCESS_TOKEN', name: 'NAME', phone: 'PHONE', address: 'ADDRESS', 
-                        city: 'CITY', state: 'STATE', pincode: 'PIN_CODE', websiteurl: 'WEBSITE_URL', 
-                        account_holder_name: 'ACC_HOLDER_NAME', bank_name: 'BANK_NAME', branch_name: 'BRANCH_NAME', 
-                        ifsc_code: 'IFSC_CODE', account_number: 'ACCOUNT_NO', business_name: 'BUSINESS_NAME', 
-                        pan_no: 'PAN_NO', pan_number: 'PAN_NO', entity_type: 'ENTITY_TYPE', gstin_status: 'GSTIN_STATUS', 
-                        gstin: 'GSTIN', gstin_agreement: 'GSTIN_AGREEMENT', 
-                        authorized_signatory_name: 'AUTHORIZED_SIGNATORY_NAME', pan_card: 'PAN_CARD', 
-                        address_proof_front_page: 'ADDRESS_PROOF_FRONT_PAGE', address_proof_back_page: 'ADDRESS_PROOF_BACK_PAGE', 
-                        aus_aadhar_card_front_page: 'AUS_AADHAR_CARD_FRONT_PAGE', aus_aadhar_card_back_page: 'AUS_AADHAR_CARD_BACK_PAGE', 
-                        aus_pan_card: 'AUS_PAN_CARD', business_registration_proof: 'BUSINESS_REGISTRATION_PROOF', 
-                        additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2', 
-                        additional_document_3: 'ADDITIONAL_DOCUMENT_3', shop_board_image: 'SHOP_BOARD_IMAGE', 
-                        stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE', 
+                        acc_token: 'ACCESS_TOKEN', name: 'NAME', phone: 'PHONE', address: 'ADDRESS',
+                        city: 'CITY', state: 'STATE', pincode: 'PIN_CODE', websiteurl: 'WEBSITE_URL',
+                        account_holder_name: 'ACC_HOLDER_NAME', bank_name: 'BANK_NAME', branch_name: 'BRANCH_NAME',
+                        ifsc_code: 'IFSC_CODE', account_number: 'ACCOUNT_NO', business_name: 'BUSINESS_NAME',
+                        pan_no: 'PAN_NO', pan_number: 'PAN_NO', entity_type: 'ENTITY_TYPE', gstin_status: 'GSTIN_STATUS',
+                        gstin: 'GSTIN', gstin_agreement: 'GSTIN_AGREEMENT',
+                        authorized_signatory_name: 'AUTHORIZED_SIGNATORY_NAME', pan_card: 'PAN_CARD',
+                        address_proof_front_page: 'ADDRESS_PROOF_FRONT_PAGE', address_proof_back_page: 'ADDRESS_PROOF_BACK_PAGE',
+                        aus_aadhar_card_front_page: 'AUS_AADHAR_CARD_FRONT_PAGE', aus_aadhar_card_back_page: 'AUS_AADHAR_CARD_BACK_PAGE',
+                        aus_pan_card: 'AUS_PAN_CARD', business_registration_proof: 'BUSINESS_REGISTRATION_PROOF',
+                        additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2',
+                        additional_document_3: 'ADDITIONAL_DOCUMENT_3', shop_board_image: 'SHOP_BOARD_IMAGE',
+                        stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE',
                         aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER', bank_proof: 'ADDITIONAL_DOCUMENT_3'
                     };
 

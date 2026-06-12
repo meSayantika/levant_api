@@ -13,5 +13,6 @@ const kycController = require("../../controllers/web/kycController");
 // ---- Sub Merchant Onboarding Form Submission ----
 // Protected by verifyWebAuth
 router.post("/submerchant_onboard", verifyWebAuth, submerchantController.processCreateSubMerchant);
+router.post("/api/regenerate_code", verifyWebAuth, submerchantController.regenerateSubmerchantCode);
 
 module.exports = router;

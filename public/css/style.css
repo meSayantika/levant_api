@@ -13,9 +13,9 @@
     --sp-font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
     /* Primary gradient palette */
-    --sp-primary:       #667eea;
-    --sp-primary-dark:  #5a67d8;
-    --sp-secondary:     #764ba2;
+    --sp-primary:       #008080;
+    --sp-primary-dark:  #004d40;
+    --sp-secondary:     #32a995;
 
     /* Semantic colors */
     --sp-success:       #22c55e;
@@ -108,7 +108,7 @@ body {
 }
 
 .sp-nav-link:hover {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.05));
+    background: linear-gradient(135deg, rgba(0, 128, 128, 0.08), rgba(50, 169, 149, 0.05));
     color: var(--sp-primary);
 }
 
@@ -116,7 +116,7 @@ body {
     background: linear-gradient(135deg, var(--sp-primary), var(--sp-secondary));
     color: #fff;
     font-weight: 600;
-    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 4px 14px rgba(0, 128, 128, 0.25);
 }
 
 .sp-nav-link.active i {
@@ -273,7 +273,7 @@ body {
 
 .sp-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 128, 128, 0.3);
     color: #fff;
 }
 
@@ -392,7 +392,7 @@ body {
 
 #subMerchantForm .material-outline input.form-control:focus,
 #subMerchantForm .material-outline select.form-select:focus {
-    border-color: #667eea !important; 
+    border-color: #008080 !important; 
     border-width: 2px !important;
     padding: 0 15px !important; 
     outline: none !important;
@@ -428,7 +428,7 @@ body {
 
 #subMerchantForm .material-outline input.form-control:focus ~ label,
 #subMerchantForm .material-outline select.form-select:focus ~ label {
-    color: #667eea !important;
+    color: #008080 !important;
 }
 
 /* Keep label gray if text is there but not focused */
@@ -474,7 +474,7 @@ body {
 
 #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--focus .select2-selection,
 #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--open .select2-selection {
-    border-color: #667eea !important; 
+    border-color: #008080 !important; 
     border-width: 2px !important;
 }
 
@@ -489,12 +489,12 @@ body {
 
 /* Highlight label in primary color when Select2 is open/focused */
 #subMerchantForm .material-outline.has-select2.select2-focused label {
-    color: #667eea !important;
+    color: #008080 !important;
 }
 
 /* Synergic Pay QR Color for Dropdown Selection */
 .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
-    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    background: linear-gradient(135deg, #008080, #32a995) !important;
     color: white !important;
 }
 
