@@ -77,15 +77,17 @@
     }
 
     .material-outline input.form-control,
-    .material-outline select.form-select {
-        height: 3.2rem;
+    .material-outline select.form-select,
+    .material-outline textarea.form-control {
+        min-height: 3.2rem;
         padding: 1rem 0.75rem 0.25rem;
         border: 1.5px solid var(--sm-border);
         border-radius: 8px;
         background-color: transparent;
     }
 
-    .material-outline input.form-control.bg-light {
+    .material-outline input.form-control.bg-light,
+    .material-outline textarea.form-control.bg-light {
         background-color: #f8f9fa !important;
         border-color: #e9ecef;
         color: #6c757d;
@@ -107,9 +109,12 @@
     }
 
     .material-outline input.form-control:focus~label,
+    .material-outline textarea.form-control:focus~label,
     .material-outline input.form-control:not(:placeholder-shown)~label,
+    .material-outline textarea.form-control:not(:placeholder-shown)~label,
     .material-outline select.form-select~label,
-    .material-outline input.form-control[readonly]~label {
+    .material-outline input.form-control[readonly]~label,
+    .material-outline textarea.form-control[readonly]~label {
         transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
         color: var(--sm-text);
         background-color: white;
@@ -211,7 +216,7 @@
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="name"
                             value="<%= merchantData.LEGAL_NAME || '' %>" readonly>
-                        <label>Merchant Full Name</label>
+                        <label>Sub Merchant Full Name</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -219,13 +224,6 @@
                         <input type="text" class="form-control bg-light" name="phone"
                             value="<%= merchantData.PHONE || '' %>" readonly>
                         <label>Mobile Number</label>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="address"
-                            value="<%= merchantData.SUB_ADDRESS || merchantData.BUSINESS_ADDRESS || '' %>" readonly>
-                        <label>Personal Address</label>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -249,11 +247,18 @@
                         <label>Pincode</label>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <!-- <div class="col-md-4">
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="websiteurl"
                             value="https://www.synergicsoftek.in" readonly>
                         <label>Website URL</label>
+                    </div>
+                </div> -->
+                <div class="col-md-12">
+                    <div class="material-outline">
+                        <textarea class="form-control bg-light" name="address" rows="3"
+                            readonly><%= merchantData.SUB_ADDRESS || merchantData.BUSINESS_ADDRESS || '' %></textarea>
+                        <label>Personal Address</label>
                     </div>
                 </div>
             </div>
@@ -306,8 +311,8 @@
                 <!-- BANK PROOF WITH PREVIEW -->
                 <div class="col-md-4">
                     <div style="margin-bottom: 1.5rem;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Bank Proof
-                            Upload <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png,
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">Passbook Front
+                            Page<span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png,
                                 .pdf)</span> <span class="text-danger req-star">*</span></label>
                         <input class="form-control file-input-preview" type="file" name="bank_proof"
                             accept=".png, .jpg, .jpeg, .pdf" id="bankProofInput" required
@@ -342,7 +347,7 @@
                 <div class="col-md-4">
                     <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="entity_type_display"
-                            value="<%= entity_type || '' %>" readonly>
+                            id="entityTypeDisplayInput" value="" readonly>
                         <label>Entity Type</label>
                     </div>
                 </div>
@@ -393,6 +398,26 @@
                 <i class="bi bi-files"></i> KYC Documents <span class="badge bg-secondary ms-2"
                     style="font-size: 0.65rem;">Entity: <span id="entityTypeDisplay"></span></span>
             </div>
+            <div class="alert alert-info py-2 small" style="font-size: 0.8rem; border-radius: 8px;">
+                <div class="mb-2">
+                    <strong><i class="bi bi-info-circle"></i> Note for Business Registration Proof (Primary Address Proof):</strong>
+                    <ul class="mb-0 ps-3 mt-1">
+                        <li>An electricity bill or any other valid utility bill may be submitted.</li>
+                        <li>In the case of a proprietorship firm operating from the proprietor’s residence, a residential electricity bill may be accepted, provided the bill is in the name of the proprietor/shop owner.</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong><i class="bi bi-info-circle"></i> Note for Additional Document 1 (Secondary Supporting Document):</strong>
+                    <ul class="mb-0 ps-3 mt-1">
+                        <li>One additional document is required as supporting proof. Acceptable documents include:
+                            <ul class="mb-0 ps-3 mt-1">
+                                <li>Complete GST Registration Certificate</li>
+                                <li>Udyam Registration (Udyam Aadhaar) Certificate</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <div class="row g-3" id="dynamicDocsContainer">
                 <!-- Dynamically populated file inputs -->
             </div>
@@ -429,7 +454,20 @@
 
     $(document).ready(function () {
         const entityType = parseInt($('#entityTypeInput').val()) || 0;
+
+        const entityTypeNames = {
+            0: 'Individual',
+            4: 'Society/Trust',
+            7: 'LLP',
+            9: 'Partnership',
+            10: 'Sole Proprietor',
+            11: 'Pvt/Pub Ltd',
+            13: 'Gov Entity'
+        };
+        const entityTypeName = entityTypeNames[entityType] || 'Unknown';
+
         $('#entityTypeDisplay').text(entityType);
+        $('#entityTypeDisplayInput').val(entityTypeName);
 
         // Pre-fill Static Data
         if (kycData.GSTIN_STATUS) {
@@ -466,16 +504,16 @@
             address_proof_back_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Back Page' },
             aus_aadhar_card_front_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Card Front Page' },
             aus_aadhar_card_back_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Card Back Page' },
-            aus_pan_card: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS PAN Card' },
+            aus_pan_card: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS PAN Card' },
             business_registration_proof: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Business Registration Proof' },
             aus_board_resolution_authorizing: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS Board Resolution' },
             work_order: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Work Order' },
-            additional_document_1: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 1' },
-            additional_document_2: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 2' },
+            additional_document_1: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 1' },
+            additional_document_2: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 2' },
             additional_document_3: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 3' },
-            shop_board_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Shop Board Image' },
-            stock_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Stock Image' },
-            shop_full_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Shop Full Image' }
+            stock_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Stock/Inventory Image' },
+            shop_board_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Front View Shop/Business Premises' },
+            shop_full_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Interior Image Shop/Business Premises' }
         };
 
         const requiredDocsByEntity = {
@@ -483,7 +521,7 @@
             4: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2'], // Society/Trust
             7: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_board_resolution_authorizing', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // LLP
             9: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Partnership
-            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'aus_pan_card', 'additional_document_1', 'additional_document_2', 'additional_document_3', 'shop_board_image', 'stock_image', 'shop_full_image'], // Sole Proprietor
+            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'aus_pan_card', 'additional_document_1', 'additional_document_2', 'additional_document_3', 'stock_image', 'shop_board_image', 'shop_full_image'], // Sole Proprietor
             11: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_board_resolution_authorizing', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Pvt/Pub Ltd
             13: ['pan_card', 'work_order', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'] // Gov Entity
         };
@@ -536,10 +574,12 @@
                 const reqStar = docInfo.required ? '<span class="text-danger req-star">*</span>' : '';
                 const html = `
                 <div class="col-md-4">
-                    <div style="margin-bottom: 1.5rem; margin-top: -4px;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">${docInfo.label} <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> ${reqStar}</label>
-                        <input class="form-control file-input-preview" type="file" name="${docKey}" id="input-${docKey}" accept="${docInfo.accept}" style="padding: 0.55rem 0.75rem;">
-                        <div class="file-preview-wrapper" id="preview-${docKey}"></div>
+                    <div class="d-flex flex-column" style="margin-bottom: 1.5rem; margin-top: -4px; height: 100%;">
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px; min-height: 38px;">${docInfo.label} <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> ${reqStar}</label>
+                        <div class="mt-auto">
+                            <input class="form-control file-input-preview" type="file" name="${docKey}" id="input-${docKey}" accept="${docInfo.accept}" style="padding: 0.55rem 0.75rem;">
+                            <div class="file-preview-wrapper" id="preview-${docKey}"></div>
+                        </div>
                     </div>
                 </div>
                 `;
