@@ -465,27 +465,11 @@ async function processUploadKyc(req, res) {
         if (jsonResponse.success) {
             res.json({ success: true, message: dbActionMsg, data: jsonResponse });
         } else {
-            // API failed: rollback/delete uploaded files to save space
-            if (files && files.length > 0) {
-                files.forEach(file => {
-                    try {
-                        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-                    } catch(e) {}
-                });
-            }
             res.json({ success: false, message: "Failed to update KYC: " + (jsonResponse.message || "Unknown error"), data: jsonResponse });
         }
 
     } catch (err) {
         logger.error("Error uploading KYC details: " + err.message);
-        // Error occurred: rollback/delete uploaded files
-        if (req.files && req.files.length > 0) {
-            req.files.forEach(file => {
-                try {
-                    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-                } catch(e) {}
-            });
-        }
         res.json({ success: false, message: "An error occurred during KYC upload." });
     }
 }
