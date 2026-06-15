@@ -291,13 +291,6 @@ async function processUploadKyc(req, res) {
             });
         }
 
-        // Map keys for Levant API
-        payload.merchant_id = payload.submerch_id;
-        
-        if (payload.acc_token && !payload.access_token) {
-            payload.access_token = payload.acc_token;
-        }
-
         // Rename pan_no to pan_number for Levant API if present
         if (payload.pan_no && !payload.pan_number) {
             payload.pan_number = payload.pan_no;
@@ -448,11 +441,27 @@ async function processUploadKyc(req, res) {
             */
             res.json({ success: true, message: dbActionMsg, data: jsonResponse });
         } else {
+            // API failed: rollback/delete uploaded files to save space
+            if (files && files.length > 0) {
+                files.forEach(file => {
+                    try {
+                        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+                    } catch(e) {}
+                });
+            }
             res.json({ success: false, message: "Failed to update KYC: " + (jsonResponse.message || "Unknown error"), data: jsonResponse });
         }
 
     } catch (err) {
         logger.error("Error uploading KYC details: " + err.message);
+        // Error occurred: rollback/delete uploaded files
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                try {
+                    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+                } catch(e) {}
+            });
+        }
         res.json({ success: false, message: "An error occurred during KYC upload." });
     }
 }
