@@ -303,9 +303,27 @@ async function processUploadKyc(req, res) {
             delete payload.pan_no;
         }
 
+        // Remove unnecessary internal fields before sending to API
+        delete payload.entity_type_display;
+
         // Cast to integers for Levant API
         if (payload.entity_type) payload.entity_type = parseInt(payload.entity_type, 10);
         if (payload.gstin_status) payload.gstin_status = parseInt(payload.gstin_status, 10);
+
+        // Clean up GST data based on status to avoid strict validation failures
+        if (payload.gstin_status === 1) { // No GST
+            payload.gstin = "";
+        } else if (payload.gstin_status === 2) { // GST Available
+            delete payload.gstin_agreement;
+        }
+
+        // Remove empty strings from non-mandatory conditional fields
+        if (payload.authorized_signatory_name === "") {
+            delete payload.authorized_signatory_name;
+        }
+        if (payload.websiteurl === "") {
+            delete payload.websiteurl;
+        }
 
         let dbActionMsg = "processed";
 
