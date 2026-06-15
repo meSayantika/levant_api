@@ -188,6 +188,16 @@ $(function () {
         success: function(response) {
             if (response && response.status && response.data) {
                 cachedStates = response.data;
+                var $stateSelect = $('select#state');
+                if ($stateSelect.length > 0 && cachedStates.length > 0 && $stateSelect.children('option').length <= 1) {
+                    cachedStates.forEach(function(state) {
+                        $stateSelect.append($('<option>', {
+                            value: state.name,
+                            text: state.name
+                        }));
+                    });
+                    $stateSelect.trigger('change.select2');
+                }
             }
         },
         error: function(err) {
@@ -205,12 +215,27 @@ $(function () {
         url: '/admin/master/categories',
         method: 'GET',
         success: function(response) {
+            var catArray = [];
             if (response && response.status && response.data) {
                 cachedCategories = response.data;
+                catArray = response.data;
             } else if (response && response.data) {
                 cachedCategories = response.data;
+                catArray = response.data;
             } else if (Array.isArray(response)) {
                 cachedCategories = response;
+                catArray = response;
+            }
+            var $catSelect = $('select#nature_of_business');
+            if ($catSelect.length > 0 && catArray.length > 0 && $catSelect.children('option').length <= 1) {
+                catArray.forEach(function(cat) {
+                    var val = cat.name || cat.category_name || cat.nature_of_business || cat.category_code || cat;
+                    $catSelect.append($('<option>', {
+                        value: val,
+                        text: val
+                    }));
+                });
+                $catSelect.trigger('change.select2');
             }
         },
         error: function(err) {
@@ -227,12 +252,28 @@ $(function () {
         url: '/admin/master/business-types',
         method: 'GET',
         success: function(response) {
+            var btArray = [];
             if (response && response.status && response.data) {
                 cachedBusinessTypes = response.data;
+                btArray = response.data;
             } else if (response && response.data) {
                 cachedBusinessTypes = response.data;
+                btArray = response.data;
             } else if (Array.isArray(response)) {
                 cachedBusinessTypes = response;
+                btArray = response;
+            }
+            var $bizTypeSelect = $('select#business_type_code');
+            if ($bizTypeSelect.length > 0 && btArray.length > 0 && $bizTypeSelect.children('option').length <= 1) {
+                btArray.forEach(function(bt) {
+                    var val = bt.business_type_code || bt.code || bt.id || bt.name || bt.type_name || bt;
+                    var text = bt.name || bt.type_name || bt.business_type_name || bt.business_type_code || bt.code || bt;
+                    $bizTypeSelect.append($('<option>', {
+                        value: val,
+                        text: text
+                    }));
+                });
+                $bizTypeSelect.trigger('change.select2');
             }
         },
         error: function(err) {
@@ -272,6 +313,7 @@ $(function () {
                         text: text
                     }));
                 });
+                $entitySelect.trigger('change.select2');
             }
         },
         error: function(err) {
@@ -294,6 +336,7 @@ $(function () {
                         text: state.name
                     }));
                 });
+                $stateSelect.trigger('change.select2');
             }
             
             // 2. Initialize Gorgeous Select2
@@ -325,6 +368,7 @@ $(function () {
                         text: text
                     }));
                 });
+                $entitySelect.trigger('change.select2');
             }
             if ($.fn.select2) {
                 $entitySelect.closest('.material-outline').addClass('has-select2');
@@ -346,6 +390,7 @@ $(function () {
                         text: val
                     }));
                 });
+                $catSelect.trigger('change.select2');
             }
             
             // 2. Initialize Gorgeous Select2
@@ -380,6 +425,7 @@ $(function () {
                         text: text
                     }));
                 });
+                $bizTypeSelect.trigger('change.select2');
             }
             if ($.fn.select2) {
                 $bizTypeSelect.closest('.material-outline').addClass('has-select2');

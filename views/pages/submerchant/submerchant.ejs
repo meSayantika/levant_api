@@ -30,17 +30,19 @@
                     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
                 } */
 
-                /* Select2 container blue border */
-                /* #subMerchantForm .material-outline .select2-container--bootstrap-5 .select2-selection {
-                    border: 1.5px solid #667eea !important;
+                /* Select2 container border */
+                #subMerchantForm .material-outline .select2-container--bootstrap-5 .select2-selection {
+                    border: 1px solid var(--sm-border) !important;
                     border-radius: 8px !important;
-                } */
+                    padding-top: 0.8rem;
+                    padding-bottom: 0.8rem;
+                }
 
-                /* #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+                #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--focus .select2-selection,
                 #subMerchantForm .material-outline .select2-container--bootstrap-5.select2-container--open .select2-selection {
-                    border: 2px solid #5a67d8 !important;
-                    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
-                } */
+                    border: 1px solid var(--sm-primary) !important;
+                    box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.1) !important;
+                }
 
 
                 /* ===== LABEL COLOR → BLACK (all states) ===== */
@@ -61,13 +63,20 @@
                 } */
 
                 /* Select2 resting label → black */
-                /* #subMerchantForm .material-outline.has-select2 label {
+                #subMerchantForm .material-outline.has-select2 label {
                     color: #1a1a2e !important;
-                } */
+                    z-index: 5;
+                    pointer-events: none;
+                }
 
-                /* #subMerchantForm .material-outline.has-select2.select2-focused label {
-                    color: #1a1a2e !important;
-                } */
+                #subMerchantForm .material-outline.has-select2.select2-focused label,
+                #subMerchantForm .material-outline.has-select2.has-value label {
+                    top: 0 !important;
+                    transform: scale(.85) translateY(-0.5rem) translateX(0.15rem) !important;
+                    background-color: white !important;
+                    padding: 0 0.25rem !important;
+                    color: var(--sm-primary) !important;
+                }
 
 
                 .sm-page-header {
@@ -679,9 +688,8 @@
 
 
             <!-- ============================
-     Google Maps API
+     Google Maps API & Page Scripts
      ============================ -->
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             
             <% if (typeof googleMapsApiKey !== 'undefined' && googleMapsApiKey) { %>
@@ -734,6 +742,25 @@
                 }
 
                 $(document).ready(function () {
+                    /* ---- Initialize Select2 for modern dropdowns ---- */
+                    $('.form-select').select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: $(this).data('placeholder') || 'Select an option'
+                    });
+
+                    // Fix material outline labels floating above select2
+                    $('.form-select').on('select2:open', function() {
+                        $(this).closest('.material-outline').addClass('has-select2 select2-focused');
+                    }).on('select2:close', function() {
+                        $(this).closest('.material-outline').removeClass('select2-focused');
+                    }).on('change', function() {
+                        if ($(this).val()) {
+                            $(this).closest('.material-outline').addClass('has-value');
+                        } else {
+                            $(this).closest('.material-outline').removeClass('has-value');
+                        }
+                    });
 
                     /* ---- NEXT: Personal → Business ---- */
                     $('#next-to-business').on('click', function () {

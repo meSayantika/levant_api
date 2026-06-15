@@ -163,6 +163,69 @@
     .sm-pagination .page-link {
         color: var(--sm-primary);
     }
+
+    /* ===== MODERN DROPDOWN STYLING ===== */
+    .modern-dropdown .dropdown-toggle::after {
+        display: none;
+    }
+    
+    .modern-dropdown .btn-action {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fc;
+        border: 1px solid #e8e8f0;
+        border-radius: 8px;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+    
+    .modern-dropdown .btn-action:hover, .modern-dropdown .btn-action:focus {
+        background: var(--sm-primary);
+        color: white;
+        border-color: var(--sm-primary);
+        box-shadow: 0 4px 10px rgba(0, 128, 128, 0.2);
+    }
+
+    .modern-dropdown-menu {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        padding: 0.5rem;
+        min-width: 160px;
+        animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
+    }
+    
+    @keyframes dropdownFadeIn {
+        from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modern-dropdown-menu .dropdown-item {
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #4a5568;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.2s ease;
+    }
+
+    .modern-dropdown-menu .dropdown-item i {
+        font-size: 1.05rem;
+        opacity: 0.8;
+    }
+
+    .modern-dropdown-menu .dropdown-item:hover {
+        background-color: rgba(0, 128, 128, 0.08);
+        color: var(--sm-primary);
+        transform: translateX(3px);
+    }
 </style>
 
 <div class="container py-4">
@@ -238,11 +301,18 @@
                                     <%= merchant.CREATED_DATE || 'N/A' %>
                                 </td>
                                 <td>
-                                    <a href="/admin/merchants/view/<%= merchant.ENCRYPTED_CUST_CD %>"
-                                        class="btn btn-sm sp-btn-primary" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="View Submerchant">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
+                                    <div class="dropdown modern-dropdown">
+                                        <button class="btn btn-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end modern-dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="/admin/merchants/view/<%= merchant.ENCRYPTED_CUST_CD %>">
+                                                    <i class="bi bi-eye text-primary"></i> View Details
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                             <% }) %>
