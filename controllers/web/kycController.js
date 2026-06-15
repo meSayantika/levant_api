@@ -291,6 +291,13 @@ async function processUploadKyc(req, res) {
             });
         }
 
+        // Map keys for Levant API
+        payload.merchant_id = payload.submerch_id;
+        
+        if (payload.acc_token && !payload.access_token) {
+            payload.access_token = payload.acc_token;
+        }
+
         // Rename pan_no to pan_number for Levant API if present
         if (payload.pan_no && !payload.pan_number) {
             payload.pan_number = payload.pan_no;
