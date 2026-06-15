@@ -282,7 +282,13 @@ async function processUploadKyc(req, res) {
         // so it saves properly in the DB and gets sent properly to Levant.
         payload.submerch_id = submerch_id;
 
-        const baseUrl = req.protocol + '://' + req.get('host') + '/uploads/kyc/' + (submerch_id ? submerch_id + '/' : '');
+        // Construct public URL. If PUBLIC_URL is set in .env, use it. Otherwise use req.protocol + host
+        let baseUrl = '';
+        if (process.env.PUBLIC_URL) {
+            baseUrl = process.env.PUBLIC_URL.replace(/\/$/, '') + '/uploads/kyc/' + (submerch_id ? submerch_id + '/' : '');
+        } else {
+            baseUrl = req.protocol + '://' + req.get('host') + '/uploads/kyc/' + (submerch_id ? submerch_id + '/' : '');
+        }
 
         // Map files to payload keys
         if (files && files.length > 0) {
@@ -296,6 +302,10 @@ async function processUploadKyc(req, res) {
             payload.pan_number = payload.pan_no;
             delete payload.pan_no;
         }
+
+        // Cast to integers for Levant API
+        if (payload.entity_type) payload.entity_type = parseInt(payload.entity_type, 10);
+        if (payload.gstin_status) payload.gstin_status = parseInt(payload.gstin_status, 10);
 
         let dbActionMsg = "processed";
 
@@ -413,6 +423,11 @@ async function processUploadKyc(req, res) {
 
         const levantApiUrl = process.env.UPDATE_KYC_API || 'https://app.levanttech.in/api/v1/updatekyc';
 
+        console.log("==========================================");
+        console.log("PAYLOAD SENT TO LEVANT KYC API:");
+        console.log(JSON.stringify(payload, null, 2));
+        console.log("==========================================");
+
         const apiResponse = await fetch(levantApiUrl, {
             method: 'POST',
             headers: {
@@ -425,6 +440,9 @@ async function processUploadKyc(req, res) {
         });
 
         const jsonResponse = await apiResponse.json();
+
+        console.log("LEVANT KYC API RESPONSE:");
+        console.log(JSON.stringify(jsonResponse, null, 2));
 
         if (jsonResponse.success) {
             // Update raw response
