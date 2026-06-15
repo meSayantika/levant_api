@@ -480,6 +480,7 @@
                                             <textarea class="form-control border" id="business_address"
                                                 name="business_address" rows="3" readonly
                                                 style="border-radius: 8px;"><%= merchant.BUSINESS_ADDRESS %></textarea>
+                                            <div id="business_map" style="height: 250px; width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid var(--sm-border);"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -780,4 +781,32 @@
                     });
 
                 });
+                
+                <% if (typeof googleMapsApiKey !== 'undefined' && googleMapsApiKey) { %>
+                function initViewMap() {
+                    const lat = parseFloat("<%= merchant.GPS_LAT || 0 %>");
+                    const lng = parseFloat("<%= merchant.GPS_LONG || 0 %>");
+                    
+                    const loc = { lat: lat || 20.5937, lng: lng || 78.9629 };
+
+                    const map = new google.maps.Map(document.getElementById('business_map'), {
+                        zoom: lat && lng ? 15 : 4,
+                        center: loc,
+                        streetViewControl: false,
+                        mapTypeControl: false,
+                        fullscreenControl: true
+                    });
+
+                    if (lat && lng) {
+                        new google.maps.Marker({
+                            map: map,
+                            position: loc,
+                            draggable: false
+                        });
+                    }
+                }
+                <% } %>
             </script>
+            <% if (typeof googleMapsApiKey !== 'undefined' && googleMapsApiKey) { %>
+            <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&libraries=places&callback=initViewMap"></script>
+            <% } %>
