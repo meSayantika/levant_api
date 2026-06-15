@@ -463,18 +463,6 @@ async function processUploadKyc(req, res) {
         console.log(JSON.stringify(jsonResponse, null, 2));
 
         if (jsonResponse.success) {
-            // Update raw response
-            /* 
-            if (submerch_id) {
-                try {
-                    await F_Insert(0, `UPDATE TD_KYC_DTLS SET RAW_RESPONSE = :resp, RAW_REQ = :req WHERE SUBMERCHANT_ID = :id`, {
-                        resp: JSON.stringify(jsonResponse),
-                        req: JSON.stringify(payload),
-                        id: submerch_id
-                    });
-                } catch(e) {}
-            }
-            */
             res.json({ success: true, message: dbActionMsg, data: jsonResponse });
         } else {
             // API failed: rollback/delete uploaded files to save space
