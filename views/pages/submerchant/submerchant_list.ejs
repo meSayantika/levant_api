@@ -301,18 +301,9 @@
                                     <%= merchant.CREATED_DATE || 'N/A' %>
                                 </td>
                                 <td>
-                                    <div class="dropdown modern-dropdown">
-                                        <button class="btn btn-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end modern-dropdown-menu">
-                                            <li>
-                                                <a class="dropdown-item" href="/admin/merchants/view/<%= merchant.ENCRYPTED_CUST_CD %>">
-                                                    <i class="bi bi-eye text-primary"></i> View Details
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    <a href="/admin/merchants/view/<%= merchant.ENCRYPTED_CUST_CD %>" class="btn btn-sm" style="background-color: var(--sm-primary-soft); color: var(--sm-primary); border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; padding: 0.4rem 0.8rem; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='var(--sm-primary)'; this.style.color='white';" onmouseout="this.style.backgroundColor='var(--sm-primary-soft)'; this.style.color='var(--sm-primary)';">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
                                 </td>
                             </tr>
                             <% }) %>
