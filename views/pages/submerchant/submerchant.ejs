@@ -137,6 +137,13 @@
                     background: var(--sm-surface);
                     border-bottom: 1px solid var(--sm-border);
                     padding: 0 1.5rem;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                /* Hide scrollbar for tabs */
+                .sm-tab-header::-webkit-scrollbar {
+                    display: none;
                 }
 
                 .sm-nav-tabs {
@@ -209,7 +216,7 @@
 
                 /* ===== TAB CONTENT ===== */
                 .sm-tab-body {
-                    padding: 1.75rem 1.75rem 1.5rem;
+                    padding: 1rem 1.25rem 0.75rem;
                 }
 
                 .sm-tab-pane {
@@ -299,6 +306,30 @@
                     color: #fff;
                     border-color: transparent;
                     box-shadow: 0 4px 14px rgba(0, 128, 128, 0.25);
+                }
+
+                .btn-sm-success {
+                    background: linear-gradient(135deg, var(--sm-primary), var(--sm-secondary));
+                    border: none;
+                    color: #fff;
+                    border-radius: 8px;
+                    padding: 0.55rem 1.5rem;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    letter-spacing: 0.02em;
+                    transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+                    cursor: pointer;
+                }
+
+                .btn-sm-success:hover {
+                    opacity: 0.92;
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(0, 128, 128, 0.35);
+                    color: #fff;
                 }
 
                 /* ===== STEP FOOTER AREA ===== */
@@ -441,13 +472,16 @@
                         <button class="sm-tab-btn active" id="tab-personal" role="tab" onclick="switchTab('personal')">
                             <i class="bi bi-person-badge-fill"></i> Personal Details
                         </button>
+                        <button class="sm-tab-btn" id="tab-personal-address" role="tab" onclick="switchTab('personal-address')" disabled>
+                            <i class="bi bi-geo-alt-fill"></i> Personal Address
+                        </button>
                         <button class="sm-tab-btn" id="tab-business" role="tab" onclick="switchTab('business')"
                             disabled>
                             <i class="bi bi-briefcase-fill"></i> Business Details
                         </button>
                         <button class="sm-tab-btn" id="tab-location" role="tab" onclick="switchTab('location')"
                             disabled>
-                            <i class="bi bi-geo-alt-fill"></i> Address Details
+                            <i class="bi bi-pin-map-fill"></i> Business Address
                         </button>
                     </div>
                 </div>
@@ -463,11 +497,11 @@
                             <div class="sm-section-label">
                                 <i class="bi bi-person-lines-fill"></i> Personal Information
                             </div>
-                            <div class="row g-3">
+                            <div class="row g-2">
                                 <div class="col-md-6">
                                     <div class="material-outline">
                                         <input type="text" class="form-control" id="name" name="name"
-                                            placeholder="Merchant Name" required>
+                                            placeholder="Merchant Name" required oninput="if(this.value && !document.getElementById('primary_vpa').dataset.edited) { document.getElementById('primary_vpa').value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '') + '@synergicpay'; document.getElementById('primary_vpa').closest('.material-outline').classList.add('has-value'); }">
                                         <label for="name">Merchant Name (KYC) <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
@@ -497,21 +531,13 @@
                                     </div>
                                     <div class="text-danger small ms-1" id="phone_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid 10-digit Mobile Number</div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="material-outline">
-                                        <input type="text" class="form-control" id="city" name="city" placeholder="City"
-                                            required>
-                                        <label for="city">Merchant City <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
+                                            placeholder="Primary VPA" required oninput="this.dataset.edited = true;">
+                                        <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="material-outline mb-1">
-                                        <input type="tel" class="form-control" id="pincode" name="pincode"
-                                            placeholder="Pincode" required pattern="^\d{6}$" maxlength="6" minlength="6"
-                                            title="Please enter a valid 6-digit Pincode">
-                                        <label for="pincode">Merchant Pincode <span class="text-danger">*</span></label>
-                                    </div>
-                                    <div class="text-danger small ms-1" id="pincode_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid 6-digit Pincode</div>
                                 </div>
                             </div>
                             <div class="sm-step-footer end" style="margin-top: 0.5rem; padding-top: 0.75rem;">
@@ -519,8 +545,127 @@
                                     <div class="sm-dot active" id="dot-1"></div>
                                     <div class="sm-dot" id="dot-2"></div>
                                     <div class="sm-dot" id="dot-3"></div>
+                                    <div class="sm-dot" id="dot-4"></div>
                                 </div>
-                                <button type="button" class="btn-sm-primary ms-auto" id="next-to-business">
+                                <button type="button" class="btn-sm-primary ms-auto" id="next-to-personal-address">
+                                    Next Step <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ========================
+                 TAB 1.5: PERSONAL ADDRESS
+                 ======================== -->
+                        <div class="sm-tab-pane" id="pane-personal-address">
+                            <div class="sm-section-label">
+                                <i class="bi bi-geo-alt-fill"></i> Personal Address
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="personal_address_1" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 1 <span class="text-danger">*</span></label>
+                                        <textarea class="form-control border" id="personal_address_1" name="personal_address_1" placeholder="Address Line 1" rows="3" required style="border-radius: 8px;" onpaste="return false;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="personal_address_2" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 2</label>
+                                        <textarea class="form-control border" id="personal_address_2" name="personal_address_2" placeholder="Address Line 2" rows="3" style="border-radius: 8px;" onpaste="return false;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="personal_district" name="personal_district" required>
+                                            <option value="" selected>Select District</option>
+                                            <option value="Alipurduar">Alipurduar</option>
+                                            <option value="Bankura">Bankura</option>
+                                            <option value="Birbhum">Birbhum</option>
+                                            <option value="CoochBihar">CoochBihar</option>
+                                            <option value="Dakshin Dinajpur">Dakshin Dinajpur</option>
+                                            <option value="Darjeeling">Darjeeling</option>
+                                            <option value="Hooghly">Hooghly</option>
+                                            <option value="Howrah">Howrah</option>
+                                            <option value="Jalpaiguri">Jalpaiguri</option>
+                                            <option value="Jhargram">Jhargram</option>
+                                            <option value="Kalimpong">Kalimpong</option>
+                                            <option value="Kolkata">Kolkata</option>
+                                            <option value="Malda">Malda</option>
+                                            <option value="Murshidabad">Murshidabad</option>
+                                            <option value="Nadia">Nadia</option>
+                                            <option value="North 24 Parganas">North 24 Parganas</option>
+                                            <option value="Paschim Bardhaman">Paschim Bardhaman</option>
+                                            <option value="Purba Bardhaman">Purba Bardhaman</option>
+                                            <option value="Paschim Medinipur">Paschim Medinipur</option>
+                                            <option value="Purba Medinipur">Purba Medinipur</option>
+                                            <option value="Purulia">Purulia</option>
+                                            <option value="South 24 Parganas">South 24 Parganas</option>
+                                            <option value="Uttar Dinajpur">Uttar Dinajpur</option>
+                                            <option value="Ganjam">Ganjam</option>
+                                            <option value="Cuttack">Cuttack</option>
+                                            <option value="Mayurbhanj">Mayurbhanj</option>
+                                            <option value="Baleshwar">Baleshwar</option>
+                                            <option value="Khordha">Khordha</option>
+                                            <option value="Sundargarh">Sundargarh</option>
+                                            <option value="Jajapur">Jajapur</option>
+                                            <option value="Kendujhar">Kendujhar</option>
+                                            <option value="Puri">Puri</option>
+                                            <option value="Balangir">Balangir</option>
+                                            <option value="Kalahandi">Kalahandi</option>
+                                            <option value="Bhadrak">Bhadrak</option>
+                                            <option value="Bargarh">Bargarh</option>
+                                            <option value="Kendrapara">Kendrapara</option>
+                                            <option value="Koraput">Koraput</option>
+                                            <option value="Anugul">Anugul</option>
+                                            <option value="Nabarangapur">Nabarangapur</option>
+                                            <option value="Dhenkanal">Dhenkanal</option>
+                                            <option value="Jagatsinghapur">Jagatsinghapur</option>
+                                            <option value="Sambalpur">Sambalpur</option>
+                                            <option value="Rayagada">Rayagada</option>
+                                            <option value="Nayagarh">Nayagarh</option>
+                                            <option value="Kandhamal">Kandhamal</option>
+                                            <option value="Malkangiri">Malkangiri</option>
+                                            <option value="Nuapada">Nuapada</option>
+                                            <option value="Subarnapur">Subarnapur</option>
+                                            <option value="Jharsuguda">Jharsuguda</option>
+                                            <option value="Gajapati">Gajapati</option>
+                                            <option value="Baudh">Baudh</option>
+                                            <option value="Debagarh">Debagarh</option>
+                                        </select>
+                                        <label for="personal_district">District <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="personal_pincode" name="personal_pincode" placeholder="Pin Code" required pattern="^[0-9]{6}$" title="Please enter a valid 6-digit PIN code.">
+                                        <label for="personal_pincode">Pin Code <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="personal_state" name="personal_state" required>
+                                            <option value="" selected>Select State</option>
+                                        </select>
+                                        <label for="personal_state">State <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-4">
+                                    <div class="material-outline mb-1">
+                                        <input type="tel" class="form-control" id="personal_pincode" name="personal_pincode" placeholder="Pincode" required pattern="^\d{6}$" maxlength="6" minlength="6" title="Please enter a valid 6-digit Pincode">
+                                        <label for="personal_pincode">Pin Code <span class="text-danger">*</span></label>
+                                    </div>
+                                </div> -->
+                            </div>
+                            <div class="sm-step-footer" style="margin-top: 0.5rem; padding-top: 0.75rem;">
+                                <button type="button" class="btn-sm-secondary" id="prev-to-personal">
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+                                <div class="sm-step-dots">
+                                    <div class="sm-dot done" id="dot-1a"></div>
+                                    <div class="sm-dot active" id="dot-2a"></div>
+                                    <div class="sm-dot" id="dot-3a"></div>
+                                    <div class="sm-dot" id="dot-4a"></div>
+                                </div>
+                                <button type="button" class="btn-sm-primary" id="next-to-business">
                                     Next Step <i class="bi bi-arrow-right"></i>
                                 </button>
                             </div>
@@ -533,7 +678,7 @@
                             <div class="sm-section-label">
                                 <i class="bi bi-building-fill"></i> Business Information
                             </div>
-                            <div class="row g-3">
+                            <div class="row g-2">
                                 <div class="col-md-6">
                                     <div class="material-outline">
                                         <input type="text" class="form-control" id="business_name" name="business_name"
@@ -544,12 +689,20 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="material-outline">
+                                        <input type="text" class="form-control" id="brand_name" name="brand_name"
+                                            placeholder="Brand Name" required>
+                                        <label for="brand_name">Brand Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-6">
+                                    <div class="material-outline">
                                         <select class="form-select" id="state" name="state" required>
                                             <option value="" selected>Select State</option>
                                         </select>
                                         <label for="state">State <span class="text-danger">*</span></label>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="col-md-6">
                                     <div class="material-outline">
                                         <select class="form-select" id="nature_of_business" name="nature_of_business"
@@ -560,14 +713,7 @@
                                                 class="text-danger">*</span></label>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="material-outline">
-                                        <input type="text" class="form-control bg-light" id="category_code"
-                                            name="category_code" placeholder="Category Code" required readonly>
-                                        <label for="category_code">Category Code <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-                                </div>
+                                <input type="hidden" id="category_code" name="category_code" value="">
                                 <div class="col-md-6">
                                     <div class="material-outline">
                                         <select class="form-select" id="business_type_code" name="business_type_code"
@@ -580,6 +726,42 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="material-outline">
+                                        <select class="form-select" id="entity_type" name="entity_type" required>
+                                            <option value="" selected>Select Entity Type Name</option>
+                                        </select>
+                                        <label for="entity_type">Entity Type Name <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline mb-1">
+                                        <select class="form-select" id="gst_available" name="gst_available" onchange="toggleGst()" required>
+                                            <option value="" selected>Is GST Available?</option>
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                        <label for="gst_available">GST Available <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" id="gstin_container" style="display:none;">
+                                    <div class="material-outline mb-1">
+                                        <input type="text" class="form-control" id="gstin" name="gstin"
+                                            placeholder="GST No" maxlength="15" 
+                                            pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+                                            oninput="this.value = this.value.toUpperCase()">
+                                        <label for="gstin">GST No <span class="text-danger text-capitalize fw-bold" style="font-size: 0.70rem;">(e.g., 10AWAAA0000A1Z0)</span></label>
+                                    </div>
+                                    <div class="text-danger small ms-1" id="gstin_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid GST No format</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" inputmode="numeric" class="form-control" id="aadhar_no" name="aadhar_no"
+                                            placeholder="Aadhar Number" required minlength="14" maxlength="14" pattern="^[0-9]{4}\s[0-9]{4}\s[0-9]{4}$" title="Aadhar Number must be in format: 1234 5678 9123">
+                                        <label for="aadhar_no">Aadhar Number <span class="text-danger">* (e.g. 1234 5678 9123)</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
                                         <input type="text" class="form-control" id="pan_no" name="pan_no"
                                             placeholder="PAN Number" required maxlength="10" minlength="10"
                                             oninput="this.value = this.value.toUpperCase()">
@@ -587,6 +769,8 @@
                                                 ABCDE1234F)</span></label>
                                     </div>
                                 </div>
+                                <!-- Hidden Business Address from Business Details per user request -->
+                                <!--
                                 <div class="col-12 position-relative">
                                     <div class="mb-3">
                                         <label for="business_address" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Business Address <span class="text-danger">*</span></label>
@@ -600,18 +784,18 @@
                                     <ul id="address-suggestions" class="list-group position-absolute w-100"
                                         style="display:none; z-index: 1050; max-height: 200px; overflow-y: auto; top: 100%;">
                                     </ul>
-                                    <p class="sm-hint"><i class="bi bi-info-circle me-1"></i>No special characters
-                                        allowed (e.g. @, #, $, %, ^, &amp;, *, !, ?, etc.)</p>
                                 </div>
+                                -->
                             </div>
                             <div class="sm-step-footer">
-                                <button type="button" class="btn-sm-secondary" id="prev-to-personal">
+                                <button type="button" class="btn-sm-secondary" id="prev-to-personal-address">
                                     <i class="bi bi-arrow-left"></i> Previous
                                 </button>
                                 <div class="sm-step-dots">
                                     <div class="sm-dot done" id="dot-1b"></div>
-                                    <div class="sm-dot active" id="dot-2b"></div>
-                                    <div class="sm-dot" id="dot-3b"></div>
+                                    <div class="sm-dot done" id="dot-2b"></div>
+                                    <div class="sm-dot active" id="dot-3b"></div>
+                                    <div class="sm-dot" id="dot-4b"></div>
                                 </div>
                                 <button type="button" class="btn-sm-primary" id="next-to-location">
                                     Next Step <i class="bi bi-arrow-right"></i>
@@ -620,52 +804,64 @@
                         </div>
 
                         <!-- ========================
-                 TAB 3: ADDRESS DETAILS
+                 TAB 4: BUSINESS ADDRESS
                  ======================== -->
                         <div class="sm-tab-pane" id="pane-location">
                             <div class="sm-section-label">
-                                <i class="bi bi-pin-map-fill"></i> Address & Entity Details
+                                <i class="bi bi-pin-map-fill"></i> Business Address
                             </div>
-                            <div class="row g-3">
-                                <div class="col-12">
+                            <div class="row g-2">
+                                <div class="col-md-12">
+                                    <div class="mb-3 position-relative">
+                                        <div class="d-flex justify-content-between align-items-end mb-1" style="margin-bottom: 6px;">
+                                            <label for="business_address_1" class="form-label text-muted small fw-bold mb-0">Address Line 1 <span class="text-danger">*</span></label>
+                                            <button type="button" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" id="clearAddressBtn" onclick="clearAddress()">
+                                                <i class="bi bi-eraser-fill"></i> Clear Address
+                                            </button>
+                                        </div>
+                                        <textarea class="form-control border" id="business_address_1" name="business_address_1" placeholder="Address Line 1" rows="3" required style="border-radius: 8px;" onpaste="return false;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="address" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Aadhaar Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control border" id="address" name="address"
-                                            placeholder="Aadhaar Address" required rows="3" style="border-radius: 8px;"></textarea>
+                                        <label for="business_address_2" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 2</label>
+                                        <textarea class="form-control border" id="business_address_2" name="business_address_2" placeholder="Address Line 2" rows="3" style="border-radius: 8px;" onpaste="return false;"></textarea>
                                     </div>
-                                    <p class="sm-hint" id="business_address_error">
-                                        <i class="bi bi-info-circle me-1"></i>No special characters allowed (e.g. @, #,
-                                        $, %, ^, &amp;, *, !, ?, etc.)
-                                    </p>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="material-outline">
-                                        <select class="form-select" id="entity_type" name="entity_type" required>
-                                            <option value="" selected>Select Entity Type Name</option>
+                                        <input type="text" class="form-control" id="business_pincode" name="business_pincode" placeholder="Pin Code" required pattern="^[0-9]{6}$" title="Please enter a valid 6-digit PIN code." maxlength="6">
+                                        <label for="business_pincode">Pin Code <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <select class="form-select" id="state" name="state" required>
+                                            <option value="" selected>Select State</option>
                                         </select>
-                                        <label for="entity_type">Entity Type Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="state">State <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="material-outline mb-1">
-                                        <input type="text" class="form-control" id="gstin" name="gstin"
-                                            placeholder="GSTIN (Optional)" maxlength="15" 
-                                            pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
-                                            oninput="this.value = this.value.toUpperCase()">
-                                        <label for="gstin">GSTIN (Optional) <span class="text-danger text-capitalize fw-bold" style="font-size: 0.70rem;">(e.g., 10AWAAA0000A1Z0)</span></label>
-                                    </div>
-                                    <div class="text-danger small ms-1" id="gstin_error" style="display:none; margin-top: -12px; margin-bottom: 10px;">Please enter a valid GSTIN format</div>
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="material-outline">
-                                        <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
-                                            placeholder="Primary VPA" required>
-                                        <label for="primary_vpa">Primary VPA <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="business_city" name="business_city" placeholder="City" required>
+                                        <label for="business_city">City <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
-                                <input type="hidden" id="lati" name="lati" value="0.0000">
-                                <input type="hidden" id="longi" name="longi" value="0.0000">
+                                <div class="col-md-6">
+                                    <div class="material-outline">
+                                        <input type="text" class="form-control" id="business_landmark" name="business_landmark" placeholder="Landmark" required>
+                                        <label for="business_landmark">Landmark <span class="text-danger">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-3 position-relative">
+                                    <div class="sm-section-label">
+                                        <i class="bi bi-geo-alt-fill"></i> Location Map
+                                    </div>
+                                    <div id="business_map" style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid var(--sm-border);"></div>
+                                    <input type="hidden" id="lati" name="lati" value="0.0000">
+                                    <input type="hidden" id="longi" name="longi" value="0.0000">
+                                </div>
                             </div>
                             <div class="sm-step-footer">
                                 <button type="button" class="btn-sm-secondary" id="prev-to-business">
@@ -674,10 +870,11 @@
                                 <div class="sm-step-dots">
                                     <div class="sm-dot done" id="dot-1c"></div>
                                     <div class="sm-dot done" id="dot-2c"></div>
-                                    <div class="sm-dot active" id="dot-3c"></div>
+                                    <div class="sm-dot done" id="dot-3c"></div>
+                                    <div class="sm-dot active" id="dot-4c"></div>
                                 </div>
-                                <button type="submit" class="btn-sm-primary" id="submitBtn">
-                                    <i class="bi bi-cloud-upload-fill"></i> Submit SubMerchant
+                                <button type="submit" class="btn-sm-success" id="submitBtn">
+                                    <i class="bi bi-check-circle-fill"></i> Submit Onboarding
                                 </button>
                             </div>
                         </div>
@@ -728,6 +925,26 @@
             <script type="text/javascript" src="/autocomplete.js"></script>
 
             <script>
+                function toggleGst() {
+                    var val = document.getElementById('gst_available').value;
+                    var container = document.getElementById('gstin_container');
+                    var input = document.getElementById('gstin');
+                    if(val === 'Yes') {
+                        container.style.display = 'block';
+                        input.setAttribute('required', 'required');
+                    } else {
+                        container.style.display = 'none';
+                        input.removeAttribute('required');
+                        input.value = ''; // clear it
+                        var err = document.getElementById('gstin_error');
+                        if (err) err.style.display = 'none';
+                    }
+                }
+                
+                $(document).ready(function() {
+                    $('#gst_available').on('change', toggleGst);
+                });
+                
                 /* ============================
                    TAB SWITCHING
                    ============================ */
@@ -762,10 +979,10 @@
                         }
                     });
 
-                    /* ---- NEXT: Personal → Business ---- */
-                    $('#next-to-business').on('click', function () {
+                    /* ---- NEXT: Personal → Personal Address ---- */
+                    $('#next-to-personal-address').on('click', function () {
                         // Clear inline errors
-                        $('#email_error, #phone_error, #pincode_error').hide();
+                        $('#email_error, #phone_error').hide();
                         var valid = true;
 
                         // Check Email
@@ -786,15 +1003,6 @@
                             valid = false;
                         }
 
-                        // Check Pincode
-                        var pincode = $('#pincode').val().trim();
-                        var pinRegex = /^[0-9]{6}$/;
-                        if (!pincode || !pinRegex.test(pincode)) {
-                            $('#pincode_error').show();
-                            if(valid) $('#pincode').focus();
-                            valid = false;
-                        }
-
                         if (!valid) return;
 
                         // Basic validation for other required fields
@@ -803,13 +1011,30 @@
                         });
                         if (!valid) { alert('Please fill in all required fields before proceeding.'); return; }
 
+                        $('#tab-personal-address').prop('disabled', false);
+                        switchTab('personal-address');
+                    });
+
+                    /* ---- BACK: Personal Address → Personal ---- */
+                    $('#prev-to-personal').on('click', function () {
+                        switchTab('personal');
+                    });
+
+                    /* ---- NEXT: Personal Address → Business ---- */
+                    $('#next-to-business').on('click', function () {
+                        var valid = true;
+                        $('#pane-personal-address input[required], #pane-personal-address select[required]').each(function () {
+                            if (!$(this).val().trim()) { $(this).focus(); valid = false; return false; }
+                        });
+                        if (!valid) { alert('Please fill in all required fields before proceeding.'); return; }
+
                         $('#tab-business').prop('disabled', false);
                         switchTab('business');
                     });
 
-                    /* ---- BACK: Business → Personal ---- */
-                    $('#prev-to-personal').on('click', function () {
-                        switchTab('personal');
+                    /* ---- BACK: Business → Personal Address ---- */
+                    $('#prev-to-personal-address').on('click', function () {
+                        switchTab('personal-address');
                     });
 
                     /* ---- NEXT: Business → Location ---- */

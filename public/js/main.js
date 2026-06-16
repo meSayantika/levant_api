@@ -132,11 +132,11 @@ $(function () {
         e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 10);
     });
 
-    $(document).on("input", "input[name='pincode']", function(e) {
+    $(document).on("input", "input[name='pincode'], #personal_pincode, #business_pincode", function(e) {
         e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 6);
     });
 
-    $(document).on("input", "#address", function(e) {
+    $(document).on("input", "#address, #personal_address_1, #personal_address_2, #business_address_1, #business_address_2", function(e) {
         e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s,./-]/g, '');
     });
 
@@ -180,7 +180,7 @@ $(function () {
     //  STATE DROPDOWN INTERNAL API FETCH
     // ============================================
     var cachedStates = null;
-    
+
     // Fetch states from the local proxy router (master.js) to avoid CORS
     $.ajax({
         url: '/admin/master/states',
@@ -188,13 +188,18 @@ $(function () {
         success: function(response) {
             if (response && response.status && response.data) {
                 cachedStates = response.data;
-                var $stateSelect = $('select#state');
-                if ($stateSelect.length > 0 && cachedStates.length > 0 && $stateSelect.children('option').length <= 1) {
-                    cachedStates.forEach(function(state) {
-                        $stateSelect.append($('<option>', {
-                            value: state.name,
-                            text: state.name
-                        }));
+                var $stateSelect = $('select#state, select#personal_state');
+                if ($stateSelect.length > 0 && cachedStates.length > 0) {
+                    $stateSelect.each(function() {
+                        if ($(this).children('option').length <= 1) {
+                            var selectElem = $(this);
+                            cachedStates.forEach(function(state) {
+                                selectElem.append($('<option>', {
+                                    value: state.name,
+                                    text: state.name
+                                }));
+                            });
+                        }
                     });
                     $stateSelect.trigger('change.select2');
                 }
@@ -437,5 +442,33 @@ $(function () {
                 $bizTypeSelect.on('select2:close', function() { $(this).closest('.material-outline').removeClass('select2-focused'); });
             }
         }
+    });
+});
+// Append to main.js
+$(document).ready(function() {
+    // Aadhar Number formatting
+    $(document).on("input", "#aadhar_no", function() {
+        var input = $(this)[0];
+        var cursorPosition = input.selectionStart;
+        var oldLength = input.value.length;
+        
+        var val = input.value.replace(/\D/g, '');
+        if (val.length > 12) {
+            val = val.substring(0, 12);
+        }
+        
+        var formatted = '';
+        if (val.length > 0) {
+            formatted = val.match(/.{1,4}/g).join(' ');
+        }
+        
+        input.value = formatted;
+        
+        // Adjust cursor position
+        var newLength = input.value.length;
+        if (newLength > oldLength) {
+            cursorPosition += (newLength - oldLength);
+        }
+        input.setSelectionRange(cursorPosition, cursorPosition);
     });
 });

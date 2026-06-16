@@ -75,6 +75,13 @@
                     background: var(--sm-surface);
                     border-bottom: 1px solid var(--sm-border);
                     padding: 0 1.5rem;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                /* Hide scrollbar for tabs */
+                .sm-tab-header::-webkit-scrollbar {
+                    display: none;
                 }
 
                 .sm-nav-tabs {
@@ -147,7 +154,7 @@
 
                 /* ===== TAB CONTENT ===== */
                 .sm-tab-body {
-                    padding: 1.75rem 1.75rem 1.5rem;
+                    padding: 1rem 1.25rem 0.75rem;
                 }
 
                 .sm-tab-pane {
@@ -331,11 +338,14 @@
                         <button class="sm-tab-btn active" id="tab-personal" role="tab" onclick="switchTab('personal')">
                             <i class="bi bi-person-badge-fill"></i> Personal Details
                         </button>
+                        <button class="sm-tab-btn" id="tab-personal-address" role="tab" onclick="switchTab('personal-address')">
+                            <i class="bi bi-geo-alt-fill"></i> Personal Address
+                        </button>
                         <button class="sm-tab-btn" id="tab-business" role="tab" onclick="switchTab('business')">
                             <i class="bi bi-briefcase-fill"></i> Business Details
                         </button>
                         <button class="sm-tab-btn" id="tab-location" role="tab" onclick="switchTab('location')">
-                            <i class="bi bi-geo-alt-fill"></i> Address Details
+                            <i class="bi bi-pin-map-fill"></i> Business Address
                         </button>
                     </div>
                 </div>
@@ -364,7 +374,7 @@
                                                     (Invalid)</span>
                                             <% } %>
                                 </div>
-                                <div class="row g-3">
+                                <div class="row g-2">
                                     <div class="col-md-6">
                                         <div class="material-outline">
                                             <input type="text" class="form-control" id="name" name="name"
@@ -380,14 +390,14 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="material-outline">
+                                        <div class="material-outline mb-1">
                                             <input type="email" class="form-control" id="email" name="email"
                                                 value="<%= merchant.EMAIL %>" <%=isInvalidCode ? '' : 'readonly' %>>
                                             <label for="email">Merchant Email ID</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="material-outline">
+                                        <div class="material-outline mb-1">
                                             <input type="tel" class="form-control" id="phone" name="phone"
                                                 value="<%= merchant.PHONE %>" <%=isInvalidCode ? '' : 'readonly' %>>
                                             <label for="phone">Merchant Mobile Number</label>
@@ -395,16 +405,9 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="material-outline">
-                                            <input type="text" class="form-control" id="city" name="city"
-                                                value="<%= merchant.SUB_CITY %>" readonly>
-                                            <label for="city">Merchant City</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="material-outline">
-                                            <input type="tel" class="form-control" id="pincode" name="pincode"
-                                                value="<%= merchant.SUB_PIN_CODE %>" readonly>
-                                            <label for="pincode">Merchant Pincode</label>
+                                            <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
+                                                value="<%= merchant.PRIMARY_VPA %>" <%= isInvalidCode ? '' : 'readonly' %>>
+                                            <label for="primary_vpa">Primary VPA</label>
                                         </div>
                                     </div>
                                 </div>
@@ -413,8 +416,75 @@
                                         <div class="sm-dot active" id="dot-1"></div>
                                         <div class="sm-dot" id="dot-2"></div>
                                         <div class="sm-dot" id="dot-3"></div>
+                                        <div class="sm-dot" id="dot-4"></div>
                                     </div>
-                                    <button type="button" class="btn-sm-primary ms-auto" id="next-to-business">
+                                    <button type="button" class="btn-sm-primary ms-auto" id="next-to-personal-address">
+                                        Next Step <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ========================
+                 TAB 1.5: PERSONAL ADDRESS
+                 ======================== -->
+                            <div class="sm-tab-pane" id="pane-personal-address">
+                                <div class="sm-section-label">
+                                    <i class="bi bi-geo-alt-fill"></i> Personal Address
+                                </div>
+                                <div class="row g-2">
+                                    <% 
+                                        let pAddr1 = '', pAddr2 = '', pDist = '', pPin = '', pState = '';
+                                        if (merchant.SUB_ADDRESS) {
+                                            let parts = merchant.SUB_ADDRESS.split(', ');
+                                            pAddr1 = parts[0] || '';
+                                            pAddr2 = parts[1] || '';
+                                            pDist = parts[2] || '';
+                                            pPin = parts[3] || '';
+                                            pState = parts[4] || '';
+                                        }
+                                    %>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label for="personal_address_1" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 1</label>
+                                            <textarea class="form-control border" id="personal_address_1" name="personal_address_1" rows="3" readonly style="border-radius: 8px;"><%= pAddr1 %></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label for="personal_address_2" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 2</label>
+                                            <textarea class="form-control border" id="personal_address_2" name="personal_address_2" rows="3" readonly style="border-radius: 8px;"><%= pAddr2 %></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="material-outline">
+                                            <input type="text" class="form-control" id="personal_district" value="<%= pDist %>" readonly>
+                                            <label for="personal_district">District</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="material-outline">
+                                            <input type="text" class="form-control" id="personal_pincode" value="<%= pPin %>" readonly>
+                                            <label for="personal_pincode">Pin Code</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="material-outline">
+                                            <input type="text" class="form-control" id="personal_state" value="<%= pState %>" readonly>
+                                            <label for="personal_state">State</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sm-step-footer" style="margin-top: 0.5rem; padding-top: 0.75rem;">
+                                    <button type="button" class="btn-sm-secondary" id="prev-to-personal">
+                                        <i class="bi bi-arrow-left"></i> Previous
+                                    </button>
+                                    <div class="sm-step-dots">
+                                        <div class="sm-dot done" id="dot-1a"></div>
+                                        <div class="sm-dot active" id="dot-2a"></div>
+                                        <div class="sm-dot" id="dot-3a"></div>
+                                        <div class="sm-dot" id="dot-4a"></div>
+                                    </div>
+                                    <button type="button" class="btn-sm-primary" id="next-to-business">
                                         Next Step <i class="bi bi-arrow-right"></i>
                                     </button>
                                 </div>
@@ -427,7 +497,7 @@
                                 <div class="sm-section-label">
                                     <i class="bi bi-building-fill"></i> Business Information
                                 </div>
-                                <div class="row g-3">
+                                <div class="row g-2">
                                     <div class="col-md-6">
                                         <div class="material-outline">
                                             <input type="text" class="form-control" id="business_name"
@@ -437,9 +507,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="material-outline">
-                                            <input type="text" class="form-control" id="state" name="state"
-                                                value="<%= merchant.CUST_STATE %>" readonly>
-                                            <label for="state">State</label>
+                                            <input type="text" class="form-control" id="brand_name" name="brand_name" value="<%= merchant.BRAND_NAME %>" readonly>
+                                            <label for="brand_name">Brand Name</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -448,13 +517,7 @@
                                                 name="nature_of_business" value="<%= merchant.NATURE_OF_BUSINESS %>"
                                                 readonly>
                                             <label for="nature_of_business">Business Category Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="material-outline">
-                                            <input type="text" class="form-control bg-light" id="category_code"
-                                                name="category_code" value="<%= merchant.CATEGORY_CODE %>" readonly>
-                                            <label for="category_code">Category Code</label>
+                                            <input type="hidden" id="category_code" name="category_code" value="<%= merchant.CATEGORY_CODE %>">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -467,31 +530,45 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="material-outline">
+                                            <input type="text" class="form-control" id="entity_type" name="entity_type" value="<%= merchant.ENTITY_TYPE %>" data-code="<%= merchant.ENTITY_TYPE %>" readonly>
+                                            <label for="entity_type">Entity Type Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="material-outline mb-1">
+                                            <input type="text" class="form-control" id="gst_available" value="<%= merchant.GSTIN ? 'Yes' : 'No' %>" readonly>
+                                            <label for="gst_available">GST Available</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="gstin_container" style="<%= merchant.GSTIN ? '' : 'display:none;' %>">
+                                        <div class="material-outline mb-1">
+                                            <input type="text" class="form-control" id="gstin" name="gstin" value="<%= merchant.GSTIN || 'N/A' %>" readonly>
+                                            <label for="gstin">GST No</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="material-outline">
+                                            <input type="text" class="form-control" id="aadhar_no" name="aadhar_no" value="<%= merchant.AADHAR_NO %>" readonly>
+                                            <label for="aadhar_no">Aadhar Number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="material-outline">
                                             <input type="text" class="form-control" id="pan_no" name="pan_no"
                                                 value="<%= merchant.PAN_NUMBER %>" <%= isInvalidCode ? '' : 'readonly' %> maxlength="10" style="text-transform: uppercase;">
                                             <label for="pan_no">PAN Number</label>
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="business_address"
-                                                class="form-label text-muted small fw-bold mb-1"
-                                                style="margin-bottom: 6px;">Business Address</label>
-                                            <textarea class="form-control border" id="business_address"
-                                                name="business_address" rows="3" readonly
-                                                style="border-radius: 8px;"><%= merchant.BUSINESS_ADDRESS %></textarea>
-                                            <div id="business_map" style="height: 250px; width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid var(--sm-border);"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="sm-step-footer">
-                                    <button type="button" class="btn-sm-secondary" id="prev-to-personal">
+                                    <button type="button" class="btn-sm-secondary" id="prev-to-personal-address">
                                         <i class="bi bi-arrow-left"></i> Previous
                                     </button>
                                     <div class="sm-step-dots">
                                         <div class="sm-dot done" id="dot-1b"></div>
-                                        <div class="sm-dot active" id="dot-2b"></div>
-                                        <div class="sm-dot" id="dot-3b"></div>
+                                        <div class="sm-dot done" id="dot-2b"></div>
+                                        <div class="sm-dot active" id="dot-3b"></div>
+                                        <div class="sm-dot" id="dot-4b"></div>
                                     </div>
                                     <button type="button" class="btn-sm-primary" id="next-to-location">
                                         Next Step <i class="bi bi-arrow-right"></i>
@@ -500,43 +577,56 @@
                             </div>
 
                             <!-- ========================
-                 TAB 3: ADDRESS DETAILS
+                 TAB 4: BUSINESS ADDRESS
                  ======================== -->
                             <div class="sm-tab-pane" id="pane-location">
                                 <div class="sm-section-label">
-                                    <i class="bi bi-pin-map-fill"></i> Address & Entity Details
+                                    <i class="bi bi-pin-map-fill"></i> Business Address
                                 </div>
-                                <div class="row g-3">
-                                    <div class="col-12">
+                                <div class="row g-2">
+                                    <div class="col-md-12">
+                                        <div class="mb-3 position-relative">
+                                            <label for="business_address_1" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 1</label>
+                                            <textarea class="form-control border" id="business_address_1" name="business_address_1" rows="3" readonly style="border-radius: 8px;"><%= merchant.BUSINESS_ADDRESS %></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
                                         <div class="mb-3">
-                                            <label for="address" class="form-label text-muted small fw-bold mb-1"
-                                                style="margin-bottom: 6px;">Aadhaar Address</label>
-                                            <textarea class="form-control border" id="address" name="address" rows="3"
-                                                readonly
-                                                style="border-radius: 8px;"><%= merchant.SUB_ADDRESS %></textarea>
+                                            <label for="business_address_2" class="form-label text-muted small fw-bold mb-1" style="margin-bottom: 6px;">Address Line 2</label>
+                                            <textarea class="form-control border" id="business_address_2" name="business_address_2" rows="3" readonly style="border-radius: 8px;"><%= merchant.BUS_ADD_2 %></textarea>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="material-outline">
-                                            <input type="text" class="form-control" id="entity_type" name="entity_type"
-                                                value="<%= merchant.ENTITY_TYPE %>"
-                                                data-code="<%= merchant.ENTITY_TYPE %>" readonly>
-                                            <label for="entity_type">Entity Type Name</label>
+                                            <input type="text" class="form-control" id="business_pincode" name="business_pincode" value="<%= merchant.SUB_PIN_CODE %>" readonly>
+                                            <label for="business_pincode">Pin Code</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="material-outline">
-                                            <input type="text" class="form-control" id="gstin" name="gstin"
-                                                value="<%= merchant.GSTIN || 'N/A' %>" readonly>
-                                            <label for="gstin">GSTIN</label>
+                                            <input type="text" class="form-control" id="state" name="state" value="<%= merchant.CUST_STATE %>" readonly>
+                                            <label for="state">State</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="material-outline">
-                                            <input type="text" class="form-control" id="primary_vpa" name="primary_vpa"
-                                                value="<%= merchant.PRIMARY_VPA %>" <%= isInvalidCode ? '' : 'readonly' %>>
-                                            <label for="primary_vpa">Primary VPA</label>
+                                            <input type="text" class="form-control" id="business_city" name="business_city" value="<%= merchant.SUB_CITY %>" readonly>
+                                            <label for="business_city">City</label>
                                         </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="material-outline">
+                                            <input type="text" class="form-control" id="business_landmark" name="business_landmark" value="<%= merchant.LANDMARK %>" readonly>
+                                            <label for="business_landmark">Landmark</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-3 position-relative">
+                                        <div class="sm-section-label">
+                                            <i class="bi bi-geo-alt-fill"></i> Location Map
+                                        </div>
+                                        <div id="business_map" style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid var(--sm-border);"></div>
+                                        <input type="hidden" id="lati" name="lati" value="<%= merchant.GPS_LAT || 0 %>">
+                                        <input type="hidden" id="longi" name="longi" value="<%= merchant.GPS_LONG || 0 %>">
                                     </div>
                                 </div>
                                 <div class="sm-step-footer">
@@ -546,7 +636,8 @@
                                     <div class="sm-step-dots">
                                         <div class="sm-dot done" id="dot-1c"></div>
                                         <div class="sm-dot done" id="dot-2c"></div>
-                                        <div class="sm-dot active" id="dot-3c"></div>
+                                        <div class="sm-dot done" id="dot-3c"></div>
+                                        <div class="sm-dot active" id="dot-4c"></div>
                                     </div>
                                     <% if (merchant.SUB_MERCHANT_CODE==='0' || (merchant.SUB_MERCHANT_CODE &&
                                         merchant.SUB_MERCHANT_CODE.toUpperCase().startsWith('F'))) { %>
@@ -555,9 +646,6 @@
                                                 data-id="<%= merchant.ENCRYPTED_CUST_CD %>">
                                                 <i class="bi bi-arrow-repeat"></i> Generate Submerchant Code
                                             </button>
-                                            <!-- <small class="text-danger d-block mt-1 fw-bold"
-                                                style="font-size: 0.75rem;">* Note: You must change the Email and Phone
-                                                number before regenerating to bypass duplicate errors.</small> -->
                                         </div>
                                         <% } %>
                                 </div>
@@ -622,14 +710,24 @@
 
                 $(document).ready(function () {
 
-                    /* ---- NEXT: Personal → Business ---- */
+                    /* ---- NEXT: Personal → Personal Address ---- */
+                    $('#next-to-personal-address').on('click', function () {
+                        switchTab('personal-address');
+                    });
+
+                    /* ---- BACK: Personal Address → Personal ---- */
+                    $('#prev-to-personal').on('click', function () {
+                        switchTab('personal');
+                    });
+
+                    /* ---- NEXT: Personal Address → Business ---- */
                     $('#next-to-business').on('click', function () {
                         switchTab('business');
                     });
 
-                    /* ---- BACK: Business → Personal ---- */
-                    $('#prev-to-personal').on('click', function () {
-                        switchTab('personal');
+                    /* ---- BACK: Business → Personal Address ---- */
+                    $('#prev-to-personal-address').on('click', function () {
+                        switchTab('personal-address');
                     });
 
                     /* ---- NEXT: Business → Location ---- */

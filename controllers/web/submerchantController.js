@@ -152,7 +152,7 @@ async function processCreateSubMerchant(req, res) {
             business_name: payload.business_name,
             state: payload.state,
             nature_of_business: payload.nature_of_business,
-            business_address: payload.business_address,
+            business_address: payload.business_address_1,
             bank_name: bankDetails.MER_BANK_NAME || bankDetails.mer_bank_name,
             bank_branch: bankDetails.BANK_BRANCH || bankDetails.bank_branch,
             account_number: bankDetails.ACC_NUM || bankDetails.acc_num,
@@ -160,11 +160,11 @@ async function processCreateSubMerchant(req, res) {
             category_code: payload.category_code,
             pan_number: payload.pan_no, // Field is pan_no in UI
             business_type_code: payload.business_type_code,
-            address: payload.address,
-            city: payload.city,
-            pincode: payload.pincode,
+            address: [payload.personal_address_1, payload.personal_address_2, payload.personal_district, payload.personal_pincode, payload.personal_state].filter(Boolean).join(', '),
+            city: payload.business_city,
+            pincode: payload.business_pincode,
             entity_type: payload.entity_type,
-            gstin: payload.gstin || '',
+            gstin: payload.gst_available === 'Yes' ? payload.gstin : '',
             primary_vpa: payload.primary_vpa,
             lati: payload.lati ? payload.lati.toString() : '0.0000',
             longi: payload.longi ? payload.longi.toString() : '0.0000'
@@ -208,14 +208,14 @@ async function processCreateSubMerchant(req, res) {
                 CATEGORY_CODE, PAN_NUMBER, BUSINESS_TYPE_CODE, SUB_ADDRESS, SUB_CITY, SUB_PIN_CODE, 
                 ENTITY_TYPE, GSTIN, CREATED_AT, UPDATED_AT, CREATED_BY, MODIFIED_BY, PRIMARY_VPA,
                 RAW_REQ_PAYLOAD, RAW_RESPONSE, BANK_NAME, BANK_BRANCH, BANK_ACCOUNT_NUMBER, BANK_ACCOUNT_IFSC,
-                GPS_LAT, GPS_LONG
+                GPS_LAT, GPS_LONG, BRAND_NAME, GST_AVAILABLE, AADHAR_NO, BUS_ADD_2, LANDMARK
             ) VALUES (
                 :custCd, :merchantCode, :subMerchantCode, :legalName, :nameOnBank, :email, :phone,
                 'A', :businessName, :state, :natureOfBusiness, :businessAddress,
                 :categoryCode, :panNumber, :businessTypeCode, :address, :city, :pincode,
                 :entityType, :gstin, SYSTIMESTAMP, SYSTIMESTAMP, :createdBy, NULL, :primaryVpa,
                 :rawReqPayload, :rawResponse, :bankName, :bankBranch, :bankAccountNumber, :bankAccountIfsc,
-                :gpsLat, :gpsLong
+                :gpsLat, :gpsLong, :brandName, :gstAvailable, :aadharNo, :busAdd2, :landmark
             )
         `;
 
@@ -230,13 +230,13 @@ async function processCreateSubMerchant(req, res) {
             businessName: apiPayload.business_name,
             state: apiPayload.state,
             natureOfBusiness: apiPayload.nature_of_business,
-            businessAddress: apiPayload.business_address,
+            businessAddress: payload.business_address_1 || '',
             categoryCode: apiPayload.category_code,
             panNumber: apiPayload.pan_number,
             businessTypeCode: apiPayload.business_type_code,
             address: apiPayload.address,
-            city: apiPayload.city,
-            pincode: apiPayload.pincode,
+            city: payload.business_city || '',
+            pincode: payload.business_pincode || '',
             entityType: apiPayload.entity_type,
             gstin: apiPayload.gstin,
             createdBy: req.user ? req.user.username : 'ADMIN',
@@ -248,7 +248,12 @@ async function processCreateSubMerchant(req, res) {
             bankAccountNumber: bankDetails.ACC_NUM || bankDetails.acc_num || null,
             bankAccountIfsc: bankDetails.IFSC || bankDetails.ifsc || null,
             gpsLat: parseFloat(apiPayload.lati),
-            gpsLong: parseFloat(apiPayload.longi)
+            gpsLong: parseFloat(apiPayload.longi),
+            brandName: payload.brand_name || '',
+            gstAvailable: payload.gst_available === 'Yes' ? '1' : '0',
+            aadharNo: payload.aadhar_no || '',
+            busAdd2: payload.business_address_2 || '',
+            landmark: payload.business_landmark || ''
         };
 
         await F_Insert(0, insertQuery, bindParams);

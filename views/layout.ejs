@@ -39,7 +39,7 @@
             <%- include('partials/header') %>
 
             <!-- Page Content -->
-            <main class="flex-grow-1 p-4" id="pageContent">
+            <main class="flex-grow-1 p-2 p-md-4" id="pageContent">
                 <%- body %>
             </main>
 
@@ -76,8 +76,8 @@
 
     <script>
         $(document).ready(function() {
-            // Determine scroll container (either window or #mainContentArea depending on CSS)
-            var $scrollContainer = $('body').css('overflow') === 'hidden' ? $('#mainContentArea') : $(window);
+            // Determine scroll container (either pageContent or window)
+            var $scrollContainer = $('#pageContent').length ? $('#pageContent') : $(window);
             
             $scrollContainer.on('scroll', function() {
                 var scrollTop = $(this).scrollTop();
@@ -98,12 +98,12 @@
             });
 
             $('#scrollToTopBtn').click(function() {
-                $('html, body, #mainContentArea').animate({ scrollTop: 0 }, 300);
+                $scrollContainer.animate({ scrollTop: 0 }, 300);
             });
 
             $('#scrollToBottomBtn').click(function() {
-                var scrollHeight = $('#mainContentArea')[0].scrollHeight || $(document).height();
-                $('html, body, #mainContentArea').animate({ scrollTop: scrollHeight }, 300);
+                var scrollHeight = $scrollContainer[0].scrollHeight || $(document).height();
+                $scrollContainer.animate({ scrollTop: scrollHeight }, 300);
             });
         });
     </script>

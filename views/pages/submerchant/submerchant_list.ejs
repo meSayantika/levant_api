@@ -226,6 +226,30 @@
         color: var(--sm-primary);
         transform: translateX(3px);
     }
+    
+    @media (max-width: 767.98px) {
+        .sm-results-header {
+            margin: -1rem -1rem 1rem -1rem; /* match the 1rem card padding on mobile */
+            flex-wrap: wrap;
+        }
+        .sm-header-right {
+            width: 100%;
+        }
+        .btn-onboard {
+            width: 100%;
+            justify-content: center;
+        }
+        .sm-table {
+            font-size: 0.8rem;
+        }
+        .sm-table tbody td {
+            padding: 0.6rem 0.75rem;
+        }
+        .sm-count-badge {
+            margin-left: 0 !important;
+            margin-top: 0.5rem;
+        }
+    }
 </style>
 
 <div class="container py-4">

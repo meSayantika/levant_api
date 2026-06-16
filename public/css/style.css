@@ -342,6 +342,37 @@ body {
 }
 
 /* ============================================= */
+/*  RESPONSIVE — Mobile General                   */
+/* ============================================= */
+@media (max-width: 767.98px) {
+    .sp-stat-card .card-body {
+        padding: 1.25rem !important;
+    }
+    
+    h1, .fs-4 {
+        font-size: 1.25rem !important;
+    }
+
+    .sp-btn-primary {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Ensure tables can scroll smoothly */
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Reduce margins/paddings on smaller cards */
+    .sm-card {
+        padding: 1rem !important;
+    }
+    .sm-page-header {
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* ============================================= */
 /*  ANIMATIONS                                    */
 /* ============================================= */
 @keyframes fadeInUp {
@@ -498,3 +529,39 @@ body {
     color: white !important;
 }
 
+
+/* ============================================= */
+/*  STRICT LAYOUT (Sticky Header & Footer)        */
+/* ============================================= */
+body, html {
+    height: 100vh;
+    overflow: hidden;
+}
+
+#layoutWrapper, #mainContentArea {
+    height: 100vh;
+    overflow: hidden;
+}
+
+#pageContent {
+    flex-grow: 1;
+    overflow-y: auto;
+    /* Custom scrollbar for page content for a cleaner look */
+    scrollbar-width: thin;
+}
+
+#pageContent::-webkit-scrollbar {
+    width: 6px;
+}
+#pageContent::-webkit-scrollbar-track {
+    background: transparent;
+}
+#pageContent::-webkit-scrollbar-thumb {
+    background: #d1d5e0;
+    border-radius: 10px;
+}
+
+/* Ensure header and footer don't shrink when content gets too long */
+.sp-topnav, .sp-footer {
+    flex-shrink: 0;
+}
