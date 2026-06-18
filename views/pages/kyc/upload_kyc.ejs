@@ -751,7 +751,8 @@
         // ==========================================
         $(document).on('change', '.file-input-preview', function () {
             const file = this.files[0];
-            const wrapper = $(this).siblings('.file-preview-wrapper');
+            const name = $(this).attr('name');
+            const wrapper = $('#preview-' + name);
 
             if (file) {
                 wrapper.empty().show();
@@ -784,18 +785,33 @@
         // Handle Image Preview Click
         $(document).on('click', '.preview-clickable', function () {
             var src = $(this).attr('src');
-            $('#modalPreviewImage').attr('src', src).show();
-            $('#modalPreviewPdfContainer').hide().empty();
-            showPreviewModal();
+            if (src && src.startsWith('data:')) {
+                const wrapperId = $(this).closest('.file-preview-wrapper').attr('id');
+                if (wrapperId) {
+                    const name = wrapperId.replace('preview-', '');
+                    const fileInput = $('input[name="' + name + '"]')[0];
+                    if (fileInput && fileInput.files && fileInput.files[0]) {
+                        var objectUrl = URL.createObjectURL(fileInput.files[0]);
+                        window.open(objectUrl, '_blank');
+                        return;
+                    }
+                }
+            }
+            // Fallback for existing URLs or if file input wasn't found
+            window.open(src, '_blank');
         });
 
         // Handle PDF Preview Click
         $(document).on('click', '.preview-pdf-clickable', function () {
-            var fileInput = $(this).closest('.file-preview-wrapper').siblings('.file-input-preview')[0];
-            if (fileInput && fileInput.files && fileInput.files[0]) {
-                var file = fileInput.files[0];
-                var objectUrl = URL.createObjectURL(file);
-                window.open(objectUrl, '_blank');
+            const wrapperId = $(this).closest('.file-preview-wrapper').attr('id');
+            if (wrapperId) {
+                const name = wrapperId.replace('preview-', '');
+                const fileInput = $('input[name="' + name + '"]')[0];
+                if (fileInput && fileInput.files && fileInput.files[0]) {
+                    var file = fileInput.files[0];
+                    var objectUrl = URL.createObjectURL(file);
+                    window.open(objectUrl, '_blank');
+                }
             }
         });
 

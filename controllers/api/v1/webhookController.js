@@ -107,7 +107,7 @@ exports.kycReceiver = async (req, res) => {
         // }
         
         // Immediately acknowledge receipt
-        return res.status(200).json({ success: true, message: "KYC Webhook received" });
+        // return res.status(200).json({ success: true, message: "KYC Webhook received" });
 
         const data = payload.data;
         console.log(`Processing KYC for Merchant ID: ${data.id}`);
@@ -193,7 +193,7 @@ exports.transactionReceiver = async (req, res) => {
         // }
         
         // Immediately acknowledge receipt to Levant
-        return res.status(200).json({ success: true, message: "Transaction Webhook received" });
+        // return res.status(200).json({ success: true, message: "Transaction Webhook received" });
 
         const data = payload.data;
         console.log(`Processing Transaction Credit. UTR: ${data.unique_transaction_reference}, Amount: ${data.amount}`);
@@ -293,7 +293,7 @@ exports.settlementInitiateReceiver = async (req, res) => {
         // }
         
         // Immediately acknowledge receipt to Levant
-        return res.status(200).json({ success: true, message: "Settlement Initiate received" });
+        // return res.status(200).json({ success: true, message: "Settlement Initiate received" });
 
         const data = payload.data;
         console.log(`Processing Settlement Initiated. ID: ${data.id}, Amount: ${data.amount}`);
