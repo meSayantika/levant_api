@@ -464,8 +464,8 @@ async function processUploadKyc(req, res) {
         for (let key of levantAllowedKeys) {
             if (payload[key] !== undefined && payload[key] !== null && payload[key] !== "") {
                 levantPayload[key] = payload[key];
-            } else if (key === "gstin") {
-                levantPayload[key] = ""; // Keep gstin empty string as per sample
+            } else if (key === "gstin" || key === "authorized_signatory_name") {
+                levantPayload[key] = ""; // Keep gstin and authorized_signatory_name empty string as per sample
             }
         }
 
