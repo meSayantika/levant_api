@@ -737,8 +737,8 @@
                                     <div class="material-outline mb-1">
                                         <select class="form-select" id="gst_available" name="gst_available" onchange="toggleGst()" required>
                                             <option value="" selected>Is GST Available?</option>
-                                            <option value="Yes">Yes</option>
-                                            <option value="No">No</option>
+                                            <option value="2">Yes</option>
+                                            <option value="1">No</option>
                                         </select>
                                         <label for="gst_available">GST Available <span class="text-danger">*</span></label>
                                     </div>
@@ -929,7 +929,7 @@
                     var val = document.getElementById('gst_available').value;
                     var container = document.getElementById('gstin_container');
                     var input = document.getElementById('gstin');
-                    if(val === 'Yes') {
+                    if(val === '2') {
                         container.style.display = 'block';
                         input.setAttribute('required', 'required');
                     } else {

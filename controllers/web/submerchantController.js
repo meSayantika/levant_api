@@ -164,7 +164,7 @@ async function processCreateSubMerchant(req, res) {
             city: payload.business_city,
             pincode: payload.business_pincode,
             entity_type: payload.entity_type,
-            gstin: payload.gst_available === 'Yes' ? payload.gstin : '',
+            gstin: payload.gst_available === '2' ? payload.gstin : '',
             primary_vpa: payload.primary_vpa,
             lati: payload.lati ? payload.lati.toString() : '0.0000',
             longi: payload.longi ? payload.longi.toString() : '0.0000'
@@ -250,7 +250,7 @@ async function processCreateSubMerchant(req, res) {
             gpsLat: parseFloat(apiPayload.lati),
             gpsLong: parseFloat(apiPayload.longi),
             brandName: payload.brand_name || '',
-            gstAvailable: payload.gst_available === 'Yes' ? '1' : '0',
+            gstAvailable: payload.gst_available, // Will now be '1' or '2'
             aadharNo: payload.aadhar_no || '',
             busAdd2: payload.business_address_2 || '',
             landmark: payload.business_landmark || ''

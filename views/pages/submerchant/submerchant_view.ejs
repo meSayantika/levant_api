@@ -536,11 +536,11 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="material-outline mb-1">
-                                            <input type="text" class="form-control" id="gst_available" value="<%= merchant.GSTIN ? 'Yes' : 'No' %>" readonly>
+                                            <input type="text" class="form-control" id="gst_available" value="<%= merchant.GST_AVAILABLE == '2' ? 'Yes' : 'No' %>" readonly>
                                             <label for="gst_available">GST Available</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-6" id="gstin_container" style="<%= merchant.GSTIN ? '' : 'display:none;' %>">
+                                    <div class="col-md-6" id="gstin_container" style="<%= merchant.GST_AVAILABLE == '2' ? '' : 'display:none;' %>">
                                         <div class="material-outline mb-1">
                                             <input type="text" class="form-control" id="gstin" name="gstin" value="<%= merchant.GSTIN || 'N/A' %>" readonly>
                                             <label for="gstin">GST No</label>

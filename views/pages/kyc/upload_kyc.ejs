@@ -214,6 +214,13 @@
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="material-outline">
+                        <input type="text" class="form-control bg-light" name="submerchant_code"
+                            value="<%= merchantData.SUB_MERCHANT_CODE || decrypted_submerch_id || '' %>" readonly>
+                        <label>Submerchant ID</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="material-outline">
                         <input type="text" class="form-control bg-light" name="name"
                             value="<%= merchantData.LEGAL_NAME || '' %>" readonly>
                         <label>Sub Merchant Full Name</label>
@@ -338,17 +345,17 @@
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="pan_no"
-                            value="<%= merchantData.PAN || merchantData.PAN_NO || merchantData.PAN_NUMBER || '' %>"
-                            readonly>
-                        <label>PAN Number</label>
+                        <input type="text" class="form-control bg-light" name="entity_type_display"
+                            id="entityTypeDisplayInput" value="" readonly>
+                        <label>Entity Type</label>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="material-outline">
-                        <input type="text" class="form-control bg-light" name="entity_type_display"
-                            id="entityTypeDisplayInput" value="" readonly>
-                        <label>Entity Type</label>
+                        <input type="text" class="form-control bg-light" name="pan_no"
+                            value="<%= merchantData.PAN || merchantData.PAN_NO || merchantData.PAN_NUMBER || '' %>"
+                            readonly>
+                        <label>PAN Number</label>
                     </div>
                 </div>
             </div>
@@ -357,32 +364,46 @@
                 <div class="col-md-4">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <select class="form-select" id="gstin_status" name="gstin_status" required>
-                            <option value="1">No GST</option>
-                            <option value="2">GST Available</option>
-                        </select>
-                        <label>GSTIN Status <span class="text-danger">*</span></label>
+                        <input type="hidden" id="gstin_status" name="gstin_status" value="<%= merchantData.GST_AVAILABLE || '1' %>">
+                        <input type="text" class="form-control bg-light" 
+                            value="<%= merchantData.GST_AVAILABLE == '2' ? 'GST Available' : 'No GST' %>" readonly>
+                        <label>GSTIN Status</label>
                     </div>
                 </div>
-                <div class="col-md-4 gstin-field" style="display:none;">
+                <% if (merchantData.GST_AVAILABLE == '2') { %>
+                <div class="col-md-4 gstin-field">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
-                        <input type="text" class="form-control" name="gstin" value="<%= merchantData.GSTIN || '' %>"
-                            placeholder=" ">
+                        <input type="text" class="form-control bg-light" name="gstin" value="<%= merchantData.GSTIN || '' %>"
+                            placeholder=" " readonly>
                         <label>GSTIN</label>
                     </div>
                 </div>
+                <% } else { %>
                 <div class="col-md-4 gstin-agreement-field">
                     <div style="margin-bottom: 1.5rem;">
                         <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px;">GSTIN Agreement
                             <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png,
                                 .pdf)</span> <span class="text-danger req-star">*</span></label>
-                        <input class="form-control file-input-preview" type="file" name="gstin_agreement"
-                            accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required
-                            style="padding: 0.55rem 0.75rem;">
+                        <div class="input-group">
+                            <input class="form-control file-input-preview" type="file" name="gstin_agreement"
+                                accept=".png, .jpg, .jpeg, .pdf" id="gstinAgreementInput" required style="padding: 0.55rem 0.75rem;">
+                            <button type="button" class="btn text-nowrap" id="generateGstBtn" style="background-color: #cc0000 !important; color: white !important; border: none; box-shadow: none; padding: 0.55rem 0.75rem;">
+                                <i class="bi bi-download me-1"></i> Download GST Doc
+                            </button>
+                        </div>
+                        <style>
+                            #generateGstBtn:hover, #generateGstBtn:focus, #generateGstBtn:active {
+                                background-color: #b30000 !important;
+                                color: white !important;
+                                box-shadow: none !important;
+                                transform: none !important;
+                            }
+                        </style>
                         <div class="file-preview-wrapper" id="preview-gstin_agreement"></div>
                     </div>
                 </div>
+                <% } %>
                 <div class="col-md-4 auth-signatory-field">
                     <label class="form-label small" style="visibility: hidden; margin-bottom: 6px;">Spacer</label>
                     <div class="material-outline">
@@ -398,6 +419,7 @@
                 <i class="bi bi-files"></i> KYC Documents <span class="badge bg-secondary ms-2"
                     style="font-size: 0.65rem;">Entity: <span id="entityTypeDisplay"></span></span>
             </div>
+            <!-- 
             <div class="alert alert-info py-2 small" style="font-size: 0.8rem; border-radius: 8px;">
                 <div class="mb-2">
                     <strong><i class="bi bi-info-circle"></i> Note for Business Registration Proof (Primary Address Proof):</strong>
@@ -418,6 +440,7 @@
                     </ul>
                 </div>
             </div>
+            -->
             <div class="row g-3" id="dynamicDocsContainer">
                 <!-- Dynamically populated file inputs -->
             </div>
@@ -504,26 +527,16 @@
             address_proof_back_page: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Address Proof Back Page' },
             aus_aadhar_card_front_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Card Front Page' },
             aus_aadhar_card_back_page: { required: true, accept: '.png, .jpg, .jpeg', label: 'AUS Aadhar Card Back Page' },
-            aus_pan_card: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS PAN Card' },
+            aus_pan_card: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS PAN Card (Only for partnership)' },
             business_registration_proof: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Business Registration Proof' },
-            aus_board_resolution_authorizing: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS Board Resolution' },
-            work_order: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Work Order' },
-            additional_document_1: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 1' },
-            additional_document_2: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 2' },
+            // aus_board_resolution_authorizing: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'AUS Board Resolution' },
+            // work_order: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Work Order' },
+            additional_document_1: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 1 (Business Proof)' },
+            additional_document_2: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 2 (Upload selfie without cap and glass)' },
             additional_document_3: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 3' },
             stock_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Stock/Inventory Image' },
             shop_board_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Front View Shop/Business Premises' },
             shop_full_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Interior Image Shop/Business Premises' }
-        };
-
-        const requiredDocsByEntity = {
-            0: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Individual
-            4: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2'], // Society/Trust
-            7: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_board_resolution_authorizing', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // LLP
-            9: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Partnership
-            10: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'business_registration_proof', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'aus_pan_card', 'additional_document_1', 'additional_document_2', 'additional_document_3', 'stock_image', 'shop_board_image', 'shop_full_image'], // Sole Proprietor
-            11: ['pan_card', 'address_proof_front_page', 'address_proof_back_page', 'aus_board_resolution_authorizing', 'business_registration_proof', 'aus_pan_card', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'], // Pvt/Pub Ltd
-            13: ['pan_card', 'work_order', 'aus_aadhar_card_front_page', 'aus_aadhar_card_back_page', 'additional_document_1', 'additional_document_2', 'additional_document_3'] // Gov Entity
         };
 
         if (entityType === 9) { // Partnership
@@ -534,7 +547,8 @@
             $('.auth-signatory-star').hide();
         }
 
-        const docsToRender = requiredDocsByEntity[entityType] || requiredDocsByEntity[0];
+        const docsToRender = Object.keys(docsConfig);
+        
         const $container = $('#dynamicDocsContainer');
         $container.empty();
 
@@ -568,14 +582,84 @@
             }
         }
 
+        const dropdownDocs = ['business_registration_proof', 'additional_document_3'];
+        const dropdownOptionsHtml = `
+            <option value="">-- Select Proof (Select 2) --</option>
+            <option value="Udyam Registration Certificate">1. Udyam Registration Certificate-- all 3 pages</option>
+            <option value="Shop and Establishment Certificate">2. Shop and Establishment Certificate</option>
+            <option value="Trade License">3. Trade License</option>
+            <option value="Certificate issued by local municipality">4. Certificate issued by local municipality</option>
+            <option value="Sales/income tax returns">5. Sales/income tax returns</option>
+            <option value="GST (3 pages) /CST/VAT certificate">6. GST ( 3 pages ) /CST/VAT certificate</option>
+            <option value="Professional Tax Certificate">7. Professional Tax Certificate</option>
+            <option value="Utility bills (electricity/water/landline etc.)- Latest Bill">8. Utility bills (electricity/water/landline etc.)- Latest Bill</option>
+            <option value="Latest ITR">9. Latest ITR</option>
+            <option value="FSSAI License">10. FSSAI License</option>
+            <option value="Drug License">11. Drug License</option>
+            <option value="Hawker License issued my Municipality or Panchayat">12. Hawker License issued my Municipality or Panchayat</option>
+        `;
+        
+        const dropdownOptionsHtml3 = `
+            <option value="">-- Select Proof Type --</option>
+            <option value="IATA Certification / Agreement">IATA Certification (mandatory for air ticket booking) / Agreement between 3rd party inventory providers or hotels</option>
+            <option value="FSSAI License">FSSAI License (Medium & Large scale Merchants)</option>
+            <option value="DOT License">DOT License</option>
+            <option value="MSO/LCO license">MSO/LCO license</option>
+            <option value="TRAI License">TRAI License</option>
+            <option value="RBI AD License/FEMA/FFMC license">RBI AD License/FEMA/FFMC license</option>
+            <option value="RBI License">RBI License</option>
+            <option value="Audited Balance Sheet, 80G, 12A">Last 2 Year Audited Balance Sheet and Profit & Loss Account, 80G and 12A certificate</option>
+            <option value="Dealership Certificate">Dealership Certificate</option>
+            <option value="Sample agreement between merchant and sellers">Sample agreement between merchant and sellers</option>
+            <option value="Ayush License or agreement">Ayush License or agreement between merchant and manufacturer backed by Manufacturer’s Ayush License</option>
+            <option value="SEBI Registration">SEBI Registration</option>
+            <option value="AMFI Registration">AMFI Registration</option>
+            <option value="IRDA Registration">IRDA Registration</option>
+            <option value="916 Hallmark/BIS Certificate/GII or GIA">916 Hallmark/BIS Certificate/GII or GIA Certificate (gems)</option>
+            <option value="DGCA License">DGCA License</option>
+            <option value="20B/21B certificate">20B/21B certificate</option>
+            <option value="NABH license">NABH license</option>
+            <option value="NABL license">NABL license</option>
+            <option value="RERA certificate">RERA certificate</option>
+            <option value="Agreement or SLA">Agreement or SLA</option>
+        `;
+
         docsToRender.forEach(docKey => {
             const docInfo = docsConfig[docKey];
             if (docInfo) {
                 const reqStar = docInfo.required ? '<span class="text-danger req-star">*</span>' : '';
-                const html = `
-                <div class="col-md-4">
+                let html = '';
+                const hasDropdown = dropdownDocs.includes(docKey);
+                const currentDropdownHtml = docKey === 'additional_document_3' ? dropdownOptionsHtml3 : dropdownOptionsHtml;
+
+                const isBusProof = docKey === 'business_registration_proof';
+                const isAddDoc1 = docKey === 'additional_document_1';
+
+                if (hasDropdown) {
+                    const ddLabel = isBusProof ? `Business Proof Type (Select 2)` : `Select ${docInfo.label} Type`;
+                    const ddCol = isBusProof ? 'col-md-12' : 'col-md-4';
+                    const selectMultiple = isBusProof ? 'multiple="multiple"' : '';
+
+                    html += `
+                    <div class="${ddCol}">
+                        <div class="d-flex flex-column" style="margin-bottom: 1.5rem; margin-top: -4px; height: 100%;">
+                            <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px; min-height: 38px;">${ddLabel} ${reqStar}</label>
+                            <div class="mt-auto">
+                                <input type="hidden" name="${docKey}_type" id="${docKey}HiddenType">
+                                <select class="form-select dropdown-proof-type" data-target="${docKey}" id="${docKey}TypeSelect" ${docInfo.required ? 'required' : ''} style="padding: 0.55rem 0.75rem;" ${selectMultiple}>
+                                    ${currentDropdownHtml}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="${isBusProof ? 'col-md-6' : 'col-md-4'}" id="${docKey}Container" style="display: none;">
+                    `;
+                }
+
+                html += `
+                <div class="${hasDropdown ? 'h-100' : (isAddDoc1 ? 'col-md-6' : 'col-md-4')}" ${hasDropdown ? '' : 'id="wrapper-' + docKey + '"'} ${isAddDoc1 ? 'style="display: none;"' : ''}>
                     <div class="d-flex flex-column" style="margin-bottom: 1.5rem; margin-top: -4px; height: 100%;">
-                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px; min-height: 38px;">${docInfo.label} <span class="text-danger fw-normal" style="font-size: 0.65rem;">(.jpg, .jpeg, .png, .pdf)</span> ${reqStar}</label>
+                        <label class="form-label small fw-bold text-primary" style="margin-bottom: 6px; min-height: 38px;"><span class="dynamic-label">${docInfo.label}</span> <span class="text-danger fw-normal" style="font-size: 0.65rem;">(${docInfo.accept})</span> ${reqStar}</label>
                         <div class="mt-auto">
                             <input class="form-control file-input-preview" type="file" name="${docKey}" id="input-${docKey}" accept="${docInfo.accept}" style="padding: 0.55rem 0.75rem;">
                             <div class="file-preview-wrapper" id="preview-${docKey}"></div>
@@ -583,10 +667,78 @@
                     </div>
                 </div>
                 `;
+
+                if (hasDropdown) {
+                    html += `</div>`;
+                }
+
                 $container.append(html);
                 populatePreview(docKey, '#preview-' + docKey, '#input-' + docKey, docInfo.required);
             }
         });
+
+        // Manually populate previews for static fields that are outside docsConfig
+        populatePreview('gstin_agreement', '#preview-gstin_agreement', '#gstinAgreementInput', false);
+        populatePreview('bank_proof', '#preview-bank_proof', '#bankProofInput', true); // Assumes true for required, depending on UI
+
+        $(document).on('change', '.dropdown-proof-type', function() {
+            var target = $(this).data('target');
+            var val = $(this).val();
+
+            if (target === 'business_registration_proof') {
+                if (val && val.length > 0) {
+                    $('#' + target + 'HiddenType').val(val.join(', '));
+                    $('#business_registration_proofContainer').show();
+                    
+                    if (val.length > 1) {
+                        $('#wrapper-additional_document_1').show();
+                    } else {
+                        $('#wrapper-additional_document_1').hide();
+                    }
+                } else {
+                    $('#' + target + 'HiddenType').val('');
+                    $('#business_registration_proofContainer').hide();
+                    $('#wrapper-additional_document_1').hide();
+                }
+            } else {
+                $('#' + target + 'HiddenType').val(val);
+                if (val) {
+                    $('#' + target + 'Container').show();
+                } else {
+                    $('#' + target + 'Container').hide();
+                }
+            }
+        });
+
+        setTimeout(function() {
+            // Initialize Select2
+            $('#business_registration_proofTypeSelect').select2({
+                theme: "bootstrap-5",
+                placeholder: "-- Select Proof (Select 2) --",
+                maximumSelectionLength: 2,
+                allowClear: true
+            });
+
+            dropdownDocs.forEach(function(docKey) {
+                const dbTypeColumn = docKey === 'business_registration_proof' ? 'BUSINESS_REG_PROOF_TYPE' : docKey.toUpperCase() + '_TYPE';
+                if (kycData && kycData[dbTypeColumn]) {
+                    if (docKey === 'business_registration_proof') {
+                        var vals = kycData[dbTypeColumn].split(',').map(s => s.trim());
+                        $('#' + docKey + 'TypeSelect').val(vals).trigger('change');
+                    } else {
+                        $('#' + docKey + 'TypeSelect').val(kycData[dbTypeColumn]).trigger('change');
+                    }
+                }
+
+                if ($('#preview-' + docKey).children().length > 0 || (docKey === 'business_registration_proof' && $('#preview-additional_document_1').children().length > 0)) {
+                    $('#' + docKey + 'Container').show();
+                    $('#' + docKey + 'TypeSelect').prop('required', false);
+                    if (docKey === 'business_registration_proof') {
+                        $('#wrapper-additional_document_1').show();
+                    }
+                }
+            });
+        }, 100);
 
         // Pre-populate static file fields
         populatePreview('bank_proof', '#preview-bank_proof', '#bankProofInput', true);
@@ -736,5 +888,51 @@
                 }, 1000);
             }
         }
+
+        // Handle Auto-Generate GST Agreement
+        $('#generateGstBtn').on('click', function() {
+            var $btn = $(this);
+            var originalText = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...');
+
+            $.ajax({
+                url: '/admin/kyc/api/generate_gst_agreement',
+                type: 'POST',
+                data: {
+                    encrypted_submerch_id: $('input[name="submerch_id"]').val(),
+                    business_name: $('input[name="business_name"]').val(),
+                    pan_no: $('input[name="pan_no"]').val(),
+                    address: $('textarea[name="address"]').val(),
+                    entity_type: $('input[name="entity_type_display"]').val(),
+                    auth_signatory: $('input[name="authorized_signatory_name"]').val()
+                },
+                success: function(response) {
+                    $btn.prop('disabled', false).html(originalText);
+                    if (response.success) {
+                        // Create a temporary anchor to trigger download
+                        var link = document.createElement('a');
+                        link.href = response.file_path;
+                        link.download = response.file_name || 'GST_Agreement.pdf';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        Swal.fire({
+                            title: 'Template Downloaded!',
+                            text: 'Please print, sign, scan, and manually upload the document below.',
+                            icon: 'info',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to generate PDF', 'error');
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false).html(originalText);
+                    Swal.fire('Error', 'An error occurred while generating PDF', 'error');
+                }
+            });
+        });
+
     });
 </script>

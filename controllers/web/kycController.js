@@ -242,13 +242,14 @@ async function generateAccessKey(req, res) {
                             await F_Insert(0, insertSql, bindParams);
                         } catch (dbErr) {
                             logger.error("Failed to insert into TD_KYC_ACCESS_KEY: " + dbErr.message);
-                            // We still return success to frontend since key was generated
+                            // Return error to frontend instead of proceeding
+                            return res.json({ success: false, message: "Database Error: " + dbErr.message });
                         }
                     }
 
-                    res.json(json);
+                    return res.json(json);
                 } catch (e) {
-                    res.json({ success: false, message: "Invalid JSON response from Levant" });
+                    return res.json({ success: false, message: "Invalid JSON response from Levant" });
                 }
             });
         });
@@ -352,7 +353,9 @@ async function processUploadKyc(req, res) {
                         'ADDITIONAL_DOCUMENT_1': 'additional_document_1', 'ADDITIONAL_DOCUMENT_2': 'additional_document_2',
                         'SHOP_BOARD_IMAGE': 'shop_board_image', 'STOCK_IMAGE': 'stock_image', 'SHOP_FULL_IMAGE': 'shop_full_image',
                         'AUS_BOARD_RESO_AUTHO': 'aus_board_resolution_authorizing', 'WORK_ORDER': 'work_order',
-                        'ADDITIONAL_DOCUMENT_3': 'bank_proof' // Assuming ADDITIONAL_DOCUMENT_3 stores bank_proof
+                        'ADDITIONAL_DOCUMENT_3': 'bank_proof', // Assuming ADDITIONAL_DOCUMENT_3 stores bank_proof
+                        'BUSINESS_REG_PROOF_TYPE': 'business_registration_proof_type',
+                        'ADDITIONAL_DOCUMENT_3_TYPE': 'additional_document_3_type'
                     };
 
                     for (let dbKey in reverseMap) {
@@ -380,7 +383,9 @@ async function processUploadKyc(req, res) {
                         additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2',
                         additional_document_3: 'ADDITIONAL_DOCUMENT_3', shop_board_image: 'SHOP_BOARD_IMAGE',
                         stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE',
-                        aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER', bank_proof: 'ADDITIONAL_DOCUMENT_3' // map bank proof safely if needed
+                        aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER', bank_proof: 'ADDITIONAL_DOCUMENT_3', // map bank proof safely if needed
+                        business_registration_proof_type: 'BUSINESS_REG_PROOF_TYPE',
+                        additional_document_3_type: 'ADDITIONAL_DOCUMENT_3_TYPE'
                     };
 
                     for (let key in columnsMap) {
@@ -419,7 +424,9 @@ async function processUploadKyc(req, res) {
                         additional_document_1: 'ADDITIONAL_DOCUMENT_1', additional_document_2: 'ADDITIONAL_DOCUMENT_2',
                         additional_document_3: 'ADDITIONAL_DOCUMENT_3', shop_board_image: 'SHOP_BOARD_IMAGE',
                         stock_image: 'STOCK_IMAGE', shop_full_image: 'SHOP_FULL_IMAGE',
-                        aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER', bank_proof: 'ADDITIONAL_DOCUMENT_3'
+                        aus_board_resolution_authorizing: 'AUS_BOARD_RESO_AUTHO', work_order: 'WORK_ORDER', bank_proof: 'ADDITIONAL_DOCUMENT_3',
+                        business_registration_proof_type: 'BUSINESS_REG_PROOF_TYPE',
+                        additional_document_3_type: 'ADDITIONAL_DOCUMENT_3_TYPE'
                     };
 
                     for (let key in columnsMap) {
@@ -441,9 +448,35 @@ async function processUploadKyc(req, res) {
 
         const levantApiUrl = process.env.UPDATE_KYC_API || 'https://app.levanttech.in/api/v1/updatekyc';
 
+        // Filter payload to ONLY include what Levant API expects based on the sample request
+        const levantAllowedKeys = [
+            "acc_token", "submerch_id", "name", "phone", "address", "city", "state", "pincode",
+            "websiteurl", "account_holder_name", "bank_name", "branch_name", "ifsc_code",
+            "account_number", "business_name", "pan_number", "entity_type", "gstin_status",
+            "gstin", "gstin_agreement", "authorized_signatory_name", "pan_card",
+            "address_proof_front_page", "address_proof_back_page", "aus_aadhar_card_front_page",
+            "aus_aadhar_card_back_page", "aus_pan_card", "business_registration_proof",
+            "additional_document_1", "additional_document_2", "additional_document_3",
+            "shop_board_image", "stock_image", "shop_full_image", "bank_proof"
+        ];
+
+        let levantPayload = {};
+        for (let key of levantAllowedKeys) {
+            if (payload[key] !== undefined && payload[key] !== null && payload[key] !== "") {
+                levantPayload[key] = payload[key];
+            } else if (key === "gstin") {
+                levantPayload[key] = ""; // Keep gstin empty string as per sample
+            }
+        }
+
+        // Apply default websiteurl if missing
+        if (!levantPayload.websiteurl) {
+            levantPayload.websiteurl = "https://www.synergicsoftek.in";
+        }
+
         console.log("==========================================");
         console.log("PAYLOAD SENT TO LEVANT KYC API:");
-        console.log(JSON.stringify(payload, null, 2));
+        console.log(JSON.stringify(levantPayload, null, 2));
         console.log("==========================================");
 
         const apiResponse = await fetch(levantApiUrl, {
@@ -454,7 +487,7 @@ async function processUploadKyc(req, res) {
                 'X-Merchant-Key': process.env.LEVANT_MERCHANT_KEY,
                 'X-Environment': process.env.LEVANT_ENV
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(levantPayload)
         });
 
         const jsonResponse = await apiResponse.json();
