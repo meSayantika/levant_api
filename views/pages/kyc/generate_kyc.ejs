@@ -641,7 +641,7 @@
 
                                         // Access Key & Expiry Display
                                         var keyBoxDisplay = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? 'block' : 'none';
-                                        var accessKeyText = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? item.EXISTING_ACCESS_KEY : '';
+                                        var accessKeyText = (hasActiveKey && item.EXISTING_ACCESS_KEY) ? 'Generated' : '';
 
                                         var expiryDisplay = (hasActiveKey && item.EXISTING_EXPIRED_AT) ? 'inline-flex' : 'none';
                                         var expiryText = '';
@@ -681,7 +681,7 @@
                                         <span id="expiry-text-${merchantCode}">${expiryText}</span>
                                     </div>
                                     <div id="access-key-box-${merchantCode}" style="display:${keyBoxDisplay}; font-family: monospace; font-size: 0.75rem; word-break: break-all; background: #f4f5f9; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px dashed var(--kyc-primary); color: var(--kyc-primary-dark); margin-top: 0.2rem;">
-                                        <strong style="color: #1a1a2e; font-family: sans-serif;">Access Key:</strong> <span id="access-key-text-${merchantCode}">${accessKeyText}</span>
+                                        <strong style="color: #1a1a2e; font-family: sans-serif;">Status:</strong> <span id="access-key-text-${merchantCode}">${accessKeyText}</span>
                                     </div>
                                 </div>
                             </td>
@@ -746,7 +746,7 @@
                                     uploadBtn.css({ 'pointer-events': 'auto', 'opacity': '1' });
 
                                     // Show Access Key
-                                    $('#access-key-text-' + merchant_id).text(accessKey);
+                                    $('#access-key-text-' + merchant_id).text('Generated');
                                     $('#access-key-box-' + merchant_id).fadeIn(200);
 
                                     if (expiredAt) {
