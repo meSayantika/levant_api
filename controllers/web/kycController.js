@@ -178,7 +178,7 @@ async function searchSubmerchant(req, res) {
 }
 
 async function generateAccessKey(req, res) {
-    const { merchant_id } = req.body;
+    const merchant_id = req.query.merchant_id || req.body.merchant_id;
     try {
         let levant_merchant_id = merchant_id;
         

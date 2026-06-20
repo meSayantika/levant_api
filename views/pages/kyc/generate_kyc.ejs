@@ -717,7 +717,7 @@
 
                         $.ajax({
                             url: '/admin/kyc/api/generate_access_key',
-                            type: 'POST',
+                            type: 'GET',
                             data: { merchant_id: merchant_id },
                             success: function (response) {
                                 console.log('Generate Key Response:', response);

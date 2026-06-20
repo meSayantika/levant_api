@@ -13,7 +13,7 @@ const pdfController = require("../../controllers/web/pdfController");
 // ---- KYC Routes ----
 router.get("/generate_kyc", verifyWebAuth, kycController.renderGenerateKycPage);
 router.post("/api/search_submerchant", verifyWebAuth, kycController.searchSubmerchant);
-router.post("/api/generate_access_key", verifyWebAuth, kycController.generateAccessKey);
+router.get("/api/generate_access_key", verifyWebAuth, kycController.generateAccessKey);
 
 router.get("/upload_kyc", verifyWebAuth, kycController.renderUploadKycPage);
 router.post("/api/upload_kyc", verifyWebAuth, kycController.uploadKyc.any(), kycController.processUploadKyc);
