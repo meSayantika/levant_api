@@ -186,8 +186,9 @@ async function processCreateSubMerchant(req, res) {
             if (result && result.length > 0) {
                 for (let row of result) {
                     if (row.SUB_MERCHANT_CODE) {
-                        // Convert to string safely to avoid TypeError if it is a number
-                        let match = String(row.SUB_MERCHANT_CODE).match(/^F?(\d+)$/i);
+                        // Match ONLY codes that start with 'F' (e.g. 'F0', 'F1')
+                        // Ignore purely numeric codes like '01' or '1234'
+                        let match = String(row.SUB_MERCHANT_CODE).match(/^F(\d+)$/i);
                         if (match) {
                             let num = parseInt(match[1], 10);
                             if (!isNaN(num) && num > maxNum) {
