@@ -502,6 +502,8 @@ async function processUploadKyc(req, res) {
         console.log(JSON.stringify(levantPayload, null, 2));
         console.log("==========================================");
 
+        /* 
+        --- LEVANT API CALL COMMENTED OUT AS REQUESTED ---
         const apiResponse = await fetch(levantApiUrl, {
             method: 'POST',
             headers: {
@@ -523,6 +525,10 @@ async function processUploadKyc(req, res) {
         } else {
             res.json({ success: false, message: "Failed to update KYC: " + (jsonResponse.message || "Unknown error"), data: jsonResponse });
         }
+        */
+
+        // Return success based purely on local DB save
+        res.json({ success: true, message: "kyc details updated successfully" });
 
     } catch (err) {
         logger.error("Error uploading KYC details: " + err.message);
