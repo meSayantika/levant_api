@@ -597,6 +597,7 @@
             <option value="FSSAI License">10. FSSAI License</option>
             <option value="Drug License">11. Drug License</option>
             <option value="Hawker License issued my Municipality or Panchayat">12. Hawker License issued my Municipality or Panchayat</option>
+            <option value="Others">13. Others</option>
         `;
         
         const dropdownOptionsHtml3 = `
@@ -689,12 +690,7 @@
                 if (val && val.length > 0) {
                     $('#' + target + 'HiddenType').val(val.join(', '));
                     $('#business_registration_proofContainer').show();
-                    
-                    if (val.length > 1) {
-                        $('#wrapper-additional_document_1').show();
-                    } else {
-                        $('#wrapper-additional_document_1').hide();
-                    }
+                    $('#wrapper-additional_document_1').show();
                 } else {
                     $('#' + target + 'HiddenType').val('');
                     $('#business_registration_proofContainer').hide();
