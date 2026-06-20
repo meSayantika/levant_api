@@ -132,7 +132,7 @@ async function searchSubmerchant(req, res) {
                 FROM TD_KYC_ACCESS_KEY
             ) k ON s.SUB_MERCHANT_CODE = k.SUBMERCHANT_CODE AND k.rn = 1
             WHERE LOWER(s.LEGAL_NAME) LIKE LOWER(:query)
-               OR s.SUB_MERCHANT_CODE = :exactQuery
+               OR LOWER(s.SUB_MERCHANT_CODE) = LOWER(:exactQuery)
         `;
         const binds = { query: `%${query}%`, exactQuery: query };
         const results = await F_Select(0, sql, binds);

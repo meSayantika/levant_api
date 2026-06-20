@@ -186,8 +186,8 @@ async function processCreateSubMerchant(req, res) {
             if (result && result.length > 0) {
                 for (let row of result) {
                     if (row.SUB_MERCHANT_CODE) {
-                        // Match either digits only (e.g. '01') or 'F' followed by digits (e.g. 'F0')
-                        let match = row.SUB_MERCHANT_CODE.match(/^F?(\d+)$/i);
+                        // Convert to string safely to avoid TypeError if it is a number
+                        let match = String(row.SUB_MERCHANT_CODE).match(/^F?(\d+)$/i);
                         if (match) {
                             let num = parseInt(match[1], 10);
                             if (!isNaN(num) && num > maxNum) {
@@ -200,6 +200,7 @@ async function processCreateSubMerchant(req, res) {
             let nextNum = maxNum >= 0 ? maxNum + 1 : 0;
             generatedFCode = 'F' + nextNum;
         } catch (err) {
+            logger.error("Error generating sequential F code: " + err.message);
             generatedFCode = 'F' + Date.now().toString().substring(7); // Fallback
         }
 
