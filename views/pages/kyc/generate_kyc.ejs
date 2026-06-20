@@ -713,11 +713,14 @@
 
                         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Generating...');
 
+                        console.log('Sending merchant_id:', merchant_id);
+
                         $.ajax({
                             url: '/admin/kyc/api/generate_access_key',
                             type: 'POST',
                             data: { merchant_id: merchant_id },
                             success: function (response) {
+                                console.log('Generate Key Response:', response);
                                 // Levant API sometimes returns the data nested inside 'message'
                                 var actualData = response.data || (response.message && response.message.data) || null;
                                 var accessKey = actualData ? actualData.access_key : null;

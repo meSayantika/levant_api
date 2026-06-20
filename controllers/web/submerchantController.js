@@ -396,7 +396,7 @@ async function processCreateSubMerchant(req, res) {
         // 5. Return success to frontend
         return res.json({
             success: true,
-            message: "Sub-merchant onboarded successfully (Local DB only)",
+            message: "Sub-merchant onboarded successfully",
             // data: jsonResponse
         });
 
