@@ -535,8 +535,8 @@
             additional_document_2: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 2 (Upload selfie without cap and glass)' },
             additional_document_3: { required: false, accept: '.png, .jpg, .jpeg, .pdf', label: 'Additional Doc 3' },
             stock_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Stock/Inventory Image' },
-            shop_board_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Front View Shop/Business Premises' },
-            shop_full_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Interior Image Shop/Business Premises' }
+            shop_board_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Front View Shop/Business Premises (shop board image with person)' },
+            shop_full_image: { required: true, accept: '.png, .jpg, .jpeg, .pdf', label: 'Interior Image Shop/Business Premises (shop full image with person)' }
         };
 
         if (entityType === 9) { // Partnership
@@ -623,6 +623,7 @@
             <option value="NABL license">NABL license</option>
             <option value="RERA certificate">RERA certificate</option>
             <option value="Agreement or SLA">Agreement or SLA</option>
+            <option value="Others">Others</option>
         `;
 
         docsToRender.forEach(docKey => {
