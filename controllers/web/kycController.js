@@ -189,16 +189,19 @@ async function generateAccessKey(req, res) {
             if (result && result.length > 0 && result[0].RAW_RESPONSE) {
                 const rawJson = JSON.parse(result[0].RAW_RESPONSE);
                 if (rawJson.data && rawJson.data.merchant_id) {
-                    levant_merchant_id = String(rawJson.data.merchant_id);
+                    levant_merchant_id = rawJson.data.merchant_id;
                 } else if (rawJson.data && rawJson.data.submerch_id) {
-                    levant_merchant_id = String(rawJson.data.submerch_id);
+                    levant_merchant_id = rawJson.data.submerch_id;
                 }
             }
         } catch (dbErr) {
             logger.error("Error fetching Levant merchant ID: " + dbErr.message);
         }
 
-        const payload = JSON.stringify({ merchant_id: levant_merchant_id });
+        let parsed_levant_id = parseInt(levant_merchant_id, 10);
+        if (isNaN(parsed_levant_id)) parsed_levant_id = levant_merchant_id; // fallback
+
+        const payload = JSON.stringify({ merchant_id: parsed_levant_id });
 
         const options = {
             hostname: 'app.levanttech.in',
