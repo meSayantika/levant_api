@@ -180,7 +180,25 @@ async function searchSubmerchant(req, res) {
 async function generateAccessKey(req, res) {
     const { merchant_id } = req.body;
     try {
-        const payload = JSON.stringify({ merchant_id });
+        let levant_merchant_id = merchant_id;
+        
+        // Fetch RAW_RESPONSE from DB to get the actual Levant merchant_id
+        try {
+            const sql = `SELECT RAW_RESPONSE FROM SUB_MERCHANTS WHERE SUB_MERCHANT_CODE = :id`;
+            const result = await F_Select(0, sql, { id: merchant_id });
+            if (result && result.length > 0 && result[0].RAW_RESPONSE) {
+                const rawJson = JSON.parse(result[0].RAW_RESPONSE);
+                if (rawJson.data && rawJson.data.merchant_id) {
+                    levant_merchant_id = String(rawJson.data.merchant_id);
+                } else if (rawJson.data && rawJson.data.submerch_id) {
+                    levant_merchant_id = String(rawJson.data.submerch_id);
+                }
+            }
+        } catch (dbErr) {
+            logger.error("Error fetching Levant merchant ID: " + dbErr.message);
+        }
+
+        const payload = JSON.stringify({ merchant_id: levant_merchant_id });
 
         const options = {
             hostname: 'app.levanttech.in',
