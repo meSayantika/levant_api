@@ -177,24 +177,26 @@ async function processCreateSubMerchant(req, res) {
         console.log(rawReqPayload);
         console.log("==========================================");
 
-        // Generate sequential F code for initial insert (F0, F1...)
-        let generatedFCode = 'F0';
+        // Generate sequential code for initial insert (01, 02...)
+        let generatedFCode = '01';
         try {
-            const query = `SELECT SUB_MERCHANT_CODE FROM SUB_MERCHANTS WHERE SUB_MERCHANT_CODE LIKE 'F%'`;
+            const query = `SELECT SUB_MERCHANT_CODE FROM SUB_MERCHANTS`;
             const result = await F_Select(0, query);
-            let maxNum = -1;
+            let maxNum = 0;
             if (result && result.length > 0) {
                 for (let row of result) {
-                    let numStr = row.SUB_MERCHANT_CODE.substring(1);
-                    let num = parseInt(numStr, 10);
-                    if (!isNaN(num) && num > maxNum) {
-                        maxNum = num;
+                    if (row.SUB_MERCHANT_CODE && /^\\d+$/.test(row.SUB_MERCHANT_CODE)) {
+                        let num = parseInt(row.SUB_MERCHANT_CODE, 10);
+                        if (!isNaN(num) && num > maxNum) {
+                            maxNum = num;
+                        }
                     }
                 }
             }
-            generatedFCode = 'F' + (maxNum + 1);
+            let nextNum = maxNum + 1;
+            generatedFCode = nextNum.toString().padStart(2, '0');
         } catch (err) {
-            generatedFCode = 'F' + Date.now().toString().substring(7); // Fallback
+            generatedFCode = Date.now().toString().substring(7); // Fallback
         }
 
         // 2. Insert into local database FIRST
@@ -260,6 +262,7 @@ async function processCreateSubMerchant(req, res) {
         logger.info(`[SubMerchant Controller] Data initially saved for CUST_CD: ${custCd}`);
 
         // 3. Call Levant API
+        /*
         const levantApiUrl = process.env.ONBOARD_SUBMERCHANT_API;
         let jsonResponse = null;
         let rawResponseStr = null;
@@ -378,22 +381,23 @@ async function processCreateSubMerchant(req, res) {
         };
 
         await F_Insert(0, updateQuery, updateParams);
-        logger.info(`[SubMerchant Controller] Data successfully updated with response for CUST_CD: ${custCd}`);
+        logger.info(\`[SubMerchant Controller] Data successfully updated with response for CUST_CD: \${custCd}\`);
 
         // If Levant API fails, we still return an error, but it's already logged in DB
         if (!jsonResponse.success) {
-            logger.warn(`[SubMerchant Controller] Levant API rejected payload: ${jsonResponse.message}`);
+            logger.warn(\`[SubMerchant Controller] Levant API rejected payload: \${jsonResponse.message}\`);
             return res.json({
                 success: false,
                 message: "Data inserted but " + (jsonResponse.message || "API failed")
             });
         }
+        */
 
         // 5. Return success to frontend
         return res.json({
             success: true,
-            message: "Sub-merchant onboarded successfully",
-            data: jsonResponse
+            message: "Sub-merchant onboarded successfully (Local DB only)",
+            // data: jsonResponse
         });
 
     } catch (err) {
@@ -517,6 +521,7 @@ async function regenerateSubmerchantCode(req, res) {
         console.log("==========================================");
 
         // Make HTTP Request
+        /*
         const levantApiUrl = (process.env.ONBOARD_SUBMERCHANT_API || '').trim();
         let jsonResponse = null;
         let rawResponseStr = null;
@@ -646,11 +651,12 @@ async function regenerateSubmerchantCode(req, res) {
                 message: jsonResponse.message || "Levant API rejected payload"
             });
         }
+        */
 
         return res.json({
             success: true,
             message: "Sub-merchant code regenerated successfully",
-            data: jsonResponse
+            // data: jsonResponse
         });
 
     } catch (error) {

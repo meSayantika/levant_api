@@ -436,11 +436,18 @@
                                         let pAddr1 = '', pAddr2 = '', pDist = '', pPin = '', pState = '';
                                         if (merchant.SUB_ADDRESS) {
                                             let parts = merchant.SUB_ADDRESS.split(', ');
-                                            pAddr1 = parts[0] || '';
-                                            pAddr2 = parts[1] || '';
-                                            pDist = parts[2] || '';
-                                            pPin = parts[3] || '';
-                                            pState = parts[4] || '';
+                                            if (parts.length === 4) {
+                                                pAddr1 = parts[0] || '';
+                                                pDist = parts[1] || '';
+                                                pPin = parts[2] || '';
+                                                pState = parts[3] || '';
+                                            } else {
+                                                pAddr1 = parts[0] || '';
+                                                pAddr2 = parts[1] || '';
+                                                pDist = parts[2] || '';
+                                                pPin = parts[3] || '';
+                                                pState = parts.slice(4).join(', ') || ''; // In case state or other fields had commas
+                                            }
                                         }
                                     %>
                                     <div class="col-md-12">
@@ -639,7 +646,7 @@
                                         <div class="sm-dot done" id="dot-3c"></div>
                                         <div class="sm-dot active" id="dot-4c"></div>
                                     </div>
-                                    <% if (merchant.SUB_MERCHANT_CODE==='0' || (merchant.SUB_MERCHANT_CODE &&
+                                    <% /* if (merchant.SUB_MERCHANT_CODE==='0' || (merchant.SUB_MERCHANT_CODE &&
                                         merchant.SUB_MERCHANT_CODE.toUpperCase().startsWith('F'))) { %>
                                         <div class="ms-auto text-end">
                                             <button type="button" class="btn-sm-primary" id="regenerateCodeBtn"
@@ -647,7 +654,7 @@
                                                 <i class="bi bi-arrow-repeat"></i> Generate Submerchant Code
                                             </button>
                                         </div>
-                                        <% } %>
+                                        <% } */ %>
                                 </div>
                             </div>
 
@@ -670,6 +677,7 @@
 
                 function switchTab(tab) {
                     // Validation: If invalid code, force email and phone change before leaving personal tab
+                    /*
                     if (isInvalidCodeJs && tab !== 'personal') {
                         const currentEmail = document.getElementById('email').value.trim();
                         const currentPhone = document.getElementById('phone').value.trim();
@@ -698,6 +706,7 @@
                             return;
                         }
                     }
+                    */
 
                     // Hide all panes
                     document.querySelectorAll('.sm-tab-pane').forEach(p => p.classList.remove('active'));

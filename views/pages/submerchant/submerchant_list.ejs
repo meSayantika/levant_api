@@ -299,13 +299,13 @@
                             <tr>
                                 <td class="fw-semibold">
                                     <%= merchant.SUB_MERCHANT_CODE || 'N/A' %>
-                                        <% if (merchant.SUB_MERCHANT_CODE==='0' || (merchant.SUB_MERCHANT_CODE &&
+                                        <% /* if (merchant.SUB_MERCHANT_CODE==='0' || (merchant.SUB_MERCHANT_CODE &&
                                             merchant.SUB_MERCHANT_CODE.toUpperCase().startsWith('F')) ||
                                             (merchant.SUB_MERCHANT_CODE &&
                                             merchant.SUB_MERCHANT_CODE.toLowerCase().startsWith('f')) ) { %>
                                             <br><small class="text-danger fw-bold" style="font-size: 0.75rem;">(Need to
                                                 generate Submerchant Code)</small>
-                                            <% } %>
+                                            <% } */ %>
                                 </td>
                                 <td class="fw-semibold">
                                     <%= merchant.LEGAL_NAME || 'N/A' %>

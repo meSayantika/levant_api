@@ -140,16 +140,17 @@ async function searchSubmerchant(req, res) {
         // Process results to strictly ensure only successful onboardings are returned
         const processedResults = results.filter(row => {
             // Block '0' or 'F' starting codes
-            if (row.SUB_MERCHANT_CODE === '0' || row.SUB_MERCHANT_CODE.toUpperCase().startsWith('F') || row.SUB_MERCHANT_CODE.toLowerCase().startsWith('f')) {
+            if (row.SUB_MERCHANT_CODE === '0') {
                 return false;
             }
-            // Must have a successful raw response to show up
-            if (!row.RAW_RESPONSE) return false;
-            try {
-                const responseJson = JSON.parse(row.RAW_RESPONSE);
-                if (responseJson.success !== true) return false;
-            } catch (e) {
-                return false;
+            // Allow showing results even if RAW_RESPONSE is missing (due to local DB saving)
+            if (row.RAW_RESPONSE) {
+                try {
+                    const responseJson = JSON.parse(row.RAW_RESPONSE);
+                    if (responseJson.success === false) return false;
+                } catch (e) {
+                    // Ignore parse errors
+                }
             }
             return true;
         }).map(row => {
@@ -267,6 +268,7 @@ async function generateAccessKey(req, res) {
         res.json({ success: false, message: error.message });
     }
 }
+
 
 async function processUploadKyc(req, res) {
     try {
