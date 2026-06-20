@@ -177,26 +177,30 @@ async function processCreateSubMerchant(req, res) {
         console.log(rawReqPayload);
         console.log("==========================================");
 
-        // Generate sequential code for initial insert (01, 02...)
-        let generatedFCode = '01';
+        // Generate sequential code for initial insert (F0, F1...)
+        let generatedFCode = 'F0';
         try {
             const query = `SELECT SUB_MERCHANT_CODE FROM SUB_MERCHANTS`;
             const result = await F_Select(0, query);
-            let maxNum = 0;
+            let maxNum = -1;
             if (result && result.length > 0) {
                 for (let row of result) {
-                    if (row.SUB_MERCHANT_CODE && /^\\d+$/.test(row.SUB_MERCHANT_CODE)) {
-                        let num = parseInt(row.SUB_MERCHANT_CODE, 10);
-                        if (!isNaN(num) && num > maxNum) {
-                            maxNum = num;
+                    if (row.SUB_MERCHANT_CODE) {
+                        // Match either digits only (e.g. '01') or 'F' followed by digits (e.g. 'F0')
+                        let match = row.SUB_MERCHANT_CODE.match(/^F?(\d+)$/i);
+                        if (match) {
+                            let num = parseInt(match[1], 10);
+                            if (!isNaN(num) && num > maxNum) {
+                                maxNum = num;
+                            }
                         }
                     }
                 }
             }
-            let nextNum = maxNum + 1;
-            generatedFCode = nextNum.toString().padStart(2, '0');
+            let nextNum = maxNum >= 0 ? maxNum + 1 : 0;
+            generatedFCode = 'F' + nextNum;
         } catch (err) {
-            generatedFCode = Date.now().toString().substring(7); // Fallback
+            generatedFCode = 'F' + Date.now().toString().substring(7); // Fallback
         }
 
         // 2. Insert into local database FIRST
