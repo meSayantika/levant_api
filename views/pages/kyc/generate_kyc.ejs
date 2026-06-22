@@ -632,8 +632,12 @@
                                         }
 
                                         // Upload Button properties
+                                        /*
                                         var uploadDisabledClass = hasActiveKey ? '' : 'disabled';
                                         var uploadStyle = hasActiveKey ? 'pointer-events: auto; opacity: 1;' : 'pointer-events: none; opacity: 0.5;';
+                                        */
+                                        var uploadDisabledClass = '';
+                                        var uploadStyle = 'pointer-events: auto; opacity: 1;';
                                         var uploadUrl = `/admin/kyc/upload_kyc?submerch_id=${item.ENCRYPTED_SUB_MERCHANT_CODE || merchantCode}&entity_type=${item.ENTITY_TYPE}`;
                                         if (hasActiveKey && item.EXISTING_ACCESS_KEY) {
                                             uploadUrl += `&acc_token=${item.EXISTING_ACCESS_KEY}`;
@@ -740,10 +744,12 @@
                                     btn.css({ 'opacity': '0.6', 'pointer-events': 'none' });
 
                                     // Enable the Upload File button
+                                    /*
                                     var uploadBtn = $('#upload-btn-' + merchant_id);
                                     uploadBtn.attr('href', uploadBtn.attr('href') + '&acc_token=' + accessKey);
                                     uploadBtn.removeClass('disabled');
                                     uploadBtn.css({ 'pointer-events': 'auto', 'opacity': '1' });
+                                    */
 
                                     // Show Access Key
                                     $('#access-key-text-' + merchant_id).text('Generated');
