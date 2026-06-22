@@ -306,6 +306,11 @@ async function processUploadKyc(req, res) {
         // so it saves properly in the DB and gets sent properly to Levant.
         payload.submerch_id = submerch_id;
 
+        // Remove empty access token so it doesn't try to insert empty string or hardcoded string
+        if (!payload.acc_token) {
+            delete payload.acc_token;
+        }
+
         // Construct public URL. If PUBLIC_URL is set in .env, use it. Otherwise use req.protocol + host
         let baseUrl = '';
         if (process.env.PUBLIC_URL) {
